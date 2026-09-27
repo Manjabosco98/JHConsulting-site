@@ -263,3 +263,7 @@ Policies refatoradas (`rls_split_policies`) para eliminar `multiple_permissive_p
 ## Atualização — Fase 4 concluída (27/09/2026)
 
 Conteúdo de `src/constants` migrado pela migration `seed_initial_content` (idempotente): 8 serviços, 32 tecnologias, 7 grupos, 29 membros, 3 projetos, 12 vínculos e `site_settings`. Contatos públicos ficaram `NULL`. As constants foram mantidas. Próxima: **Fase 5 — Auth**.
+
+## Atualização — Fase 5 concluída (27/09/2026)
+
+Auth por e-mail + senha: `src/proxy.ts` (renovação de sessão e redirect otimista), `requireAdmin()` no servidor via RPC `public.is_admin()` (migration `auth_is_admin_rpc`), login/logout por Server Actions e `/admin` com noindex. Testes: 22 unitários e 21 E2E contra o Cloud (usuários temporários removidos). Pendências do usuário: criar a conta admin real e desativar o signup público no painel. Próxima: **Fase 6 — Admin base**.

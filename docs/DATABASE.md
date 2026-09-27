@@ -12,6 +12,7 @@ Fonte da verdade: o banco Cloud. Os arquivos em `supabase/migrations/` espelham 
 | 20260927141007 | `harden_public_default_privileges` | revoga **todos** os defaults restantes (TRUNCATE, REFERENCES, TRIGGER, MAINTAIN, UPDATE em sequências) |
 | 20260927141756 | `rls_split_policies` | uma policy permissiva por (tabela, role, ação); mesma semântica |
 | 20260927142358 | `seed_initial_content` | conteúdo inicial migrado de `src/constants` (idempotente) |
+| 20260927145124 | `auth_is_admin_rpc` | `public.is_admin()`: RPC sem parâmetros para o servidor verificar o próprio usuário; só `authenticated` |
 
 Processo para novas migrations: aplicar pelo conector (`apply_migration`), consultar `list_migrations` e salvar o arquivo local como `<versão>_<nome>.sql` com o mesmo SQL. Toda tabela nova em `public` nasce **sem privilégios** para `anon`/`authenticated`/`service_role`: conceder explicitamente e habilitar RLS na mesma migration.
 
@@ -65,6 +66,7 @@ RLS habilitado em todas as tabelas. Há exatamente uma policy permissiva por (ta
 - **Contatos**: nenhum acesso público. A inserção será feita pelo endpoint do servidor com `service_role` (Fase 13), limitada às colunas do formulário.
 - `private.admin_users`: sem policies (negação total pela API), inacessível até para admins via API; consultada apenas por `is_admin()` (SECURITY DEFINER). Admins são cadastrados via SQL/conector (Fase 5).
 - `is_admin()` é chamado como `(select private.is_admin())` e avaliado uma vez por query (initPlan).
+- `public.is_admin()` (Fase 5) expõe o mesmo resultado via RPC para o servidor Next.js (`requireAdmin`). É SECURITY INVOKER, sem parâmetros (só responde sobre `auth.uid()`), com EXECUTE apenas para `authenticated`; anon recebe 42501. Detalhes em [ADMIN-ARCHITECTURE.md](ADMIN-ARCHITECTURE.md).
 
 ### Testes de acesso
 

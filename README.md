@@ -33,7 +33,7 @@ Os testes existentes usam mocks de I/O, sem banco local ou envio de e-mails. O b
 
 Os clientes browser e server estão separados em `src/lib/supabase/`. Ambos usam apenas URL HTTPS e chave **publishable**, via `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. A factory de servidor é por requisição e recebe os cookies do Next. A home pode ser construída sem essas variáveis porque ainda não chama os clientes.
 
-`SUPABASE_SECRET_KEY` é reservada para uso privilegiado futuro; não é necessária nesta fase e nunca pode receber prefixo `NEXT_PUBLIC_`. Login, renovação de sessão, autorização e proteção administrativa serão implementados na Fase 5. Os clientes atuais sozinhos não protegem rotas.
+`SUPABASE_SECRET_KEY` é reservada para uso privilegiado futuro (inserção de contatos, Fase 13); nunca pode receber prefixo `NEXT_PUBLIC_`. O painel fica em `/admin` (login em `/admin/login`, e-mail + senha): o proxy renova a sessão e o servidor autoriza via `requireAdmin()`. Veja [docs/ADMIN-ARCHITECTURE.md](docs/ADMIN-ARCHITECTURE.md), inclusive como criar o administrador.
 
 Projeto Cloud: **jhconsulting-site** (ref `qlgxzpowqijcvnwuqchh`, `sa-east-1`). Operações suportadas devem ser realizadas pelo conector Supabase. Os arquivos em `supabase/migrations` espelham exatamente o histórico aplicado no Cloud (mesmas versões); toda nova migration deve ser aplicada pelo conector e salva aqui com a versão retornada. Schema, grants e RLS estão descritos em [docs/DATABASE.md](docs/DATABASE.md). O seed será tratado na Fase 4.
 
@@ -53,5 +53,6 @@ Destino: **Render, serviço Node.js, sem Docker**. Fluxo previsto: `npm install`
 - [Fundação Cloud e relatório da Fase 1](docs/SUPABASE-FOUNDATION.md).
 - [Handoff do Codex (H0)](docs/HANDOFF-CODEX-CLOUD.md).
 - [Banco de dados: schema, grants e RLS](docs/DATABASE.md).
+- [Painel administrativo: Auth e autorização](docs/ADMIN-ARCHITECTURE.md).
 
 Uma fase por vez, com validação e relatório. A fase seguinte depende de autorização do usuário.

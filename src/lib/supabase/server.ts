@@ -21,9 +21,9 @@ export async function createClient() {
             cookieStore.set(name, value, options)
           );
         } catch {
-          // Server Components cannot write cookies. Before enabling Auth in
-          // phase 5, add the session-refresh Proxy, including response cache
-          // headers. This factory alone does not authenticate or protect routes.
+          // Server Components cannot write cookies; src/proxy.ts refreshes the
+          // session (with no-cache headers) for /admin. This factory alone does
+          // not authorize: use requireAdmin() from src/lib/auth/admin.ts.
         }
       }
     }
