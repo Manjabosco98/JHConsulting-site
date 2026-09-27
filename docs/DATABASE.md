@@ -95,7 +95,7 @@ Bucket **`portfolio`**:
 
 ### Testes de acesso
 
-[`supabase/tests/rls_matrix.sql`](../supabase/tests/rls_matrix.sql): 82 casos cobrindo anon, usuário comum, admin inativo, admin e service_role (inclui a RPC de projetos e o Storage) (leitura filtrada, escrita, TRUNCATE, colunas de contatos, escalonamento via `admin_users`, schema `private`). Executar pelo conector (`execute_sql`); cria fixtures, simula cada role com `SET LOCAL ROLE` + `request.jwt.claims` e termina com `RAISE`, então a transação sempre é desfeita. Resultado esperado: `RLS_MATRIX pass=82 fail=0`. Executar após qualquer mudança de grants, policies ou schema.
+[`supabase/tests/rls_matrix.sql`](../supabase/tests/rls_matrix.sql): 86 casos cobrindo anon, usuário comum, admin inativo, admin e service_role (inclui a RPC de projetos e o Storage) (leitura filtrada, escrita, TRUNCATE, colunas de contatos, escalonamento via `admin_users`, schema `private`). Executar pelo conector (`execute_sql`); cria fixtures, simula cada role com `SET LOCAL ROLE` + `request.jwt.claims` e termina com `RAISE`, então a transação sempre é desfeita. Resultado esperado: `RLS_MATRIX pass=86 fail=0`. Executar após qualquer mudança de grants, policies ou schema.
 
 ## Advisors (após a Fase 3)
 

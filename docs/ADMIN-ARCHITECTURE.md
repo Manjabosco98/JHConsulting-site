@@ -48,7 +48,7 @@ src/app/admin/
     ├── error.tsx              erro amigável, sem detalhes do banco
     ├── page.tsx               /admin: dashboard
     ├── projetos/              CRUD (Fase 7): lista, novo/, [id]/, actions.ts
-    ├── servicos/              placeholder → Fase 10
+    ├── servicos/              CRUD (Fase 10): lista, novo/, [id]/, actions.ts
     ├── tecnologias/           placeholder → Fase 11
     ├── contatos/              placeholder → Fase 13
     └── configuracoes/         placeholder → Fase 12
@@ -110,6 +110,20 @@ CoverImageForm (client: prévia local, bloqueio > 5 MB)
 - `next/image`: `remotePatterns` permite apenas `<NEXT_PUBLIC_SUPABASE_URL>/storage/v1/object/public/portfolio/**`. Outros domínios recebem 400. A URL do Supabase precisa existir no ambiente **no build**.
 - `publicImageUrl()` monta a URL pública a partir do caminho salvo.
 
+## CRUD de serviços (Fase 10)
+
+| Rota | Função |
+|---|---|
+| `/admin/servicos` | lista com ícone resolvido, slug, ordem, linha de tecnologias e Ativo/Inativo |
+| `/admin/servicos/novo` | criação (ativo por padrão) |
+| `/admin/servicos/[id]` | edição, ativar/desativar, ordem, ícone e exclusão com confirmação |
+
+Serviços não têm relacionamentos, então a gravação usa **escrita direta na tabela** (`insert`/`update`/`delete` com a sessão do admin); o RLS aplica `is_admin()` no banco. Não houve migration nesta fase.
+
+**Ícones:** `src/lib/services/icons.ts` mantém a allowlist (31 ícones Lucide). O banco guarda só o **nome**; o Zod aceita apenas nomes da lista e `resolveServiceIcon()` cai no ícone padrão se encontrar um nome desconhecido, então o site nunca quebra por um valor inesperado. A checagem usa `Object.hasOwn` — com `in`, nomes de protótipo como `toString` passariam pela validação.
+
+**Seção pública:** `src/components/sections/Services.tsx` lê os serviços ativos do Supabase (`listActiveServices`) preservando o layout original, com **fallback para as constants** em caso de erro. Escritas chamam `revalidatePublicServices()` → `revalidatePath("/")`.
+
 ## Administradores
 
 Admin é um usuário do Supabase Auth com linha ativa em `private.admin_users`. Não existe cadastro pelo site.
@@ -133,10 +147,12 @@ Produção (Fase 21): configurar em Authentication → URL Configuration a Site 
 
 - `tests/auth.test.mjs` (em `npm test`): regra do proxy, cookies e headers no redirect, `getAuthState` / `requireAdmin` (inclusive falha do RPC), login (validação, mensagem genérica, 429, não-admin deslogado, admin redirecionado) e logout.
 - `tests/admin.test.mjs` (em `npm test`): navegação ativa e agregação do dashboard (filtros, pendências de settings, erro sem vazamento).
+- `tests/services.test.mjs` (em `npm test`): allowlist de ícones (inclui nomes de protótipo), validação do formulário, repositório (insert/update, slug duplicado, linha ausente) e actions.
 - `tests/projects.test.mjs` (em `npm test`): slug, validação do formulário, repositório (filtros, busca literal, mapeamento de erros) e actions (admin obrigatório, criar, editar, slug duplicado, excluir).
 - `tests/e2e/admin-auth.e2e.mjs`: 32 verificações HTTP contra o Cloud real (Auth + dashboard com números reais + seções protegidas).
 - `tests/e2e/admin-projects.e2e.mjs`: 22 verificações do CRUD real (validação, slug duplicado, rascunho invisível ao público, publicar, reordenar tecnologias, arquivar, bloqueio de não-admin/anônimo, excluir, sem resíduos). Os helpers ficam em `tests/e2e/http.mjs`.
 - `tests/storage.test.mjs` (em `npm test`): detecção por magic bytes (inclui SVG disfarçado), limites, caminhos, URL pública, fluxo de troca com rollback, remoção e actions.
+- `tests/e2e/admin-services.e2e.mjs`: 21 verificações do CRUD real e da seção pública (validação, ícone fora da allowlist, slug duplicado, criar/ativar aparecendo na home, desativar saindo do site, reativar com novo ícone, bloqueio de não-admin/anônimo, excluir, sem resíduos).
 - `tests/e2e/admin-storage.e2e.mjs`: 23 verificações com uploads reais (PNG gerado em `tests/e2e/fixtures.mjs`): URL pública e cache, `next/image`, SVG disfarçado, arquivo acima de 5 MB, troca remove a anterior, anon/não-admin sem acesso pela Storage API, bucket recusando SVG, remoção e limpeza da pasta ao excluir o projeto. Instruções no cabeçalho do arquivo. Usuários temporários:
   ```sql
   with u as (

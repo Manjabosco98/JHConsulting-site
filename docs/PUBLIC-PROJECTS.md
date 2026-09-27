@@ -7,6 +7,7 @@ As páginas públicas que mostram projetos leem do Supabase Cloud pela conta an�
 | Rota | Render | Conteúdo |
 |---|---|---|
 | `/` (seção Projetos) | ISR 1h | projetos publicados na ordem de exibição + link "Ver todos"; **fallback para `src/constants` em caso de erro** |
+| `/` (seção Serviços) | ISR 1h | serviços ativos na ordem de exibição, ícone resolvido pela allowlist; mesmo fallback (Fase 10) |
 | `/projetos` | ISR 1h | listagem completa (mesmo card da home) |
 | `/projetos/[slug]` | SSG + on-demand | capa, problema, solução, descrição, tecnologias ordenadas, links e CTA; `notFound()` para rascunho/arquivado/inexistente |
 | `/sitemap.xml` | ISR 1h | home, `/projetos` e cada projeto publicado |

@@ -283,3 +283,7 @@ Bucket `portfolio` (público para leitura, 5 MiB, JPEG/PNG/WebP/AVIF) com escrit
 ## Atualização — Fase 9 concluída (27/09/2026)
 
 Projetos públicos lendo do Supabase: seção da home (com fallback para constants), `/projetos` e `/projetos/[slug]` (SSG + on-demand), sitemap dinâmico. ISR 1h + `revalidatePath` on-demand nas escritas do admin (home, /projetos, detalhe e sitemap). Navbar com âncoras internas. Testes: 48 unitários e E2E auth 32, projetos 22, storage 23, público 19. Próxima: **Fase 10 — serviços**. Detalhes em docs/PUBLIC-PROJECTS.md.
+
+## Atualização — Fase 10 concluída (27/09/2026)
+
+CRUD de serviços no painel (escrita direta na tabela, sem migration) com allowlist de 31 ícones Lucide, e a seção Serviços da home lendo do Supabase com fallback para constants. Corrigido um defeito encontrado pelos testes: `isServiceIconName` usava `in` e aceitava nomes de protótipo (`toString`). Testes: 59 unitários, matriz RLS 86/86 e 117 verificações E2E em 5 suítes. Próxima: **Fase 11 — tecnologias**.

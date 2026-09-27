@@ -1,4 +1,4 @@
--- Matriz de acesso (grants + RLS) — Fases 3, 7 e 8 (inclui Storage).
+-- Matriz de acesso (grants + RLS) — Fases 3, 7, 8 e 10 (inclui Storage).
 -- DELETE em storage.objects é bloqueado por trigger do Supabase para qualquer role
 -- (só via Storage API): coberto em tests/e2e/admin-storage.e2e.mjs.
 -- Executar no Supabase Cloud pelo conector (execute_sql). Sem banco local.
@@ -7,7 +7,7 @@
 -- rascunho, arquivado, ativo/inativo), simula cada role com SET LOCAL ROLE +
 -- request.jwt.claims e compara o resultado com o esperado.
 -- Termina SEMPRE com RAISE EXCEPTION: a transação é desfeita e nada persiste.
--- Saída esperada: "RLS_MATRIX pass=82 fail=0"; em falha, seguida das falhas (label: obtido != esperado).
+-- Saída esperada: "RLS_MATRIX pass=86 fail=0"; em falha, seguida das falhas (label: obtido != esperado).
 --
 -- Tipos de caso: value = valor da 1ª coluna; rows = linhas afetadas;
 -- qualquer erro vira "ERR <sqlstate>" (42501 = privilégio/RLS negado).
@@ -143,7 +143,13 @@ begin
       (90, 'authenticated', user_id, 'value', $q$select count(*) from storage.objects where bucket_id = 'portfolio'$q$, '0'),
       (91, 'authenticated', admin_id, 'value', $q$select count(*) from storage.objects where name like 'rls-test/%'$q$, '1'),
       (92, 'authenticated', user_id, 'rows', $q$update storage.objects set name = 'rls-test/hijack.png' where bucket_id = 'portfolio'$q$, 'rows=0'),
-      (93, 'authenticated', admin_id, 'rows', $q$insert into storage.objects (bucket_id, name) values ('outro-bucket', 'x.png')$q$, 'ERR 42501')
+      (93, 'authenticated', admin_id, 'rows', $q$insert into storage.objects (bucket_id, name) values ('outro-bucket', 'x.png')$q$, 'ERR 42501'),
+
+      -- SERVIÇOS (Fase 10): escrita direta na tabela, sem RPC
+      (95, 'authenticated', user_id, 'rows', $q$update public.services set active = false where slug like 'rls-test-%'$q$, 'rows=0'),
+      (96, 'authenticated', admin_id, 'rows', $q$update public.services set active = false where slug = 'rls-test-s-on'$q$, 'rows=1'),
+      (97, 'authenticated', admin_id, 'rows', $q$delete from public.services where slug = 'rls-test-s-off'$q$, 'rows=1'),
+      (98, 'authenticated', user_id, 'rows', $q$delete from public.services where slug like 'rls-test-%'$q$, 'rows=0')
     ) as t(id, role, uid, kind, sql, expected)
     order by id
   loop

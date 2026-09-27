@@ -14,3 +14,8 @@ export function revalidatePublicProjects() {
   revalidatePath("/projetos/[slug]", "page");
   revalidatePath("/sitemap.xml");
 }
+
+/** Services render only in the home section. */
+export function revalidatePublicServices() {
+  revalidatePath("/");
+}
