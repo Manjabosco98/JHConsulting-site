@@ -275,3 +275,7 @@ Admin base: sidebar/header responsivos, dashboard com dados reais (`src/lib/repo
 ## Atualização — Fase 7 concluída (27/09/2026)
 
 CRUD de projetos no painel (lista, filtros, busca, criar, editar, publicar/arquivar, tecnologias ordenadas, excluir). A gravação é atômica via RPC `admin_save_project` (migrations `admin_save_project` e `admin_save_project_optional_id`). Testes: 38 unitários, matriz RLS 73/73, E2E auth 32/32 e projetos 22/22. Próxima: **Fase 8 — Storage** (bucket `portfolio` e capa do projeto).
+
+## Atualização — Fase 8 concluída (27/09/2026)
+
+Bucket `portfolio` (público para leitura, 5 MiB, JPEG/PNG/WebP/AVIF) com escrita só para admin. Capa de projeto enviada por Server Action com validação por magic bytes, rollback em falha e remoção da imagem anterior; a exclusão do projeto limpa a pasta. `next/image` configurado para o Storage. Testes: 48 unitários, matriz RLS 82/82, E2E auth 32, projetos 22 e storage 23. Próxima: **Fase 9 — projetos públicos**.

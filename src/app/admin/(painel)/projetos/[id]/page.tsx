@@ -10,7 +10,9 @@ import { formatDateTime } from "@/lib/admin/labels";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { ProjectForm } from "@/components/admin/projects/ProjectForm";
 import { DeleteProjectForm } from "@/components/admin/projects/DeleteProjectForm";
-import { saveProjectAction } from "../actions";
+import { CoverImageForm } from "@/components/admin/projects/CoverImageForm";
+import { publicImageUrl } from "@/lib/storage/images";
+import { saveProjectAction, updateProjectCoverAction } from "../actions";
 
 export const metadata: Metadata = { title: "Editar projeto" };
 
@@ -39,6 +41,12 @@ export default async function EditProjectPage({ params, searchParams }: Props) {
       <AdminPageHeader title={project.title} description={`Atualizado em ${formatDateTime(project.updated_at)}${published}`} />
       {query.criado ? <p role="status" className="rounded-xl border border-emerald-400/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">Projeto criado como {project.visibility === "published" ? "publicado" : project.visibility === "archived" ? "arquivado" : "rascunho"}.</p> : null}
       {query.erro === "exclusao" ? <p role="alert" className="rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">Não foi possível excluir o projeto.</p> : null}
+
+      <CoverImageForm
+        action={updateProjectCoverAction.bind(null, project.id)}
+        currentUrl={publicImageUrl(project.cover_image)}
+        title={project.title}
+      />
 
       <ProjectForm
         action={saveProjectAction.bind(null, project.id)}

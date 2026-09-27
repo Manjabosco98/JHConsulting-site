@@ -89,7 +89,26 @@ ProjectForm (client, campos controlados; o React 19 reseta campos não controlad
 - **Validação:** o Zod espelha as constraints do banco, com mensagens em pt-BR por campo. Slug vazio é gerado a partir do título (`src/lib/slug.ts`). URLs precisam ser `http(s)://` completas. Tecnologias não podem se repetir (máximo de 30).
 - **Erros do banco:** slug duplicado vira erro no campo. Os demais viram mensagem genérica, com o detalhe só no log do servidor.
 - **Situação:** é um único campo (`visibility`): rascunho, publicado ou arquivado. Arquivado nunca está publicado (constraint). Exclusão é permanente e remove os vínculos (cascade). Para tirar do site, o caminho é arquivar.
-- **Capa:** fica para a Fase 8 (Storage). O formulário ainda não altera `cover_image`.
+- **Capa:** tem formulário próprio na edição (Fase 8, abaixo).
+
+## Capa do projeto / Storage (Fase 8)
+
+```text
+CoverImageForm (client: prévia local, bloqueio > 5 MB)
+  → updateProjectCoverAction(projectId)     requireAdmin(); intent = upload | remove
+  → validateImageFile()                      src/lib/storage/images.ts: tipo pelos magic bytes (JPEG/PNG/WebP/AVIF), ≤ 5 MB
+  → replaceProjectCover()                    src/lib/repositories/project-cover.ts
+       1. upload de objeto novo e imutável (sessão do admin → policies do Storage)
+       2. update projects.cover_image
+          ↳ se falhar: remove o objeto novo (sem órfão)
+       3. remove a capa anterior (só caminhos do próprio bucket)
+  → revalidatePublicProjects()
+```
+
+- **Upload pelo servidor** (Server Action), e não direto do navegador, para validar o **conteúdo** do arquivo. Nome e `Content-Type` do cliente são ignorados, então um SVG/HTML renomeado para `.png` é recusado. Limite de corpo das Server Actions: `6mb` em `next.config.ts` (5 MB mais o overhead do multipart).
+- **Excluir projeto** remove também `projects/<id>/` do bucket (best-effort, com log).
+- `next/image`: `remotePatterns` permite apenas `<NEXT_PUBLIC_SUPABASE_URL>/storage/v1/object/public/portfolio/**`. Outros domínios recebem 400. A URL do Supabase precisa existir no ambiente **no build**.
+- `publicImageUrl()` monta a URL pública a partir do caminho salvo.
 
 ## Administradores
 
@@ -116,7 +135,9 @@ Produção (Fase 21): configurar em Authentication → URL Configuration a Site 
 - `tests/admin.test.mjs` (em `npm test`): navegação ativa e agregação do dashboard (filtros, pendências de settings, erro sem vazamento).
 - `tests/projects.test.mjs` (em `npm test`): slug, validação do formulário, repositório (filtros, busca literal, mapeamento de erros) e actions (admin obrigatório, criar, editar, slug duplicado, excluir).
 - `tests/e2e/admin-auth.e2e.mjs`: 32 verificações HTTP contra o Cloud real (Auth + dashboard com números reais + seções protegidas).
-- `tests/e2e/admin-projects.e2e.mjs`: 22 verificações do CRUD real (validação, slug duplicado, rascunho invisível ao público, publicar, reordenar tecnologias, arquivar, bloqueio de não-admin/anônimo, excluir, sem resíduos). Os helpers ficam em `tests/e2e/http.mjs`. Instruções no cabeçalho do arquivo. Usuários temporários:
+- `tests/e2e/admin-projects.e2e.mjs`: 22 verificações do CRUD real (validação, slug duplicado, rascunho invisível ao público, publicar, reordenar tecnologias, arquivar, bloqueio de não-admin/anônimo, excluir, sem resíduos). Os helpers ficam em `tests/e2e/http.mjs`.
+- `tests/storage.test.mjs` (em `npm test`): detecção por magic bytes (inclui SVG disfarçado), limites, caminhos, URL pública, fluxo de troca com rollback, remoção e actions.
+- `tests/e2e/admin-storage.e2e.mjs`: 23 verificações com uploads reais (PNG gerado em `tests/e2e/fixtures.mjs`): URL pública e cache, `next/image`, SVG disfarçado, arquivo acima de 5 MB, troca remove a anterior, anon/não-admin sem acesso pela Storage API, bucket recusando SVG, remoção e limpeza da pasta ao excluir o projeto. Instruções no cabeçalho do arquivo. Usuários temporários:
   ```sql
   with u as (
     insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,

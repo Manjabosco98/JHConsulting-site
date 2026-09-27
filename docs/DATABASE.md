@@ -15,6 +15,7 @@ Fonte da verdade: o banco Cloud. Os arquivos em `supabase/migrations/` espelham 
 | 20260927145124 | `auth_is_admin_rpc` | `public.is_admin()`: RPC sem parâmetros para o servidor verificar o próprio usuário; só `authenticated` |
 | 20260927153017 | `admin_save_project` | RPC transacional para salvar projeto + tecnologias |
 | 20260927153121 | `admin_save_project_optional_id` | mesma função com `p_id` opcional no fim (tipos TS fiéis) |
+| 20260927154852 | `storage_portfolio_bucket` | bucket `portfolio` (público, 5 MiB, JPEG/PNG/WebP/AVIF) e policies de admin em `storage.objects` |
 
 Processo para novas migrations: aplicar pelo conector (`apply_migration`), consultar `list_migrations` e salvar o arquivo local como `<versão>_<nome>.sql` com o mesmo SQL. Toda tabela nova em `public` nasce **sem privilégios** para `anon`/`authenticated`/`service_role`: conceder explicitamente e habilitar RLS na mesma migration.
 
@@ -78,9 +79,23 @@ RLS habilitado em todas as tabelas. Há exatamente uma policy permissiva por (ta
 - EXECUTE só para `authenticated`. anon, usuário comum e admin inativo recebem 42501 (coberto na matriz).
 - Erros: `23505` slug duplicado, `P0002` projeto inexistente, `23503` tecnologia inexistente (nada é gravado), `22023` visibilidade inválida.
 
+## Storage (Fase 8)
+
+Bucket **`portfolio`**:
+- **Público para leitura por URL** (`/storage/v1/object/public/portfolio/<caminho>`), porque as imagens aparecem no site.
+- Limite de **5 MiB**. `allowed_mime_types`: JPEG, PNG, WebP e AVIF. SVG fica de fora por poder conter script.
+
+| Policy em `storage.objects` | Quem | Condição |
+|---|---|---|
+| `portfolio_select_admin` / `insert` / `update` / `delete` | `authenticated` | `bucket_id = 'portfolio' and is_admin()` |
+
+- anon e usuários comuns não enviam, não listam, não renomeiam nem removem. A leitura pública acontece só pela URL do objeto.
+- `DELETE` direto em `storage.objects` é bloqueado pelo trigger `storage.protect_delete` do Supabase para qualquer role. Remoção só pela Storage API.
+- Caminhos: `projects/<project_id>/<uuid>.<ext>`, imutáveis, com `Cache-Control: max-age=31536000`. A troca de imagem cria um novo objeto e remove o anterior. `projects.cover_image` guarda o **caminho** (URLs externas `http(s)` também são aceitas e nunca são removidas do bucket).
+
 ### Testes de acesso
 
-[`supabase/tests/rls_matrix.sql`](../supabase/tests/rls_matrix.sql): 73 casos cobrindo anon, usuário comum, admin inativo, admin e service_role (leitura filtrada, escrita, TRUNCATE, colunas de contatos, escalonamento via `admin_users`, schema `private`). Executar pelo conector (`execute_sql`); cria fixtures, simula cada role com `SET LOCAL ROLE` + `request.jwt.claims` e termina com `RAISE`, então a transação sempre é desfeita. Resultado esperado: `RLS_MATRIX pass=73 fail=0`. Executar após qualquer mudança de grants, policies ou schema.
+[`supabase/tests/rls_matrix.sql`](../supabase/tests/rls_matrix.sql): 82 casos cobrindo anon, usuário comum, admin inativo, admin e service_role (inclui a RPC de projetos e o Storage) (leitura filtrada, escrita, TRUNCATE, colunas de contatos, escalonamento via `admin_users`, schema `private`). Executar pelo conector (`execute_sql`); cria fixtures, simula cada role com `SET LOCAL ROLE` + `request.jwt.claims` e termina com `RAISE`, então a transação sempre é desfeita. Resultado esperado: `RLS_MATRIX pass=82 fail=0`. Executar após qualquer mudança de grants, policies ou schema.
 
 ## Advisors (após a Fase 3)
 

@@ -1,11 +1,13 @@
--- Matriz de acesso (grants + RLS) — Fase 3.
+-- Matriz de acesso (grants + RLS) — Fases 3, 7 e 8 (inclui Storage).
+-- DELETE em storage.objects é bloqueado por trigger do Supabase para qualquer role
+-- (só via Storage API): coberto em tests/e2e/admin-storage.e2e.mjs.
 -- Executar no Supabase Cloud pelo conector (execute_sql). Sem banco local.
 --
 -- Cria fixtures (usuários em auth.users, admin ativo/inativo, conteúdo publicado,
 -- rascunho, arquivado, ativo/inativo), simula cada role com SET LOCAL ROLE +
 -- request.jwt.claims e compara o resultado com o esperado.
 -- Termina SEMPRE com RAISE EXCEPTION: a transação é desfeita e nada persiste.
--- Saída esperada: "RLS_MATRIX pass=73 fail=0"; em falha, seguida das falhas (label: obtido != esperado).
+-- Saída esperada: "RLS_MATRIX pass=82 fail=0"; em falha, seguida das falhas (label: obtido != esperado).
 --
 -- Tipos de caso: value = valor da 1ª coluna; rows = linhas afetadas;
 -- qualquer erro vira "ERR <sqlstate>" (42501 = privilégio/RLS negado).
@@ -130,7 +132,18 @@ begin
       (80, 'service_role', null, 'rows',  $q$insert into public.contacts (name, email, project_type, message) values ('Srv', 'srv@test.invalid', 'Site', 'mensagem com mais de vinte caracteres')$q$, 'rows=1'),
       (81, 'service_role', null, 'rows',  $q$insert into public.contacts (name, email, project_type, message, status) values ('Srv', 'srv@test.invalid', 'Site', 'mensagem com mais de vinte caracteres', 'CONVERTED')$q$, 'ERR 42501'),
       (82, 'service_role', null, 'value', 'select count(email) from public.contacts', 'ERR 42501'),
-      (83, 'service_role', null, 'value', 'select count(*) from public.projects', 'ERR 42501')
+      (83, 'service_role', null, 'value', 'select count(*) from public.projects', 'ERR 42501'),
+
+      -- STORAGE (bucket portfolio): escrita e listagem pela API só para admin ativo
+      (85, 'anon', null, 'rows', $q$insert into storage.objects (bucket_id, name) values ('portfolio', 'rls-test/anon.png')$q$, 'ERR 42501'),
+      (86, 'authenticated', user_id, 'rows', $q$insert into storage.objects (bucket_id, name) values ('portfolio', 'rls-test/user.png')$q$, 'ERR 42501'),
+      (87, 'authenticated', inactive_id, 'rows', $q$insert into storage.objects (bucket_id, name) values ('portfolio', 'rls-test/inactive.png')$q$, 'ERR 42501'),
+      (88, 'authenticated', admin_id, 'rows', $q$insert into storage.objects (bucket_id, name) values ('portfolio', 'rls-test/admin.png')$q$, 'rows=1'),
+      (89, 'anon', null, 'value', $q$select count(*) from storage.objects where bucket_id = 'portfolio'$q$, '0'),
+      (90, 'authenticated', user_id, 'value', $q$select count(*) from storage.objects where bucket_id = 'portfolio'$q$, '0'),
+      (91, 'authenticated', admin_id, 'value', $q$select count(*) from storage.objects where name like 'rls-test/%'$q$, '1'),
+      (92, 'authenticated', user_id, 'rows', $q$update storage.objects set name = 'rls-test/hijack.png' where bucket_id = 'portfolio'$q$, 'rows=0'),
+      (93, 'authenticated', admin_id, 'rows', $q$insert into storage.objects (bucket_id, name) values ('outro-bucket', 'x.png')$q$, 'ERR 42501')
     ) as t(id, role, uid, kind, sql, expected)
     order by id
   loop

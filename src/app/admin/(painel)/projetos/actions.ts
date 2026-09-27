@@ -5,6 +5,8 @@ import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/admin";
 import { createClient } from "@/lib/supabase/server";
 import { deleteProject, saveProject } from "@/lib/repositories/projects";
+import { removeProjectCover, removeProjectFolder, replaceProjectCover } from "@/lib/repositories/project-cover";
+import { validateImageFile } from "@/lib/storage/images";
 import { parseProjectForm, type ProjectFieldErrors } from "@/lib/validation/project";
 import { revalidatePublicProjects } from "@/lib/revalidate";
 
@@ -56,7 +58,46 @@ export async function deleteProjectAction(formData: FormData) {
   const id = uuid.safeParse(formData.get("id"));
   if (!id.success) redirect("/admin/projetos");
 
-  const result = await deleteProject(await createClient(), id.data);
-  if (result.ok) revalidatePublicProjects();
+  const supabase = await createClient();
+  const result = await deleteProject(supabase, id.data);
+  if (result.ok) {
+    await removeProjectFolder(supabase, id.data);
+    revalidatePublicProjects();
+  }
   redirect(result.ok ? "/admin/projetos?excluido=1" : `/admin/projetos/${id.data}?erro=exclusao`);
+}
+
+export type CoverFormState = { status: "idle" | "error" | "saved"; message: string | null };
+
+const coverFailure = {
+  not_found: "Este projeto não existe mais.",
+  failed: "Não foi possível atualizar a capa agora. Tente novamente."
+} as const;
+
+/**
+ * Bound with the project id. intent=upload validates the image by its content
+ * (magic bytes) before storing it; intent=remove clears the cover.
+ */
+export async function updateProjectCoverAction(
+  projectId: string,
+  _previous: CoverFormState,
+  formData: FormData
+): Promise<CoverFormState> {
+  await requireAdmin();
+  if (!uuid.safeParse(projectId).success) return { status: "error", message: coverFailure.not_found };
+  const supabase = await createClient();
+
+  if (formData.get("intent") === "remove") {
+    const removed = await removeProjectCover(supabase, projectId);
+    if (!removed.ok) return { status: "error", message: coverFailure[removed.reason] };
+    revalidatePublicProjects();
+    return { status: "saved", message: "Capa removida." };
+  }
+
+  const image = await validateImageFile(formData.get("cover"));
+  if (!image.ok) return { status: "error", message: image.error };
+  const replaced = await replaceProjectCover(supabase, projectId, image);
+  if (!replaced.ok) return { status: "error", message: coverFailure[replaced.reason] };
+  revalidatePublicProjects();
+  return { status: "saved", message: "Capa atualizada." };
 }

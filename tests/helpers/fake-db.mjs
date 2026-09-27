@@ -5,9 +5,24 @@
 export function fakeDb(respond) {
   const log = [];
   const rpcCalls = [];
+  const storageCalls = [];
   return {
     log,
     rpcCalls,
+    storageCalls,
+    storage: {
+      from(bucket) {
+        const call = async (op, ...args) => {
+          storageCalls.push([op, bucket, ...args]);
+          return respond(`storage ${op}`, args) ?? { data: null, error: null };
+        };
+        return {
+          upload: (path, body, options) => call("upload", path, body, options),
+          remove: (paths) => call("remove", paths),
+          list: (folder, options) => call("list", folder, options)
+        };
+      }
+    },
     async rpc(name, args) {
       rpcCalls.push([name, args]);
       return respond(`rpc ${name}`, args);
@@ -17,6 +32,7 @@ export function fakeDb(respond) {
       const builder = {
         select(columns, options) { ops.push(options?.head ? "count" : `select(${columns})`); return builder; },
         delete() { ops.push("delete"); return builder; },
+        update(values) { ops.push(`update(${JSON.stringify(values)})`); return builder; },
         eq(column, value) { ops.push(`${column}=${value}`); return builder; },
         is(column, value) { ops.push(`${column} is ${value}`); return builder; },
         not(column, operator, value) { ops.push(`${column} not ${operator} ${value}`); return builder; },
