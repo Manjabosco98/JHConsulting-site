@@ -1,0 +1,103 @@
+# 05 — Estratégias e decisões
+
+Cada decisão aqui tem um "porquê". Quem continuar o projeto deve manter ou substituir consciente.
+
+## 1. Evolução incremental, nunca reescrita
+
+O site original é a base oficial. A cada fase, uma área sai das constantes e passa para o banco, preservando marcação e identidade. Nenhuma seção foi redesenhada.
+
+**Como se garante:** screenshots antes/depois em desktop e mobile em cada fase que mexe no público, e o card de projeto foi extraído para um componente compartilhado mantendo a marcação original.
+
+## 2. Fallback para as constantes
+
+As seções que leem do banco (Projetos, Serviços, Tecnologias, e as configurações) **caem para `src/constants/` se a consulta falhar**, com o erro no log.
+
+**Por quê:** uma indisponibilidade momentânea do banco não deve apagar a seção de serviços do site de uma consultoria. O dado de fallback é exatamente o mesmo que foi migrado, então visualmente não há diferença.
+
+**Consequência:** as constantes continuam no repositório até a Fase 14, e essa dependência precisa ser removida com cuidado (ver [07-PENDENCIAS.md](07-PENDENCIAS.md)).
+
+## 3. Cache: ISR + revalidação sob demanda
+
+Escolha: `export const revalidate = 3600` por segmento **mais** `revalidatePath` disparado por toda escrita do painel.
+
+**Por que não `"use cache"`/`cacheComponents`:** é recurso novo do Next 16 que precisa ser ligado no app inteiro e muda a semântica de renderização de todas as rotas. Risco alto para ganho baixo numa fase incremental.
+
+**Por que não `unstable_cache` com tags:** no Next 16 o `revalidateTag` mudou de assinatura e misturar com o sistema legado de tags é comportamento incerto. `revalidatePath` é determinístico e purga a rota **e** os dados daquela renderização.
+
+`src/lib/revalidate.ts` centraliza o mapeamento área → rotas:
+
+| Escrita | Invalida |
+|---|---|
+| Projetos | `/`, `/projetos`, `/projetos/[slug]`, `/sitemap.xml` |
+| Serviços | `/` |
+| Tecnologias | tudo de projetos (os badges aparecem nos cards) |
+| Configurações | tudo de projetos (navbar, rodapé e metadata aparecem em todas) |
+
+O ISR de 1h é a rede de segurança para alterações feitas fora do app (SQL direto).
+
+## 4. Transação onde há relacionamento; tabela direta onde não há
+
+| Entidade | Como grava | Motivo |
+|---|---|---|
+| Projetos | RPC `admin_save_project` | Projeto + tecnologias ordenadas precisam ser atômicos |
+| Grupos de tecnologia | RPC `admin_save_technology_group` | Idem para os membros |
+| Exclusão de tecnologia | RPC `admin_delete_technology` | Limpar vínculos de grupo e excluir precisa ser atômico, e o bloqueio por projeto tem que ser confiável |
+| Serviços, tecnologias, configurações | Tabela direta | Não há relacionamento; uma instrução basta e o RLS já cobre |
+
+As RPCs são `SECURITY INVOKER` para **não** contornar o RLS. Poder e simplicidade: a função organiza a transação, o banco continua decidindo permissão.
+
+## 5. Ordem explícita, nunca implícita
+
+Tudo que o usuário ordena tem `display_order`. Nas relações N:N, **a ordem do array enviado pelo formulário vira o `display_order`** — o admin arrasta (↑ ↓) e a ordem aparece igual no site. Nenhuma ordenação depende de data de criação ou de alfabeto, exceto como desempate.
+
+## 6. Uploads: confiar no conteúdo, não no nome
+
+O tipo da imagem é detectado pelos **magic bytes** no servidor. Nome de arquivo e `Content-Type` enviados pelo cliente são ignorados, então um SVG com script renomeado para `.png` é recusado.
+
+Por que upload **pela Server Action** e não direto do navegador para o Storage: é o que permite validar o conteúdo antes de gravar. O custo é o limite de corpo (`bodySizeLimit: 6mb`, para 5 MB de imagem mais o overhead do multipart).
+
+**Ordem de gravação que evita inconsistência:**
+
+1. sobe um objeto **novo e imutável** (nome com UUID);
+2. aponta o registro para ele;
+3. só então remove o anterior.
+
+Se o passo 2 falha, o objeto novo é apagado — não sobra órfão e a imagem antiga continua válida. Excluir um projeto limpa a pasta dele.
+
+## 7. Validação espelhando o banco
+
+Cada entidade tem um schema Zod com os **mesmos limites das constraints** do Postgres. A validação existe para dar mensagem boa em português, não para ser a única defesa — o banco recusa de qualquer forma.
+
+Erros do banco são classificados: o acionável vira erro no campo (slug duplicado, tecnologia em uso), o resto vira mensagem genérica com detalhe só no log.
+
+**Detalhe descoberto na prática:** formulários enviam quebras de linha de `<textarea>` como CRLF. Os parsers normalizam para `\n` antes de gravar, senão o texto salvo acumula `\r`.
+
+## 8. Formulários controlados no painel
+
+O React 19 limpa campos não controlados após uma Server Action. Com campos controlados, um erro de validação não faz o usuário perder o que digitou.
+
+## 9. Ícones por allowlist
+
+O banco guarda o **nome** do ícone Lucide; o site resolve por um mapa fechado de 31 nomes. Um nome desconhecido cai no ícone padrão em vez de quebrar a página.
+
+A verificação usa `Object.hasOwn`, não `in` — com `in`, nomes de protótipo como `toString` passariam pela validação. Isso foi pego por teste.
+
+## 10. Testes em três níveis
+
+| Nível | O que cobre | Custo |
+|---|---|---|
+| **Unitário** (`npm test`, 83) | Lógica pura e de borda: slugs, validação, mapeamento de erros, ordem, fallback, actions. Sem rede, sem banco | segundos |
+| **Matriz de RLS** (86 casos) | Permissões reais no Cloud, por papel, em transação desfeita | ~1s |
+| **E2E** (7 suítes, 173 verificações) | Fluxos completos por HTTP contra o Cloud real, incluindo uploads de imagem de verdade | minutos |
+
+Os helpers (`tests/helpers/`) carregam o TypeScript real num contexto isolado e substituem **apenas** framework/SDK, então o teste exercita o código de produção, não uma cópia.
+
+Os E2E criam e removem seus próprios dados, e a suíte de configurações **restaura** os valores originais. Cada fase termina verificando que o banco voltou ao estado esperado.
+
+## 11. Git e migrations espelhadas
+
+O projeto não tinha Git; foi criado um commit de base antes de qualquer mudança, e cada fase é um commit descritivo. As migrations locais têm exatamente as versões aplicadas no Cloud, então o histórico do repositório conta a mesma história do banco.
+
+## 12. Segredos
+
+Nenhum valor real aparece em documento, log ou commit. `.env*` é ignorado (exceto o exemplo). A chave privilegiada nunca recebe prefixo `NEXT_PUBLIC_`. Erros de configuração citam o **nome** da variável, nunca o valor.

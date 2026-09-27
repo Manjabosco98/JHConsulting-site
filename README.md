@@ -49,6 +49,8 @@ Destino: **Render, serviço Node.js, sem Docker**. Fluxo previsto: `npm install`
 
 ## Documentação e fases
 
+Comece pela **[especificação em `SPEC/`](SPEC/README.md)**: visão geral, arquitetura, configuração, estratégias, o que está pronto e o que falta.
+
 - [Discovery e problemas conhecidos](docs/ADMIN-MIGRATION-DISCOVERY.md).
 - [Fundação Cloud e relatório da Fase 1](docs/SUPABASE-FOUNDATION.md).
 - [Handoff do Codex (H0)](docs/HANDOFF-CODEX-CLOUD.md).
