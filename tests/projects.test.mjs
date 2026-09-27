@@ -150,6 +150,8 @@ function loadActions({ admin = true, respond = () => ({ data: PROJECT_ID, error:
   return { actions, db, revalidated };
 }
 const idle = { status: "idle", message: null, fieldErrors: {} };
+// revalidatePublicProjects() purges every public project surface.
+const publicPaths = ["/", "/projetos", "/projetos/[slug]", "/sitemap.xml"];
 
 test("save action: non-admin is redirected before touching the database", async () => {
   const { actions, db } = loadActions({ admin: false });
@@ -171,7 +173,7 @@ test("save action: create redirects to the edit page and revalidates the public 
   await assert.rejects(actions.saveProjectAction(null, idle, form(validFields)), (error) => error.url === `/admin/projetos/${PROJECT_ID}?criado=1`);
   assert.equal(db.rpcCalls[0][1].p_project.slug, "automacao-fiscal-nfs-e");
   assert.deepEqual(plain(db.rpcCalls[0][1].p_technology_ids), [TECH_B, TECH_A]);
-  assert.deepEqual(revalidated, ["/"]);
+  assert.deepEqual(revalidated, publicPaths);
 });
 
 test("save action: update returns success; duplicate slug becomes a field error", async () => {
@@ -191,7 +193,7 @@ test("delete action: deletes by id, revalidates and reports missing rows", async
   const ok = loadActions({ respond: () => ({ data: [{ id: PROJECT_ID }], error: null }) });
   await assert.rejects(ok.actions.deleteProjectAction(form({ id: PROJECT_ID })), (error) => error.url === "/admin/projetos?excluido=1");
   assert.equal(ok.db.log[0], `projects delete id=${PROJECT_ID} select(id)`);
-  assert.deepEqual(ok.revalidated, ["/"]);
+  assert.deepEqual(ok.revalidated, publicPaths);
 
   const missing = loadActions({ respond: () => ({ data: [], error: null }) });
   await assert.rejects(missing.actions.deleteProjectAction(form({ id: PROJECT_ID })), (error) => error.url === `/admin/projetos/${PROJECT_ID}?erro=exclusao`);

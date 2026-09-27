@@ -1,4 +1,56 @@
-import { ArrowUpRight } from "lucide-react";
-import { projects } from "@/constants/content";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-export function Projects(){return <section id="projetos" className="section-space"><div className="container-shell"><SectionHeading kicker="Portfólio" title="Projetos e soluções desenvolvidas" copy="Os cases são apresentados pelo problema, solução e tecnologias utilizadas, sem expor informações confidenciais de clientes."/><div className="mt-12 grid gap-5 lg:grid-cols-3">{projects.map(p=><article key={p.title} className="card rounded-3xl p-6"><div className="flex items-start justify-between"><div><p className="text-xs font-bold uppercase tracking-[.14em] text-blue-300">{p.category}</p><h3 className="mt-3 text-xl font-black">{p.title}</h3></div><ArrowUpRight className="text-slate-500"/></div><div className="mt-6 space-y-4 text-sm leading-6"><div><p className="font-bold text-slate-200">Problema</p><p className="mt-1 text-slate-400">{p.problem}</p></div><div><p className="font-bold text-slate-200">Solução</p><p className="mt-1 text-slate-400">{p.solution}</p></div></div><div className="mt-6 flex flex-wrap gap-2">{p.technologies.map(t=><span key={t} className="rounded-full border border-white/8 px-2.5 py-1 text-xs text-slate-400">{t}</span>)}</div><p className="mt-6 text-xs font-bold text-emerald-300">{p.status}</p></article>)}</div></div></section>}
+import { ProjectCard, type ProjectCardData } from "@/components/projects/ProjectCard";
+import { listPublishedProjects } from "@/lib/repositories/public-projects";
+import { projects as fallbackProjects } from "@/constants/content";
+
+// Reads published projects from Supabase. If the query fails, falls back to the
+// bundled constants so the home never loses this section. Constants are removed
+// only in phase 14.
+async function loadProjects(): Promise<ProjectCardData[]> {
+  try {
+    const projects = await listPublishedProjects();
+    return projects.map((project) => ({
+      title: project.title,
+      category: project.category,
+      problem: project.problem,
+      solution: project.solution,
+      status: project.status,
+      technologies: project.technologies,
+      href: `/projetos/${project.slug}`
+    }));
+  } catch (error) {
+    console.error(`[home] projects fell back to constants: ${(error as Error).message}`);
+    return fallbackProjects.map((project) => ({ ...project, href: null }));
+  }
+}
+
+export async function Projects() {
+  const projects = await loadProjects();
+  return (
+    <section id="projetos" className="section-space">
+      <div className="container-shell">
+        <SectionHeading
+          kicker="Portfólio"
+          title="Projetos e soluções desenvolvidas"
+          copy="Os cases são apresentados pelo problema, solução e tecnologias utilizadas, sem expor informações confidenciais de clientes."
+        />
+        {projects.length ? (
+          <>
+            <div className="mt-12 grid gap-5 lg:grid-cols-3">
+              {projects.map((project) => (
+                <ProjectCard key={project.title} project={project} />
+              ))}
+            </div>
+            <Link href="/projetos" className="focus-ring mt-10 inline-flex items-center gap-2 font-bold text-blue-300">
+              Ver todos os projetos <ArrowRight size={18} aria-hidden="true" />
+            </Link>
+          </>
+        ) : (
+          <p className="mt-12 text-slate-400">Novos projetos serão publicados em breve.</p>
+        )}
+      </div>
+    </section>
+  );
+}

@@ -16,6 +16,11 @@ import { Contact } from "@/components/sections/Contact";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { siteConfig } from "@/constants/site";
 
+// ISR: home is regenerated hourly and on demand (admin edits call
+// revalidatePath("/") via revalidatePublicProjects). The Projects section reads
+// published projects from Supabase.
+export const revalidate = 3600;
+
 export default function Home() {
   const schema = {
     "@context": "https://schema.org",

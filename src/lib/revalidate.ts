@@ -3,10 +3,14 @@ import "server-only";
 import { revalidatePath } from "next/cache";
 
 /**
- * Public pages that render project data. The home still reads src/constants
- * until phase 9; revalidating it now keeps admin changes ready to appear once
- * it reads from Supabase. Phase 9 adds /projetos and /projetos/[slug].
+ * Purges the cache of every public page that renders project data, so admin
+ * changes appear without a deploy. The home Projects section, the /projetos
+ * listing and every /projetos/[slug] detail page. The sitemap uses the same
+ * data and is revalidated by its own segment `revalidate`.
  */
 export function revalidatePublicProjects() {
   revalidatePath("/");
+  revalidatePath("/projetos");
+  revalidatePath("/projetos/[slug]", "page");
+  revalidatePath("/sitemap.xml");
 }

@@ -279,3 +279,7 @@ CRUD de projetos no painel (lista, filtros, busca, criar, editar, publicar/arqui
 ## Atualização — Fase 8 concluída (27/09/2026)
 
 Bucket `portfolio` (público para leitura, 5 MiB, JPEG/PNG/WebP/AVIF) com escrita só para admin. Capa de projeto enviada por Server Action com validação por magic bytes, rollback em falha e remoção da imagem anterior; a exclusão do projeto limpa a pasta. `next/image` configurado para o Storage. Testes: 48 unitários, matriz RLS 82/82, E2E auth 32, projetos 22 e storage 23. Próxima: **Fase 9 — projetos públicos**.
+
+## Atualização — Fase 9 concluída (27/09/2026)
+
+Projetos públicos lendo do Supabase: seção da home (com fallback para constants), `/projetos` e `/projetos/[slug]` (SSG + on-demand), sitemap dinâmico. ISR 1h + `revalidatePath` on-demand nas escritas do admin (home, /projetos, detalhe e sitemap). Navbar com âncoras internas. Testes: 48 unitários e E2E auth 32, projetos 22, storage 23, público 19. Próxima: **Fase 10 — serviços**. Detalhes em docs/PUBLIC-PROJECTS.md.

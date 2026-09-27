@@ -144,6 +144,7 @@ function loadActions({ admin = true, db = coverDb() } = {}) {
   return { actions, db, revalidated };
 }
 const idle = { status: "idle", message: null };
+const publicPaths = ["/", "/projetos", "/projetos/[slug]", "/sitemap.xml"];
 const form = (fields) => { const f = new FormData(); for (const [k, v] of Object.entries(fields)) f.append(k, v); return f; };
 
 test("cover action: admin only; invalid id and invalid files never reach storage", async () => {
@@ -164,10 +165,10 @@ test("cover action: upload and remove update storage and revalidate the site", a
   const saved = await upload.actions.updateProjectCoverAction(PROJECT_ID, idle, form({ intent: "upload", cover: new File([samples.jpeg], "c.jpg") }));
   assert.deepEqual(plain(saved), { status: "saved", message: "Capa atualizada." });
   assert.match(upload.db.storageCalls[0][2], /\.jpg$/);
-  assert.deepEqual(upload.revalidated, ["/"]);
+  assert.deepEqual(upload.revalidated, publicPaths);
 
   const removal = loadActions();
   const removed = await removal.actions.updateProjectCoverAction(PROJECT_ID, idle, form({ intent: "remove" }));
   assert.deepEqual(plain(removed), { status: "saved", message: "Capa removida." });
-  assert.deepEqual(removal.revalidated, ["/"]);
+  assert.deepEqual(removal.revalidated, publicPaths);
 });
