@@ -11,6 +11,7 @@ Fonte da verdade: o banco Cloud. Os arquivos em `supabase/migrations/` espelham 
 | 20260927140921 | `content_model_rls` | schema de domínio, triggers, índices, grants, RLS e policies |
 | 20260927141007 | `harden_public_default_privileges` | revoga **todos** os defaults restantes (TRUNCATE, REFERENCES, TRIGGER, MAINTAIN, UPDATE em sequências) |
 | 20260927141756 | `rls_split_policies` | uma policy permissiva por (tabela, role, ação); mesma semântica |
+| 20260927142358 | `seed_initial_content` | conteúdo inicial migrado de `src/constants` (idempotente) |
 
 Processo para novas migrations: aplicar pelo conector (`apply_migration`), consultar `list_migrations` e salvar o arquivo local como `<versão>_<nome>.sql` com o mesmo SQL. Toda tabela nova em `public` nasce **sem privilégios** para `anon`/`authenticated`/`service_role`: conceder explicitamente e habilitar RLS na mesma migration.
 
@@ -73,6 +74,26 @@ RLS habilitado em todas as tabelas. Há exatamente uma policy permissiva por (ta
 
 - Segurança: apenas INFO `rls_enabled_no_policy` em `private.admin_users`. É intencional.
 - Performance: somente INFO `unused_index` (banco sem dados reais).
+
+## Conteúdo inicial (Fase 4)
+
+Migration `seed_initial_content`, idempotente: chaves naturais (`slug`, `id = 1`) com `ON CONFLICT DO NOTHING`, então reexecutar não duplica nem sobrescreve edições do admin. Os vínculos são resolvidos por slug, sem UUIDs fixos.
+
+| Origem | Destino | Registros |
+|---|---|---:|
+| `content.ts` → `services` | `services` (icon = nome do export Lucide) | 8 |
+| `content.ts` → `technologies` + tecnologias dos projetos | `technologies` | 32 (28 do catálogo + Next.js, APIs, Resend, XML) |
+| `content.ts` → chaves de `technologies` | `technology_groups` | 7 |
+| `content.ts` → itens por grupo | `technology_group_members` | 29 (Python em 2 grupos) |
+| `content.ts` → `projects` | `projects` (publicados; `status` = rótulo editorial) | 3 |
+| `content.ts` → `projects[].technologies` | `project_technologies` | 12 |
+| `site.ts` + parágrafos de `About.tsx` | `site_settings` (bio) | 1 |
+
+- Ordem (`display_order`) = ordem atual do site.
+- Não inventados: descrição longa, capa e links dos projetos; `featured = false`.
+- E-mail, telefone, WhatsApp, LinkedIn, GitHub, Instagram e foto ficaram `NULL`, porque hoje são placeholders de ambiente. Serão preenchidos pelo admin (Fase 12).
+- Validação: comparação campo a campo pela API pública (chave publishable) contra as constants, com ordem, textos, ícones (mesmo componente Lucide), grupos, vínculos, settings e bio (todos PASS); reexecução em transação desfeita sem nenhuma alteração; `rls_matrix.sql` 67/67 com dados reais.
+- As constants continuam sendo a fonte do site até as fases de integração (9–12); a remoção só acontece na Fase 14.
 
 ## Tipos
 

@@ -259,3 +259,7 @@ Migrations aplicadas no Cloud: `foundation_security_defaults`, `content_model_rl
 ## Atualização — Fase 3 concluída (27/09/2026)
 
 Policies refatoradas (`rls_split_policies`) para eliminar `multiple_permissive_policies`, sem mudança de semântica. A matriz `supabase/tests/rls_matrix.sql` passou 67/67 antes e depois. Próxima: **Fase 4 — seed e migração de conteúdo**.
+
+## Atualização — Fase 4 concluída (27/09/2026)
+
+Conteúdo de `src/constants` migrado pela migration `seed_initial_content` (idempotente): 8 serviços, 32 tecnologias, 7 grupos, 29 membros, 3 projetos, 12 vínculos e `site_settings`. Contatos públicos ficaram `NULL`. As constants foram mantidas. Próxima: **Fase 5 — Auth**.
