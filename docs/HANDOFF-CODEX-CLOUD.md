@@ -291,3 +291,7 @@ CRUD de serviços no painel (escrita direta na tabela, sem migration) com allowl
 ## Atualização — Fase 11 concluída (27/09/2026)
 
 Catálogo de tecnologias e grupos N:N gerenciáveis (migration `admin_technology_functions`: RPC de grupo transacional e exclusão segura de tecnologia, que bloqueia quando há projeto vinculado). Seção Tecnologias da home lendo do Supabase com fallback. `TechnologyPicker` extraído e compartilhado com o formulário de projetos; `FieldError` movido para o nível do módulo (regra do React Compiler). Testes: 70 unitários e 145 verificações E2E em 6 suítes. Próxima: **Fase 12 — configurações**.
+
+## Atualização — Fase 12 concluída (27/09/2026)
+
+`/admin/configuracoes` com formulário institucional (upsert do singleton) e upload da foto profissional. Os consumidores públicos passaram a ler `site_settings`: metadata, JSON-LD, Hero, About (bio + foto), Footer e todos os links de WhatsApp; a Navbar (client) recebe o link por prop. Contatos vazios simplesmente não aparecem. Descoberto e corrigido: textarea envia CRLF, agora normalizado para `\n` em configurações, projetos e serviços. Testes: 83 unitários e 173 verificações E2E em 7 suítes. **Pendente do usuário:** preencher e-mail, WhatsApp e redes no painel. Próxima: **Fase 13 — contatos**.

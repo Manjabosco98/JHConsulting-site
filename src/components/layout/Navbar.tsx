@@ -2,11 +2,12 @@
 
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
-import { siteConfig, whatsappHref } from "@/constants/site";
+import { siteConfig } from "@/constants/site";
 
-// On internal pages (e.g. /projetos) the section anchors must point back to the
-// home, so #inicio becomes /#inicio and the brand links to /.
-export function Navbar({ internal = false }: { internal?: boolean }) {
+// Client component: the WhatsApp link is resolved on the server (site settings)
+// and passed in. On internal pages (e.g. /projetos) the section anchors must
+// point back to the home, so #inicio becomes /#inicio and the brand links to /.
+export function Navbar({ whatsappUrl, internal = false }: { whatsappUrl: string; internal?: boolean }) {
   const [open, setOpen] = useState(false);
   const to = (href: string) => (internal ? `/${href}` : href);
   return (
@@ -16,7 +17,7 @@ export function Navbar({ internal = false }: { internal?: boolean }) {
         <nav className="hidden items-center gap-6 lg:flex" aria-label="Navegação principal">
           {siteConfig.nav.map(([label, href]) => <a key={href} href={to(href)} className="focus-ring text-sm text-slate-300 transition hover:text-white">{label}</a>)}
         </nav>
-        <a href={whatsappHref()} target="_blank" rel="noreferrer" className="focus-ring hidden rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold transition hover:bg-blue-500 md:inline-flex">Solicitar orçamento</a>
+        <a href={whatsappUrl} target="_blank" rel="noreferrer" className="focus-ring hidden rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold transition hover:bg-blue-500 md:inline-flex">Solicitar orçamento</a>
         <button aria-label="Abrir menu" aria-expanded={open} onClick={() => setOpen(v => !v)} className="focus-ring rounded-lg p-2 lg:hidden">{open ? <X /> : <Menu />}</button>
       </div>
       {open ? (

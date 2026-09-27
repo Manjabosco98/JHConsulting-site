@@ -55,7 +55,8 @@ export type ProjectField = keyof z.input<typeof projectFormSchema>;
 export type ProjectFieldErrors = Partial<Record<ProjectField, string>>;
 
 export function readProjectForm(formData: FormData) {
-  const field = (name: string) => String(formData.get(name) ?? "");
+  // Forms submit textarea line breaks as CRLF; store a single convention.
+  const field = (name: string) => String(formData.get(name) ?? "").replaceAll("\r\n", "\n");
   return {
     title: field("title"),
     slug: field("slug"),

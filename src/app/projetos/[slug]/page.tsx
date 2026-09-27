@@ -4,9 +4,10 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowUpRight, Github } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
+import { getSiteSettings } from "@/lib/repositories/public-settings";
+import { whatsappLink } from "@/lib/whatsapp";
 import { Footer } from "@/components/layout/Footer";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
-import { whatsappHref } from "@/constants/site";
 import { getPublishedProjectBySlug, listPublishedProjectSlugs } from "@/lib/repositories/public-projects";
 
 export const revalidate = 3600;
@@ -40,7 +41,7 @@ function paragraphs(text: string) {
 
 export default async function ProjetoDetailPage({ params }: Props) {
   const { slug } = await params;
-  const project = await getPublishedProjectBySlug(slug);
+  const [project, settings] = await Promise.all([getPublishedProjectBySlug(slug), getSiteSettings()]);
   if (!project) notFound();
 
   const description = paragraphs(project.description);
@@ -48,7 +49,7 @@ export default async function ProjetoDetailPage({ params }: Props) {
 
   return (
     <>
-      <Navbar internal />
+      <Navbar internal whatsappUrl={whatsappLink(settings.whatsapp)} />
       <main className="section-space">
         <article className="container-shell max-w-4xl">
           <Link href="/projetos" className="focus-ring inline-flex items-center gap-2 text-sm font-bold text-slate-400 transition hover:text-slate-200">
@@ -119,7 +120,7 @@ export default async function ProjetoDetailPage({ params }: Props) {
             <p className="mt-2 text-slate-400">Conte o processo que você quer melhorar e receba um diagnóstico inicial.</p>
             <div className="mt-5 flex flex-wrap gap-3">
               <Link href="/#contato" className="focus-ring inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold hover:bg-blue-500">Falar sobre um projeto</Link>
-              <a href={whatsappHref(message)} target="_blank" rel="noreferrer" className="focus-ring inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-bold text-slate-200 hover:bg-white/5">WhatsApp</a>
+              <a href={whatsappLink(settings.whatsapp, message)} target="_blank" rel="noreferrer" className="focus-ring inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-bold text-slate-200 hover:bg-white/5">WhatsApp</a>
             </div>
           </div>
         </article>

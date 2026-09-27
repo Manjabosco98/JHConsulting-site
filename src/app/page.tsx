@@ -15,23 +15,57 @@ import { PrimaryCTA } from "@/components/sections/PrimaryCTA";
 import { Contact } from "@/components/sections/Contact";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { siteConfig } from "@/constants/site";
+import { getSiteSettings } from "@/lib/repositories/public-settings";
+import { whatsappLink } from "@/lib/whatsapp";
 
 // ISR: home is regenerated hourly and on demand (admin edits call
-// revalidatePath("/") via revalidatePublicProjects). The Projects section reads
-// published projects from Supabase.
+// revalidatePath("/")). Projects, services, technologies and the institutional
+// settings come from Supabase.
 export const revalidate = 3600;
 
-export default function Home() {
+export default async function Home() {
+  const settings = await getSiteSettings();
+  const [city, state] = settings.location.split(",").map((part) => part.trim());
   const schema = {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
-    name: siteConfig.name,
+    name: settings.companyName,
     url: siteConfig.url,
-    description: siteConfig.description,
+    description: settings.description,
     areaServed: "BR",
-    founder: { "@type": "Person", name: siteConfig.professional },
-    address: { "@type": "PostalAddress", addressLocality: "Goiânia", addressRegion: "GO", addressCountry: "BR" }
+    founder: { "@type": "Person", name: settings.professionalName },
+    ...(settings.email ? { email: settings.email } : {}),
+    ...(settings.whatsapp ? { telephone: settings.whatsapp } : {}),
+    ...(settings.profileImageUrl ? { image: settings.profileImageUrl } : {}),
+    sameAs: [settings.linkedinUrl, settings.githubUrl, settings.instagramUrl].filter(Boolean),
+    address: { "@type": "PostalAddress", addressLocality: city, addressRegion: state, addressCountry: "BR" }
   };
 
-  return <><Navbar/><main><Hero/><Authority/><Problems/><Services/><Automation/><Solutions/><Projects/><Workflow/><Technologies/><About/><Differentials/><PrimaryCTA/><Contact/></main><Footer/><WhatsAppButton/><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}/></>;
+  return (
+    <>
+      <Navbar whatsappUrl={whatsappLink(settings.whatsapp)} />
+      <main>
+        <Hero />
+        <Authority />
+        <Problems />
+        <Services />
+        <Automation />
+        <Solutions />
+        <Projects />
+        <Workflow />
+        <Technologies />
+        <About />
+        <Differentials />
+        <PrimaryCTA />
+        <Contact />
+      </main>
+      <Footer />
+      <WhatsAppButton />
+      {/* Escaping < keeps editable text from breaking out of the script tag. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, "\\u003c") }}
+      />
+    </>
+  );
 }

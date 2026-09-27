@@ -1,6 +1,6 @@
 # JHConsulting — Site institucional e portfólio
 
-Next.js existente, com evolução incremental para conteúdo administrável no Supabase Cloud. A seção de projetos da home e as páginas `/projetos` e `/projetos/[slug]` já leem do Supabase (com ISR e revalidação on-demand); as demais seções ainda usam `src/constants/content.ts` e `src/constants/site.ts` até a Fase 14. O formulário usa Zod, honeypot, rate limit e Resend.
+Next.js existente, com evolução incremental para conteúdo administrável no Supabase Cloud. Projetos, serviços, tecnologias e as informações institucionais já vêm do Supabase (com ISR e revalidação on-demand); as seções editoriais restantes ainda usam `src/constants/content.ts` até a Fase 14. O formulário usa Zod, honeypot, rate limit e Resend.
 
 ## Stack
 
@@ -54,6 +54,7 @@ Destino: **Render, serviço Node.js, sem Docker**. Fluxo previsto: `npm install`
 - [Handoff do Codex (H0)](docs/HANDOFF-CODEX-CLOUD.md).
 - [Banco de dados: schema, grants e RLS](docs/DATABASE.md).
 - [Projetos públicos: rotas, cache e revalidação](docs/PUBLIC-PROJECTS.md).
+- [Configurações do site: painel e consumidores](docs/SITE-SETTINGS.md).
 - [Painel administrativo: Auth e autorização](docs/ADMIN-ARCHITECTURE.md).
 
 Uma fase por vez, com validação e relatório. A fase seguinte depende de autorização do usuário.

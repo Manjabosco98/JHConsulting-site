@@ -44,9 +44,17 @@ export function projectCoverPath(projectId: string, kind: ImageKind, id: string 
   return `projects/${projectId}/${id}.${kind.extension}`;
 }
 
+/** Professional photo of the site settings: settings/<uuid>.<ext> */
+export function profilePhotoPath(kind: ImageKind, id: string = crypto.randomUUID()) {
+  return `settings/${id}.${kind.extension}`;
+}
+
 /** True only for objects this app stored in the bucket (not external URLs). */
 export function isStoragePath(value: string | null | undefined): value is string {
-  return Boolean(value) && /^[a-z]+\/[0-9a-f-]{36}\/[0-9a-f-]{36}\.(jpg|png|webp|avif)$/.test(value as string);
+  return (
+    Boolean(value) &&
+    /^(projects\/[0-9a-f-]{36}|settings)\/[0-9a-f-]{36}\.(jpg|png|webp|avif)$/.test(value as string)
+  );
 }
 
 /** Public URL for a stored path; external http(s) URLs pass through unchanged. */

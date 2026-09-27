@@ -27,3 +27,11 @@ export function revalidatePublicServices() {
 export function revalidatePublicTechnologies() {
   revalidatePublicProjects();
 }
+
+/**
+ * Institutional settings feed the navbar, footer, WhatsApp links and metadata of
+ * every public page, so all of them are purged.
+ */
+export function revalidatePublicSettings() {
+  revalidatePublicProjects();
+}

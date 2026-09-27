@@ -34,6 +34,7 @@ export function fakeDb(respond) {
         delete() { ops.push("delete"); return builder; },
         update(values) { ops.push(`update(${JSON.stringify(values)})`); return builder; },
         insert(values) { ops.push(`insert(${JSON.stringify(values)})`); return builder; },
+        upsert(values, options) { ops.push(`upsert(${JSON.stringify(values)}${options ? `,${JSON.stringify(options)}` : ""})`); return builder; },
         eq(column, value) { ops.push(`${column}=${value}`); return builder; },
         is(column, value) { ops.push(`${column} is ${value}`); return builder; },
         not(column, operator, value) { ops.push(`${column} not ${operator} ${value}`); return builder; },

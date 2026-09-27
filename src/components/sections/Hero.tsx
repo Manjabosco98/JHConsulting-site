@@ -1,7 +1,9 @@
 import { ArrowRight, CheckCircle2, Cpu, Database, Network, Sparkles } from "lucide-react";
-import { siteConfig, whatsappHref } from "@/constants/site";
+import { getSiteSettings } from "@/lib/repositories/public-settings";
+import { whatsappLink } from "@/lib/whatsapp";
 
-export function Hero() {
+export async function Hero() {
+  const settings = await getSiteSettings();
   return (
     <section id="inicio" className="grid-lines overflow-hidden border-b border-white/5">
       <div className="container-shell grid min-h-[78vh] items-center gap-12 py-20 lg:grid-cols-[1.05fr_.95fr]">
@@ -9,8 +11,8 @@ export function Hero() {
           <div className="inline-flex items-center gap-2 rounded-full border border-blue-400/20 bg-blue-400/7 px-3 py-1.5 text-xs font-bold text-blue-200"><CheckCircle2 size={14}/> Tecnologia aplicada a problemas reais de negócios</div>
           <h1 className="mt-7 max-w-4xl text-5xl font-black leading-[.98] tracking-[-.055em] sm:text-6xl lg:text-7xl">Transformo processos manuais em <span className="text-gradient">soluções inteligentes.</span></h1>
           <p className="mt-6 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">Desenvolvimento de sistemas, automações, APIs, integrações e soluções de dados para empresas que querem trabalhar com mais eficiência e menos tarefas repetitivas.</p>
-          <div className="mt-8 flex flex-wrap gap-3"><a href={whatsappHref()} target="_blank" rel="noreferrer" className="focus-ring inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3.5 font-bold hover:bg-blue-500">Solicitar orçamento <ArrowRight size={18}/></a><a href="#solucoes" className="focus-ring rounded-xl border border-white/12 px-5 py-3.5 font-bold text-slate-200 hover:bg-white/5">Conhecer soluções</a></div>
-          <div className="mt-8 text-sm text-slate-400"><p className="font-bold text-slate-200">{siteConfig.professional}</p><p>{siteConfig.role}</p></div>
+          <div className="mt-8 flex flex-wrap gap-3"><a href={whatsappLink(settings.whatsapp)} target="_blank" rel="noreferrer" className="focus-ring inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3.5 font-bold hover:bg-blue-500">Solicitar orçamento <ArrowRight size={18}/></a><a href="#solucoes" className="focus-ring rounded-xl border border-white/12 px-5 py-3.5 font-bold text-slate-200 hover:bg-white/5">Conhecer soluções</a></div>
+          <div className="mt-8 text-sm text-slate-400"><p className="font-bold text-slate-200">{settings.professionalName}</p><p>{settings.role}</p></div>
         </div>
         <div className="relative mx-auto w-full max-w-xl">
           <div className="absolute -inset-12 bg-blue-500/10 blur-3xl"/>

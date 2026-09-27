@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Navbar } from "@/components/layout/Navbar";
+import { getSiteSettings } from "@/lib/repositories/public-settings";
+import { whatsappLink } from "@/lib/whatsapp";
 import { Footer } from "@/components/layout/Footer";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -21,10 +23,10 @@ export const metadata: Metadata = {
 };
 
 export default async function ProjetosPage() {
-  const projects = await listPublishedProjects();
+  const [projects, settings] = await Promise.all([listPublishedProjects(), getSiteSettings()]);
   return (
     <>
-      <Navbar internal />
+      <Navbar internal whatsappUrl={whatsappLink(settings.whatsapp)} />
       <main className="section-space">
         <div className="container-shell">
           <SectionHeading

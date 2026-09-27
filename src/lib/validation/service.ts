@@ -33,7 +33,8 @@ export type ServiceField = keyof z.input<typeof serviceFormSchema>;
 export type ServiceFieldErrors = Partial<Record<ServiceField, string>>;
 
 export function readServiceForm(formData: FormData) {
-  const field = (name: string) => String(formData.get(name) ?? "");
+  // Forms submit textarea line breaks as CRLF; store a single convention.
+  const field = (name: string) => String(formData.get(name) ?? "").replaceAll("\r\n", "\n");
   return {
     title: field("title"),
     slug: field("slug"),
