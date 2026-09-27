@@ -355,8 +355,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_delete_technology: { Args: { p_id: string }; Returns: undefined }
       admin_save_project: {
         Args: { p_id?: string; p_project: Json; p_technology_ids: string[] }
+        Returns: string
+      }
+      admin_save_technology_group: {
+        Args: { p_group: Json; p_id?: string; p_technology_ids: string[] }
         Returns: string
       }
       is_admin: { Args: never; Returns: boolean }

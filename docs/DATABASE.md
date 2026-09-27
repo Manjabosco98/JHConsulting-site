@@ -16,6 +16,7 @@ Fonte da verdade: o banco Cloud. Os arquivos em `supabase/migrations/` espelham 
 | 20260927153017 | `admin_save_project` | RPC transacional para salvar projeto + tecnologias |
 | 20260927153121 | `admin_save_project_optional_id` | mesma função com `p_id` opcional no fim (tipos TS fiéis) |
 | 20260927154852 | `storage_portfolio_bucket` | bucket `portfolio` (público, 5 MiB, JPEG/PNG/WebP/AVIF) e policies de admin em `storage.objects` |
+| 20260927185055 | `admin_technology_functions` | RPCs de grupo de tecnologias (N:N) e exclusão segura de tecnologia |
 
 Processo para novas migrations: aplicar pelo conector (`apply_migration`), consultar `list_migrations` e salvar o arquivo local como `<versão>_<nome>.sql` com o mesmo SQL. Toda tabela nova em `public` nasce **sem privilégios** para `anon`/`authenticated`/`service_role`: conceder explicitamente e habilitar RLS na mesma migration.
 
@@ -92,6 +93,12 @@ Bucket **`portfolio`**:
 - anon e usuários comuns não enviam, não listam, não renomeiam nem removem. A leitura pública acontece só pela URL do objeto.
 - `DELETE` direto em `storage.objects` é bloqueado pelo trigger `storage.protect_delete` do Supabase para qualquer role. Remoção só pela Storage API.
 - Caminhos: `projects/<project_id>/<uuid>.<ext>`, imutáveis, com `Cache-Control: max-age=31536000`. A troca de imagem cria um novo objeto e remove o anterior. `projects.cover_image` guarda o **caminho** (URLs externas `http(s)` também são aceitas e nunca são removidas do bucket).
+
+### Funções de tecnologias (Fase 11)
+
+- `admin_save_technology_group(p_group jsonb, p_technology_ids uuid[], p_id uuid default null) returns uuid`: cria/atualiza o grupo e **substitui seus membros na mesma transação**; a ordem do array vira `display_order`. Erros: `23505` slug duplicado, `P0002` grupo inexistente, `23503` tecnologia inexistente.
+- `admin_delete_technology(p_id uuid)`: remove os vínculos de grupo (o FK é `RESTRICT`, sem isso a exclusão falharia) e apaga a tecnologia. **Bloqueia com `23503` quando algum projeto a referencia**, preservando o histórico do portfólio. `P0002` se não existir.
+- Ambas SECURITY INVOKER, EXECUTE só para `authenticated`; anon, usuário comum e admin inativo recebem 42501.
 
 ### Testes de acesso
 

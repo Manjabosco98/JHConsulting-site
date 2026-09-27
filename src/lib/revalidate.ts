@@ -19,3 +19,11 @@ export function revalidatePublicProjects() {
 export function revalidatePublicServices() {
   revalidatePath("/");
 }
+
+/**
+ * Technologies appear in the home Tecnologias section and as badges on every
+ * project surface (a renamed or deactivated technology changes those cards).
+ */
+export function revalidatePublicTechnologies() {
+  revalidatePublicProjects();
+}

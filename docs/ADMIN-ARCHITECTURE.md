@@ -49,7 +49,7 @@ src/app/admin/
     ├── page.tsx               /admin: dashboard
     ├── projetos/              CRUD (Fase 7): lista, novo/, [id]/, actions.ts
     ├── servicos/              CRUD (Fase 10): lista, novo/, [id]/, actions.ts
-    ├── tecnologias/           placeholder → Fase 11
+    ├── tecnologias/           CRUD (Fase 11): catálogo + grupos, nova/, [id]/, grupos/
     ├── contatos/              placeholder → Fase 13
     └── configuracoes/         placeholder → Fase 12
 ```
@@ -124,6 +124,18 @@ Serviços não têm relacionamentos, então a gravação usa **escrita direta na
 
 **Seção pública:** `src/components/sections/Services.tsx` lê os serviços ativos do Supabase (`listActiveServices`) preservando o layout original, com **fallback para as constants** em caso de erro. Escritas chamam `revalidatePublicServices()` → `revalidatePath("/")`.
 
+## Tecnologias e grupos (Fase 11)
+
+| Rota | Função |
+|---|---|
+| `/admin/tecnologias` | grupos (ordem, nº de tecnologias, ativo) e catálogo (uso em grupos/projetos) numa página |
+| `/admin/tecnologias/nova`, `/[id]` | catálogo: nome, slug, ordem, ativa; exclusão |
+| `/admin/tecnologias/grupos/novo`, `/grupos/[id]` | grupo: nome, slug, ordem, ativo e **tecnologias ordenáveis** (N:N) |
+
+- **Grupos** usam a RPC `admin_save_technology_group` (grupo + membros numa transação). O `TechnologyPicker` (`src/components/admin/TechnologyPicker.tsx`) é compartilhado com o formulário de projetos.
+- **Excluir tecnologia** usa `admin_delete_technology`: remove os vínculos de grupo e apaga. Se algum **projeto** usa a tecnologia, a exclusão é bloqueada e a página mostra a orientação (remover dos projetos ou apenas desmarcar "Ativa"). Excluir um **grupo** não afeta o catálogo.
+- **Seção pública:** `src/components/sections/Technologies.tsx` lê grupos ativos e suas tecnologias ativas, na ordem definida, com fallback para as constants. `revalidatePublicTechnologies()` revalida também as páginas de projetos, porque os badges de tecnologia aparecem nelas.
+
 ## Administradores
 
 Admin é um usuário do Supabase Auth com linha ativa em `private.admin_users`. Não existe cadastro pelo site.
@@ -147,11 +159,13 @@ Produção (Fase 21): configurar em Authentication → URL Configuration a Site 
 
 - `tests/auth.test.mjs` (em `npm test`): regra do proxy, cookies e headers no redirect, `getAuthState` / `requireAdmin` (inclusive falha do RPC), login (validação, mensagem genérica, 429, não-admin deslogado, admin redirecionado) e logout.
 - `tests/admin.test.mjs` (em `npm test`): navegação ativa e agregação do dashboard (filtros, pendências de settings, erro sem vazamento).
+- `tests/technologies.test.mjs` (em `npm test`): validação de tecnologia e grupo (slug, ordem, duplicatas), repositório (contagens de uso, RPCs, mapeamento de erros) e actions (inclusive exclusão bloqueada).
 - `tests/services.test.mjs` (em `npm test`): allowlist de ícones (inclui nomes de protótipo), validação do formulário, repositório (insert/update, slug duplicado, linha ausente) e actions.
 - `tests/projects.test.mjs` (em `npm test`): slug, validação do formulário, repositório (filtros, busca literal, mapeamento de erros) e actions (admin obrigatório, criar, editar, slug duplicado, excluir).
 - `tests/e2e/admin-auth.e2e.mjs`: 32 verificações HTTP contra o Cloud real (Auth + dashboard com números reais + seções protegidas).
 - `tests/e2e/admin-projects.e2e.mjs`: 22 verificações do CRUD real (validação, slug duplicado, rascunho invisível ao público, publicar, reordenar tecnologias, arquivar, bloqueio de não-admin/anônimo, excluir, sem resíduos). Os helpers ficam em `tests/e2e/http.mjs`.
 - `tests/storage.test.mjs` (em `npm test`): detecção por magic bytes (inclui SVG disfarçado), limites, caminhos, URL pública, fluxo de troca com rollback, remoção e actions.
+- `tests/e2e/admin-technologies.e2e.mjs`: 28 verificações reais (catálogo do seed, criar tecnologia fora de grupo não aparece no site, criar grupo com ordem, reordenar refletindo na home, N:N do Python preservado, desativar tecnologia/grupo, exclusão bloqueada por projeto, excluir grupo preservando o catálogo, bloqueio de não-admin/anônimo, sem resíduos).
 - `tests/e2e/admin-services.e2e.mjs`: 21 verificações do CRUD real e da seção pública (validação, ícone fora da allowlist, slug duplicado, criar/ativar aparecendo na home, desativar saindo do site, reativar com novo ícone, bloqueio de não-admin/anônimo, excluir, sem resíduos).
 - `tests/e2e/admin-storage.e2e.mjs`: 23 verificações com uploads reais (PNG gerado em `tests/e2e/fixtures.mjs`): URL pública e cache, `next/image`, SVG disfarçado, arquivo acima de 5 MB, troca remove a anterior, anon/não-admin sem acesso pela Storage API, bucket recusando SVG, remoção e limpeza da pasta ao excluir o projeto. Instruções no cabeçalho do arquivo. Usuários temporários:
   ```sql

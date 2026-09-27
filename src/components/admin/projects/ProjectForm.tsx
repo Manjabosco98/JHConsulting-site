@@ -1,9 +1,9 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { ArrowDown, ArrowUp, Save, X } from "lucide-react";
+import { Save } from "lucide-react";
 import type { ProjectFormState } from "@/app/admin/(painel)/projetos/actions";
-import type { TechnologyOption } from "@/lib/repositories/projects";
+import { TechnologyPicker, type TechnologyOption } from "@/components/admin/TechnologyPicker";
 import type { ProjectField, ProjectVisibility } from "@/lib/validation/project";
 import { slugify } from "@/lib/slug";
 
@@ -82,17 +82,6 @@ export function ProjectForm({ action, initialValues, isNew, technologies, sugges
     "aria-describedby": errors[name] ? `${name}-error` : `${name}-hint`
   });
 
-  const technologyName = new Map(technologies.map((tech) => [tech.id, tech.name]));
-  const toggleTechnology = (id: string) =>
-    set("technology_ids", values.technology_ids.includes(id)
-      ? values.technology_ids.filter((current) => current !== id)
-      : [...values.technology_ids, id]);
-  const moveTechnology = (index: number, offset: number) => {
-    const next = [...values.technology_ids];
-    [next[index], next[index + offset]] = [next[index + offset], next[index]];
-    set("technology_ids", next);
-  };
-
   return (
     <form action={formAction} data-form="project" className="grid gap-6" noValidate>
       <Section title="Identificação">
@@ -137,36 +126,14 @@ export function ProjectForm({ action, initialValues, isNew, technologies, sugges
       </Section>
 
       <Section title="Tecnologias">
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Tecnologias disponíveis">
-          {technologies.map((tech) => {
-            const checked = values.technology_ids.includes(tech.id);
-            return (
-              <label key={tech.id} className={`focus-within:ring-2 focus-within:ring-blue-400 cursor-pointer rounded-lg border px-2.5 py-1.5 text-xs font-bold ${
-                checked ? "border-blue-400/50 bg-blue-500/15 text-blue-100" : "border-white/10 text-slate-400 hover:text-slate-200"}`}>
-                <input type="checkbox" className="sr-only" checked={checked} onChange={() => toggleTechnology(tech.id)} />
-                {tech.name}{tech.active ? "" : " (inativa)"}
-              </label>
-            );
-          })}
-        </div>
-        {values.technology_ids.length ? (
-          <div>
-            <p className="text-sm font-bold text-slate-300">Ordem no card</p>
-            <ol className="mt-2 grid gap-1.5 sm:max-w-md">
-              {values.technology_ids.map((id, index) => (
-                <li key={id} className="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-1.5 text-sm">
-                  <span className="w-5 text-slate-500">{index + 1}.</span>
-                  <span className="mr-auto">{technologyName.get(id) ?? "Tecnologia removida"}</span>
-                  <button type="button" aria-label="Mover para cima" disabled={index === 0} onClick={() => moveTechnology(index, -1)} className="focus-ring rounded p-1 text-slate-400 hover:text-white disabled:opacity-30"><ArrowUp size={14} /></button>
-                  <button type="button" aria-label="Mover para baixo" disabled={index === values.technology_ids.length - 1} onClick={() => moveTechnology(index, 1)} className="focus-ring rounded p-1 text-slate-400 hover:text-white disabled:opacity-30"><ArrowDown size={14} /></button>
-                  <button type="button" aria-label="Remover" onClick={() => toggleTechnology(id)} className="focus-ring rounded p-1 text-slate-400 hover:text-red-300"><X size={14} /></button>
-                  <input type="hidden" name="technology_ids" value={id} />
-                </li>
-              ))}
-            </ol>
-          </div>
-        ) : <p className="text-sm text-slate-500">Nenhuma tecnologia selecionada.</p>}
-        {errors.technology_ids ? <p className="text-sm text-red-300">{errors.technology_ids}</p> : null}
+        <TechnologyPicker
+          options={technologies}
+          value={values.technology_ids}
+          onChange={(ids) => set("technology_ids", ids)}
+          orderLabel="Ordem no card"
+          emptyText="Nenhuma tecnologia selecionada."
+          error={errors.technology_ids}
+        />
       </Section>
 
       <Section title="Links">

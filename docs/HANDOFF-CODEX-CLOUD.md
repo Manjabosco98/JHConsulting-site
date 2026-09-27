@@ -287,3 +287,7 @@ Projetos públicos lendo do Supabase: seção da home (com fallback para constan
 ## Atualização — Fase 10 concluída (27/09/2026)
 
 CRUD de serviços no painel (escrita direta na tabela, sem migration) com allowlist de 31 ícones Lucide, e a seção Serviços da home lendo do Supabase com fallback para constants. Corrigido um defeito encontrado pelos testes: `isServiceIconName` usava `in` e aceitava nomes de protótipo (`toString`). Testes: 59 unitários, matriz RLS 86/86 e 117 verificações E2E em 5 suítes. Próxima: **Fase 11 — tecnologias**.
+
+## Atualização — Fase 11 concluída (27/09/2026)
+
+Catálogo de tecnologias e grupos N:N gerenciáveis (migration `admin_technology_functions`: RPC de grupo transacional e exclusão segura de tecnologia, que bloqueia quando há projeto vinculado). Seção Tecnologias da home lendo do Supabase com fallback. `TechnologyPicker` extraído e compartilhado com o formulário de projetos; `FieldError` movido para o nível do módulo (regra do React Compiler). Testes: 70 unitários e 145 verificações E2E em 6 suítes. Próxima: **Fase 12 — configurações**.
