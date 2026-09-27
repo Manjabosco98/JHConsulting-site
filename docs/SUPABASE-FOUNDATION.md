@@ -1,6 +1,15 @@
 # FASE 1 — CRIAÇÃO DO PROJETO SUPABASE CLOUD
 
-Data: 27/09/2026. **STATUS: BLOCKED no provisionamento, aguardando escolha da organização.** Preparação local validada; esta fase ainda não foi concluída. Este documento substitui a antiga fundação orientada a banco local.
+Data: 27/09/2026. **STATUS: PASS** (encerrada na auditoria H0, ver `docs/HANDOFF-CODEX-CLOUD.md`). O relatório abaixo registra o estado intermediário "BLOCKED" em que o agente anterior parou; o bloqueio foi superado.
+
+## Encerramento (H0 / início da Fase 2)
+
+- Projeto criado: **jhconsulting-site**, ref `qlgxzpowqijcvnwuqchh`, `sa-east-1`, `ACTIVE_HEALTHY`, PostgreSQL 17. Único projeto da organização; usar sempre este.
+- URL: `https://qlgxzpowqijcvnwuqchh.supabase.co`.
+- `.env.local` configurado com URL, chave publishable e `SUPABASE_PROJECT_ID` (valores não versionados).
+- Conectividade real validada com a chave pública: Auth health/settings 200, Storage e REST respondendo.
+
+---
 
 ## Objetivo e estado inicial
 

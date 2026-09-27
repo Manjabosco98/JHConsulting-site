@@ -1,6 +1,5 @@
--- Fase 2: schema only. Content seed belongs to phase 3.
+-- Fase 2: schema, grants e RLS (policies revisadas e testadas na Fase 3). Seed na Fase 4.
 -- Preserve prior migration history; explicitly secure every object created here.
-begin;
 
 create schema if not exists private;
 revoke all on schema private from public, anon, authenticated, service_role;
@@ -55,7 +54,7 @@ create table public.projects (
   constraint projects_archive_visibility check (archived_at is null or not published)
 );
 comment on column public.projects.status is 'Editorial label, e.g. Case técnico; independent of published/archived_at.';
-comment on column public.projects.cover_image is 'Storage object path or image URL; upload policies are implemented in phase 6.';
+comment on column public.projects.cover_image is 'Storage object path or image URL; upload policies are implemented in phase 8.';
 
 create table public.technologies (
   id uuid primary key default gen_random_uuid(),
@@ -204,7 +203,7 @@ grant select, insert, update, delete on public.projects, public.services, public
   public.project_technologies, public.technology_groups, public.technology_group_members to authenticated;
 grant select, insert, update on public.site_settings to authenticated;
 grant select, update(status) on public.contacts to authenticated;
--- The validated server-side contact endpoint will use this in phase 11.
+-- The validated server-side contact endpoint will use this in phase 13.
 grant insert(name, company, email, whatsapp, project_type, message, source), select(id)
   on public.contacts to service_role;
 revoke all on type public.contact_status from public;
@@ -246,4 +245,3 @@ create policy contacts_admin_read on public.contacts for select to authenticated
 create policy contacts_admin_status on public.contacts for update to authenticated
   using ((select private.is_admin())) with check ((select private.is_admin()));
 
-commit;

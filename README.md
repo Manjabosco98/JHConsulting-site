@@ -35,9 +35,9 @@ Os clientes browser e server estão separados em `src/lib/supabase/`. Ambos usam
 
 `SUPABASE_SECRET_KEY` é reservada para uso privilegiado futuro; não é necessária nesta fase e nunca pode receber prefixo `NEXT_PUBLIC_`. Login, renovação de sessão, autorização e proteção administrativa serão implementados na Fase 5. Os clientes atuais sozinhos não protegem rotas.
 
-Operações suportadas devem ser realizadas pelo conector Supabase. Os arquivos em `supabase/migrations` são preexistentes e ainda não comprovam aplicação no Cloud. Não aplicar automaticamente essas migrations: o schema pertence à Fase 2 e a revisão de RLS à Fase 3. O seed será tratado na Fase 4.
+Projeto Cloud: **jhconsulting-site** (ref `qlgxzpowqijcvnwuqchh`, `sa-east-1`). Operações suportadas devem ser realizadas pelo conector Supabase. Os arquivos em `supabase/migrations` espelham exatamente o histórico aplicado no Cloud (mesmas versões); toda nova migration deve ser aplicada pelo conector e salva aqui com a versão retornada. Schema, grants e RLS estão descritos em [docs/DATABASE.md](docs/DATABASE.md). O seed será tratado na Fase 4.
 
-A geração de tipos pelo conector é preferencial. Como alternativa de manutenção com a CLI já autenticada, exporte `SUPABASE_PROJECT_ID` no terminal e execute `npm run supabase:types`. O script exige projeto remoto explícito, usa somente schema `public` e preserva os tipos anteriores se falhar; não usa banco local. Não executá-lo antes da fase de schema apenas para substituir os tipos base.
+`src/types/database.ts` é gerado a partir do schema Cloud. A geração pelo conector é preferencial. Como alternativa de manutenção com a CLI já autenticada, exporte `SUPABASE_PROJECT_ID` no terminal e execute `npm run supabase:types`. O script exige projeto remoto explícito, usa somente schema `public` e preserva os tipos anteriores se falhar; não usa banco local. Regerar sempre após alterar o schema.
 
 ## Resend e configuração pública
 
@@ -51,5 +51,7 @@ Destino: **Render, serviço Node.js, sem Docker**. Fluxo previsto: `npm install`
 
 - [Discovery e problemas conhecidos](docs/ADMIN-MIGRATION-DISCOVERY.md).
 - [Fundação Cloud e relatório da Fase 1](docs/SUPABASE-FOUNDATION.md).
+- [Handoff do Codex (H0)](docs/HANDOFF-CODEX-CLOUD.md).
+- [Banco de dados: schema, grants e RLS](docs/DATABASE.md).
 
 Uma fase por vez, com validação e relatório. A fase seguinte depende de autorização do usuário.

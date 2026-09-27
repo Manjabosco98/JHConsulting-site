@@ -249,3 +249,9 @@ A **Fase 1 está concluída na prática** (dependências, clientes, env e conex�
 7. gerar `src/types/database.ts` via conector.
 
 Aguardando autorização.
+
+---
+
+## Atualização — Fase 2 concluída (27/09/2026)
+
+Migrations aplicadas no Cloud: `foundation_security_defaults`, `content_model_rls` e a correção `harden_public_default_privileges`. A migration vazia foi removida, os arquivos locais foram renomeados para as versões do Cloud, os tipos foram gerados e o Git foi inicializado. Detalhes em [DATABASE.md](DATABASE.md). Próxima: **Fase 3 — RLS** (testes por role e revisão de `multiple_permissive_policies`).
