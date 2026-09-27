@@ -1,48 +1,12 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
-import { createRequire } from "node:module";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-import { runInNewContext } from "node:vm";
 import test from "node:test";
-import ts from "typescript";
+import { loadTs, plain } from "./helpers/load-ts.mjs";
 
-const require = createRequire(import.meta.url);
-const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const publicEnv = {
-  NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co",
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_test_only"
-};
-
-// Transpile the real module; replace only framework/SDK/network dependencies.
-function load(file, mocks = {}, env = publicEnv) {
-  const filename = resolve(root, file);
-  const output = ts.transpileModule(readFileSync(filename, "utf8"), {
-    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX }
-  }).outputText;
-  const loaded = { exports: {} };
-  runInNewContext(output, {
-    exports: loaded.exports,
-    module: loaded,
-    process: { env },
-    URL,
-    require(id) {
-      if (id in mocks) return mocks[id];
-      if (id === "zod") return require(id);
-      if (id === "server-only") return {};
-      if (id.startsWith("@/")) return load(`src/${id.slice(2)}.ts`, mocks, env);
-      if (id.startsWith(".")) return load(`${resolve(dirname(filename), id).slice(root.length + 1)}.ts`, mocks, env);
-      throw new Error(`Unexpected dependency: ${id}`);
-    }
-  }, { filename });
-  return loaded.exports;
-}
+const load = (file, mocks = {}) => loadTs(file, { mocks });
 
 class Redirect extends Error {
   constructor(url) { super(`redirect:${url}`); this.url = url; }
 }
-// Objects created inside the vm context have another realm's prototype.
-const plain = (value) => JSON.parse(JSON.stringify(value));
 const navigation = { redirect: (url) => { throw new Redirect(url); } };
 
 function fakeSupabase({ sub = "user-1", email = "a@b.co", claimsError = null, isAdmin = true, rpcError = null, signInError = null } = {}) {

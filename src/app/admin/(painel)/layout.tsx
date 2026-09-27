@@ -1,28 +1,52 @@
-import { LogOut } from "lucide-react";
+import Link from "next/link";
+import { ExternalLink, LogOut } from "lucide-react";
 import { requireAdmin } from "@/lib/auth/admin";
+import { AdminNav } from "@/components/admin/AdminNav";
 import { logout } from "../actions";
 
 // Protected area: every page here is rendered only for active admins.
 // Pages and Server Actions must call requireAdmin() too (layouts do not
-// re-run on client navigation). Full layout/sidebar: phase 6.
+// re-run on client navigation).
 export default async function AdminLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const session = await requireAdmin();
   return (
-    <div className="min-h-screen">
-      <header className="border-b border-white/10">
-        <div className="container-shell flex items-center justify-between gap-4 py-4">
-          <p className="font-black">JHConsulting <span className="text-slate-400">· Painel</span></p>
-          <div className="flex items-center gap-4 text-sm text-slate-400">
-            <span className="hidden sm:inline">{session.email}</span>
-            <form action={logout}>
-              <button className="focus-ring inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 font-bold text-slate-200 hover:bg-white/5">
-                Sair <LogOut size={15} />
+    <div className="min-h-screen lg:grid lg:grid-cols-[248px_1fr]">
+      <aside className="border-b border-white/10 bg-[#0a101d]/80 lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col lg:border-b-0 lg:border-r">
+        <div className="flex items-center justify-between gap-4 px-4 py-4 lg:px-5 lg:py-6">
+          <Link href="/admin" className="focus-ring rounded-lg font-black">
+            JHConsulting <span className="font-bold text-slate-500">· Painel</span>
+          </Link>
+        </div>
+        <div className="px-3 pb-3 lg:flex-1 lg:px-3">
+          <AdminNav />
+        </div>
+        <div className="hidden border-t border-white/10 p-3 lg:block">
+          <Link href="/" target="_blank" className="focus-ring inline-flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-400 hover:bg-white/5 hover:text-slate-200">
+            <ExternalLink size={17} aria-hidden="true" /> Ver site
+          </Link>
+        </div>
+      </aside>
+
+      <div className="min-w-0">
+        <header className="border-b border-white/10">
+          <div className="flex items-center justify-end gap-3 px-4 py-3 sm:px-8">
+            <span className="mr-auto truncate text-sm text-slate-400 lg:mr-0" title={session.email ?? undefined}>{session.email}</span>
+            <Link href="/" target="_blank" className="focus-ring rounded-lg p-2 text-slate-400 hover:bg-white/5 hover:text-slate-200 lg:hidden" aria-label="Ver site">
+              <ExternalLink size={17} aria-hidden="true" />
+            </Link>
+            {/* globals.css sets `font: inherit` on buttons outside @layer, which
+                overrides Tailwind font utilities: size/weight go on the parent. */}
+            <form action={logout} className="text-sm font-bold">
+              <button className="focus-ring inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-slate-200 hover:bg-white/5">
+                Sair <LogOut size={15} aria-hidden="true" />
               </button>
             </form>
           </div>
-        </div>
-      </header>
-      <main className="container-shell py-10">{children}</main>
+        </header>
+        <main className="px-4 py-8 sm:px-8 lg:py-10">
+          <div className="mx-auto max-w-6xl">{children}</div>
+        </main>
+      </div>
     </div>
   );
 }

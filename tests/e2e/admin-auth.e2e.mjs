@@ -97,8 +97,30 @@ check("cookie com SameSite=Lax e Path=/", /samesite=lax/i.test(setCookie) && /pa
 check("resposta de login com Cache-Control no-store", /no-store/.test(ok.headers.get("cache-control") ?? ""), ok.headers.get("cache-control"));
 const panel = await get("/admin", jar);
 const panelHtml = await panel.text();
-check("admin /admin 200 com painel", panel.status === 200 && panelHtml.includes("Sessão administrativa ativa para") && panelHtml.includes("e2e-admin@test.invalid"), `${panel.status}`);
+check("admin /admin 200 com dashboard", panel.status === 200 && panelHtml.includes("<h1") && panelHtml.includes("Dashboard") && panelHtml.includes("e2e-admin@test.invalid"), `${panel.status}`);
 check("painel noindex", /<meta name="robots" content="noindex, nofollow"/.test(panelHtml));
+
+// 6b. Admin base (Fase 6): navegação, números reais e seções protegidas
+const sections = ["/admin/projetos", "/admin/servicos", "/admin/tecnologias", "/admin/contatos", "/admin/configuracoes"];
+check("sidebar com as 6 entradas", ["/admin", ...sections].every((href) => panelHtml.includes(`href="${href}"`)));
+check("dashboard marcado como página atual", /aria-current="page"[^>]*href="\/admin"|href="\/admin"[^>]*aria-current="page"/.test(panelHtml));
+const { createClient } = await import("@supabase/supabase-js");
+const pub = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY);
+const publicCount = async (table, filter) => (await filter(pub.from(table).select("id", { count: "exact", head: true }))).count;
+const published = await publicCount("projects", (q) => q.eq("published", true));
+const activeServices = await publicCount("services", (q) => q.eq("active", true));
+const activeTechs = await publicCount("technologies", (q) => q.eq("active", true));
+const text = panelHtml.replace(/<!-- -->/g, "");
+check(`dashboard mostra ${published} projetos publicados`, text.includes(`${published} publicados`));
+check(`dashboard mostra ${activeServices} serviços ativos`, text.includes(`${activeServices} ativos`));
+check(`dashboard mostra ${activeTechs} tecnologias ativas`, text.includes(`${activeTechs} ativas`));
+check("dashboard aponta campos públicos pendentes", text.includes("Campos públicos sem preenchimento") || text.includes("Informações de contato completas"));
+for (const path of sections) {
+  const page = await get(path, jar);
+  const html = page.status === 200 ? await page.text() : "";
+  const anonPage = await get(path);
+  check(`${path}: admin 200 com item ativo; anon 307`, page.status === 200 && html.includes('aria-current="page"') && anonPage.status === 307, `${page.status}/${anonPage.status}`);
+}
 const loginWhileAdmin = await get("/admin/login", jar);
 check("admin em /admin/login -> redireciona para /admin", [303, 307].includes(loginWhileAdmin.status) && loginWhileAdmin.headers.get("location")?.endsWith("/admin"), `${loginWhileAdmin.status}`);
 

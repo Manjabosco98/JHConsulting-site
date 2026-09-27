@@ -19,10 +19,13 @@ export function LoginForm() {
         Senha
         <input type="password" name="password" required autoComplete="current-password" className={inputClass} />
       </label>
-      <button disabled={pending} className="focus-ring mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3.5 font-bold hover:bg-blue-500 disabled:opacity-60">
-        {pending ? "Entrando..." : "Entrar"}
-        <LogIn size={17} />
-      </button>
+      {/* Weight on the wrapper: globals.css `font: inherit` overrides it on buttons. */}
+      <div className="mt-2 grid font-bold">
+        <button disabled={pending} className="focus-ring inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3.5 hover:bg-blue-500 disabled:opacity-60">
+          {pending ? "Entrando..." : "Entrar"}
+          <LogIn size={17} />
+        </button>
+      </div>
       <p aria-live="polite" className="min-h-5 text-sm text-red-300">{state.error}</p>
     </form>
   );

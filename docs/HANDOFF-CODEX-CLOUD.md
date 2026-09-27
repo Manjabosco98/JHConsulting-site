@@ -267,3 +267,7 @@ Conteúdo de `src/constants` migrado pela migration `seed_initial_content` (idem
 ## Atualização — Fase 5 concluída (27/09/2026)
 
 Auth por e-mail + senha: `src/proxy.ts` (renovação de sessão e redirect otimista), `requireAdmin()` no servidor via RPC `public.is_admin()` (migration `auth_is_admin_rpc`), login/logout por Server Actions e `/admin` com noindex. Testes: 22 unitários e 21 E2E contra o Cloud (usuários temporários removidos). Pendências do usuário: criar a conta admin real e desativar o signup público no painel. Próxima: **Fase 6 — Admin base**.
+
+## Atualização — Fase 6 concluída (27/09/2026)
+
+Admin base: sidebar/header responsivos, dashboard com dados reais (`src/lib/repositories/dashboard.ts`), páginas placeholder protegidas para as 5 seções e `error.tsx`. Testes: 26 unitários e 32 E2E, com screenshots desktop/mobile verificados. Débito registrado: `font: inherit` fora de `@layer` em `globals.css`. Conta admin real ainda não criada. Próxima: **Fase 7 — CRUD de projetos**.

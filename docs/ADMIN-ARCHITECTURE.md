@@ -36,6 +36,38 @@ src/lib/auth/admin.ts
 - As escritas usam o cliente de servidor com a sessão do usuário (`createClient()` de `src/lib/supabase/server.ts`). O RLS aplica `is_admin()` de novo no banco (defesa em profundidade). Não usar `service_role` no admin.
 - O proxy nunca é a única barreira. `robots.txt` bloqueia `/admin`, mas isso não é controle de acesso.
 
+## Layout e navegação (Fase 6)
+
+```text
+src/app/admin/
+├── layout.tsx                 metadata noindex (todo /admin)
+├── actions.ts                 login / logout
+├── login/                     página pública de login
+└── (painel)/                  área protegida (requireAdmin no layout e em cada página)
+    ├── layout.tsx             sidebar (desktop) / navegação em linhas (mobile) + header com e-mail e Sair
+    ├── error.tsx              erro amigável, sem detalhes do banco
+    ├── page.tsx               /admin: dashboard
+    ├── projetos/              placeholder → Fase 7
+    ├── servicos/              placeholder → Fase 10
+    ├── tecnologias/           placeholder → Fase 11
+    ├── contatos/              placeholder → Fase 13
+    └── configuracoes/         placeholder → Fase 12
+```
+
+| Peça | Arquivo |
+|---|---|
+| Itens e regra de item ativo | `src/lib/admin/navigation.ts` (`isActiveNav`) |
+| Navegação (client, `usePathname`, `aria-current`) | `src/components/admin/AdminNav.tsx` |
+| Cabeçalho de página / placeholder | `src/components/admin/AdminPageHeader.tsx`, `AdminPlaceholder.tsx` |
+| Rótulos de status e datas (pt-BR, America/Sao_Paulo) | `src/lib/admin/labels.ts` |
+| Dados do dashboard | `src/lib/repositories/dashboard.ts` |
+
+**Dashboard:** contagens de projetos (publicados, rascunhos e arquivados), serviços e tecnologias (ativos), contatos (novos), além dos 5 últimos contatos, dos 5 projetos atualizados mais recentemente e dos campos públicos vazios em `site_settings`. As consultas usam o cliente da sessão, então o RLS continua valendo. Erros vão para o log do servidor, e a página mostra só uma mensagem genérica.
+
+**Repositórios:** ficam em `src/lib/repositories/`, são `server-only` e recebem o cliente Supabase da requisição. As fases de CRUD seguem esse padrão.
+
+**Tipografia de botões:** `globals.css` (preexistente) declara `button, input, textarea, select { font: inherit; }` fora de `@layer`. No Tailwind 4 isso vence utilitários como `text-sm`/`font-bold` nesses elementos. No admin, tamanho e peso vão no elemento pai. Correção global prevista para a Fase 16, porque afeta também o botão do formulário público.
+
 ## Administradores
 
 Admin é um usuário do Supabase Auth com linha ativa em `private.admin_users`. Não existe cadastro pelo site.
@@ -58,7 +90,8 @@ Produção (Fase 21): configurar em Authentication → URL Configuration a Site 
 ## Testes
 
 - `tests/auth.test.mjs` (em `npm test`): regra do proxy, cookies e headers no redirect, `getAuthState` / `requireAdmin` (inclusive falha do RPC), login (validação, mensagem genérica, 429, não-admin deslogado, admin redirecionado) e logout.
-- `tests/e2e/admin-auth.e2e.mjs`: 21 verificações HTTP contra o Cloud real. Instruções no cabeçalho do arquivo. Usuários temporários:
+- `tests/admin.test.mjs` (em `npm test`): navegação ativa e agregação do dashboard (filtros, pendências de settings, erro sem vazamento).
+- `tests/e2e/admin-auth.e2e.mjs`: 32 verificações HTTP contra o Cloud real (Auth + dashboard com números reais + seções protegidas). Instruções no cabeçalho do arquivo. Usuários temporários:
   ```sql
   with u as (
     insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
