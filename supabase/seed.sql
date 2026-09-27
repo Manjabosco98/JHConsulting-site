@@ -1,0 +1,3 @@
+-- Os dados atuais serão adicionados na Fase 2, depois da criação das tabelas.
+-- Este arquivo existe desde a fundação para que `supabase db reset` seja
+-- reproduzível e não dependa de um caminho ausente.

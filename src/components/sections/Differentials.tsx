@@ -1,0 +1,3 @@
+import { differentiators } from "@/constants/content";
+import { SectionHeading } from "@/components/ui/SectionHeading";
+export function Differentials(){return <section className="section-space"><div className="container-shell"><SectionHeading kicker="Diferenciais" title="A JHConsulting não vende apenas código. Analisa processos e desenvolve soluções."/><div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-5">{differentiators.map(([t,d])=><div key={t} className="rounded-2xl border border-white/8 p-5"><h3 className="font-bold">{t}</h3><p className="mt-3 text-sm leading-6 text-slate-400">{d}</p></div>)}</div></div></section>}

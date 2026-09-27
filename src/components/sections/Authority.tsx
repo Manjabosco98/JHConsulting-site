@@ -1,0 +1,2 @@
+import { authority } from "@/constants/content";
+export function Authority(){return <section className="border-b border-white/5"><div className="container-shell grid md:grid-cols-4">{authority.map(([t,d])=><div key={t} className="border-white/8 px-5 py-7 md:border-r md:first:border-l"><p className="font-bold">{t}</p><p className="mt-2 text-sm leading-6 text-slate-400">{d}</p></div>)}</div></section>}

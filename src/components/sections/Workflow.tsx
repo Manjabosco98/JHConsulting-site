@@ -1,0 +1,3 @@
+import { workflow } from "@/constants/content";
+import { SectionHeading } from "@/components/ui/SectionHeading";
+export function Workflow(){return <section className="section-space bg-white/[.018]"><div className="container-shell"><SectionHeading kicker="Processo de trabalho" title="Como funciona um projeto"/><div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">{workflow.map(([n,t,d])=><div key={n} className="rounded-2xl border border-white/8 p-5"><p className="text-sm font-black text-blue-400">{n}</p><h3 className="mt-5 text-lg font-bold">{t}</h3><p className="mt-2 text-sm leading-6 text-slate-400">{d}</p></div>)}</div></div></section>}
