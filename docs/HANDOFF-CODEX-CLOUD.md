@@ -255,3 +255,7 @@ Aguardando autorização.
 ## Atualização — Fase 2 concluída (27/09/2026)
 
 Migrations aplicadas no Cloud: `foundation_security_defaults`, `content_model_rls` e a correção `harden_public_default_privileges`. A migration vazia foi removida, os arquivos locais foram renomeados para as versões do Cloud, os tipos foram gerados e o Git foi inicializado. Detalhes em [DATABASE.md](DATABASE.md). Próxima: **Fase 3 — RLS** (testes por role e revisão de `multiple_permissive_policies`).
+
+## Atualização — Fase 3 concluída (27/09/2026)
+
+Policies refatoradas (`rls_split_policies`) para eliminar `multiple_permissive_policies`, sem mudança de semântica. A matriz `supabase/tests/rls_matrix.sql` passou 67/67 antes e depois. Próxima: **Fase 4 — seed e migração de conteúdo**.

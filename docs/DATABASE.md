@@ -10,6 +10,7 @@ Fonte da verdade: o banco Cloud. Os arquivos em `supabase/migrations/` espelham 
 | 20260927140840 | `foundation_security_defaults` | revoga SELECT/INSERT/UPDATE/DELETE dos defaults de `public` |
 | 20260927140921 | `content_model_rls` | schema de domínio, triggers, índices, grants, RLS e policies |
 | 20260927141007 | `harden_public_default_privileges` | revoga **todos** os defaults restantes (TRUNCATE, REFERENCES, TRIGGER, MAINTAIN, UPDATE em sequências) |
+| 20260927141756 | `rls_split_policies` | uma policy permissiva por (tabela, role, ação); mesma semântica |
 
 Processo para novas migrations: aplicar pelo conector (`apply_migration`), consultar `list_migrations` e salvar o arquivo local como `<versão>_<nome>.sql` com o mesmo SQL. Toda tabela nova em `public` nasce **sem privilégios** para `anon`/`authenticated`/`service_role`: conceder explicitamente e habilitar RLS na mesma migration.
 
@@ -47,19 +48,31 @@ Grants só definem o teto; o acesso a linhas é decidido pelo RLS.
 
 ## RLS
 
-RLS habilitado em todas as tabelas.
+RLS habilitado em todas as tabelas. Há exatamente uma policy permissiva por (tabela, role, ação); nomes no padrão `<tabela>_<ação>_<quem>`.
 
-- **Leitura pública** (`anon`, `authenticated`): projetos publicados e não arquivados; serviços, tecnologias e grupos ativos; vínculos só quando os dois lados são visíveis; `site_settings` id 1.
-- **Admin** (`authenticated` + `private.is_admin()`): gerencia todo o conteúdo e `site_settings`; lê contatos e altera apenas `status`.
-- **Contatos**: nenhum acesso público. A inserção será feita pelo endpoint do servidor (Fase 13).
-- `private.admin_users`: sem policies (negação total pela API), consultada apenas por `is_admin()` (SECURITY DEFINER).
+| Tabela | anon SELECT | authenticated SELECT | INSERT / UPDATE / DELETE (authenticated) |
+|---|---|---|---|
+| `projects` | publicado e não arquivado | público **ou** admin | admin |
+| `services`, `technologies`, `technology_groups` | `active` | `active` **ou** admin | admin |
+| `project_technologies` | projeto público e tecnologia ativa | idem **ou** admin | admin |
+| `technology_group_members` | grupo e tecnologia ativos | idem **ou** admin | admin |
+| `site_settings` | `id = 1` | `id = 1` | INSERT/UPDATE admin; DELETE sem grant |
+| `contacts` | sem grant | admin | UPDATE só da coluna `status`, admin; INSERT/DELETE sem grant |
 
-Os testes de acesso por role (anon / authenticated / admin) pertencem à Fase 3.
+- **Admin** = `authenticated` com `private.is_admin()`: usuário em `private.admin_users` com `active = true`. Admin inativo é tratado como usuário comum.
+- **Usuário autenticado sem admin**: mesmo acesso de leitura que o público; toda escrita é negada (INSERT falha com 42501; UPDATE e DELETE afetam 0 linhas).
+- **Contatos**: nenhum acesso público. A inserção será feita pelo endpoint do servidor com `service_role` (Fase 13), limitada às colunas do formulário.
+- `private.admin_users`: sem policies (negação total pela API), inacessível até para admins via API; consultada apenas por `is_admin()` (SECURITY DEFINER). Admins são cadastrados via SQL/conector (Fase 5).
+- `is_admin()` é chamado como `(select private.is_admin())` e avaliado uma vez por query (initPlan).
 
-## Advisors (após a Fase 2)
+### Testes de acesso
+
+[`supabase/tests/rls_matrix.sql`](../supabase/tests/rls_matrix.sql): 67 casos cobrindo anon, usuário comum, admin inativo, admin e service_role (leitura filtrada, escrita, TRUNCATE, colunas de contatos, escalonamento via `admin_users`, schema `private`). Executar pelo conector (`execute_sql`); cria fixtures, simula cada role com `SET LOCAL ROLE` + `request.jwt.claims` e termina com `RAISE`, então a transação sempre é desfeita. Resultado esperado: `RLS_MATRIX pass=67 fail=0`. Executar após qualquer mudança de grants, policies ou schema.
+
+## Advisors (após a Fase 3)
 
 - Segurança: apenas INFO `rls_enabled_no_policy` em `private.admin_users`. É intencional.
-- Performance: WARN `multiple_permissive_policies` (SELECT de `authenticated`: policy pública + policy admin) em 7 tabelas, a revisar na Fase 3; INFO `unused_index` (banco ainda vazio).
+- Performance: somente INFO `unused_index` (banco sem dados reais).
 
 ## Tipos
 
