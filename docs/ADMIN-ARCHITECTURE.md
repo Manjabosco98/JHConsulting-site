@@ -47,7 +47,7 @@ src/app/admin/
     ├── layout.tsx             sidebar (desktop) / navegação em linhas (mobile) + header com e-mail e Sair
     ├── error.tsx              erro amigável, sem detalhes do banco
     ├── page.tsx               /admin: dashboard
-    ├── projetos/              placeholder → Fase 7
+    ├── projetos/              CRUD (Fase 7): lista, novo/, [id]/, actions.ts
     ├── servicos/              placeholder → Fase 10
     ├── tecnologias/           placeholder → Fase 11
     ├── contatos/              placeholder → Fase 13
@@ -67,6 +67,29 @@ src/app/admin/
 **Repositórios:** ficam em `src/lib/repositories/`, são `server-only` e recebem o cliente Supabase da requisição. As fases de CRUD seguem esse padrão.
 
 **Tipografia de botões:** `globals.css` (preexistente) declara `button, input, textarea, select { font: inherit; }` fora de `@layer`. No Tailwind 4 isso vence utilitários como `text-sm`/`font-bold` nesses elementos. No admin, tamanho e peso vão no elemento pai. Correção global prevista para a Fase 16, porque afeta também o botão do formulário público.
+
+## CRUD de projetos (Fase 7)
+
+| Rota | Função |
+|---|---|
+| `/admin/projetos` | lista com filtros (Todos, Publicados, Rascunhos, Arquivados) e contagens, busca literal por título, destaque, ordem e nº de tecnologias |
+| `/admin/projetos/novo` | criação (sempre começa como rascunho, a menos que outra situação seja escolhida) |
+| `/admin/projetos/[id]` | edição, publicar/arquivar, destaque, ordem, tecnologias ordenáveis, exclusão com confirmação |
+
+Fluxo de gravação:
+
+```text
+ProjectForm (client, campos controlados; o React 19 reseta campos não controlados após a action)
+  → saveProjectAction(projectId | null)   requireAdmin() + Zod (src/lib/validation/project.ts)
+  → saveProject() (src/lib/repositories/projects.ts)
+  → rpc admin_save_project                transação única: projeto + vínculos
+  → revalidatePublicProjects()            src/lib/revalidate.ts (hoje "/", Fase 9 adiciona /projetos)
+```
+
+- **Validação:** o Zod espelha as constraints do banco, com mensagens em pt-BR por campo. Slug vazio é gerado a partir do título (`src/lib/slug.ts`). URLs precisam ser `http(s)://` completas. Tecnologias não podem se repetir (máximo de 30).
+- **Erros do banco:** slug duplicado vira erro no campo. Os demais viram mensagem genérica, com o detalhe só no log do servidor.
+- **Situação:** é um único campo (`visibility`): rascunho, publicado ou arquivado. Arquivado nunca está publicado (constraint). Exclusão é permanente e remove os vínculos (cascade). Para tirar do site, o caminho é arquivar.
+- **Capa:** fica para a Fase 8 (Storage). O formulário ainda não altera `cover_image`.
 
 ## Administradores
 
@@ -91,7 +114,9 @@ Produção (Fase 21): configurar em Authentication → URL Configuration a Site 
 
 - `tests/auth.test.mjs` (em `npm test`): regra do proxy, cookies e headers no redirect, `getAuthState` / `requireAdmin` (inclusive falha do RPC), login (validação, mensagem genérica, 429, não-admin deslogado, admin redirecionado) e logout.
 - `tests/admin.test.mjs` (em `npm test`): navegação ativa e agregação do dashboard (filtros, pendências de settings, erro sem vazamento).
-- `tests/e2e/admin-auth.e2e.mjs`: 32 verificações HTTP contra o Cloud real (Auth + dashboard com números reais + seções protegidas). Instruções no cabeçalho do arquivo. Usuários temporários:
+- `tests/projects.test.mjs` (em `npm test`): slug, validação do formulário, repositório (filtros, busca literal, mapeamento de erros) e actions (admin obrigatório, criar, editar, slug duplicado, excluir).
+- `tests/e2e/admin-auth.e2e.mjs`: 32 verificações HTTP contra o Cloud real (Auth + dashboard com números reais + seções protegidas).
+- `tests/e2e/admin-projects.e2e.mjs`: 22 verificações do CRUD real (validação, slug duplicado, rascunho invisível ao público, publicar, reordenar tecnologias, arquivar, bloqueio de não-admin/anônimo, excluir, sem resíduos). Os helpers ficam em `tests/e2e/http.mjs`. Instruções no cabeçalho do arquivo. Usuários temporários:
   ```sql
   with u as (
     insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,

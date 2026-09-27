@@ -102,12 +102,14 @@ export default async function AdminDashboardPage() {
               {data.recentProjects.map((project) => {
                 const state = projectState(project);
                 return (
-                  <li key={project.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
-                    <div className="min-w-0">
-                      <p className="truncate font-bold">{project.title}</p>
-                      <p className="text-slate-400">Atualizado em {formatDateTime(project.updated_at)}</p>
-                    </div>
-                    <span className={`text-xs font-bold ${state.className}`}>{state.label}</span>
+                  <li key={project.id}>
+                    <Link href={`/admin/projetos/${project.id}`} className="focus-ring flex flex-wrap items-center justify-between gap-2 rounded py-3 text-sm hover:bg-white/[.03]">
+                      <div className="min-w-0">
+                        <p className="truncate font-bold">{project.title}</p>
+                        <p className="text-slate-400">Atualizado em {formatDateTime(project.updated_at)}</p>
+                      </div>
+                      <span className={`text-xs font-bold ${state.className}`}>{state.label}</span>
+                    </Link>
                   </li>
                 );
               })}

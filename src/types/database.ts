@@ -355,6 +355,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_save_project: {
+        Args: { p_id?: string; p_project: Json; p_technology_ids: string[] }
+        Returns: string
+      }
       is_admin: { Args: never; Returns: boolean }
     }
     Enums: {

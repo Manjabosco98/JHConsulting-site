@@ -5,7 +5,7 @@
 -- rascunho, arquivado, ativo/inativo), simula cada role com SET LOCAL ROLE +
 -- request.jwt.claims e compara o resultado com o esperado.
 -- Termina SEMPRE com RAISE EXCEPTION: a transação é desfeita e nada persiste.
--- Saída: "RLS_MATRIX pass=N fail=M" seguida das falhas (label: obtido != esperado).
+-- Saída esperada: "RLS_MATRIX pass=73 fail=0"; em falha, seguida das falhas (label: obtido != esperado).
 --
 -- Tipos de caso: value = valor da 1ª coluna; rows = linhas afetadas;
 -- qualquer erro vira "ERR <sqlstate>" (42501 = privilégio/RLS negado).
@@ -67,6 +67,8 @@ begin
       (15, 'anon', null, 'value', 'select count(*) from private.admin_users', 'ERR 42501'),
       (16, 'anon', null, 'rows',  $q$update public.site_settings set role = 'x'$q$, 'ERR 42501'),
       (17, 'anon', null, 'rows',  'update public.technologies set active = true where id in ' || tids, 'ERR 42501'),
+      (18, 'anon', null, 'value', $q$select public.admin_save_project('{"title":"RPC","slug":"rls-test-rpc","category":"T","visibility":"draft"}'::jsonb, '{}'::uuid[]) is not null$q$, 'ERR 42501'),
+      (19, 'anon', null, 'value', 'select public.is_admin()', 'ERR 42501'),
 
       -- USUÁRIO AUTENTICADO SEM ADMIN: igual ao público; escritas bloqueadas pelo RLS
       (20, 'authenticated', user_id, 'value', 'select private.is_admin()', 'false'),
@@ -89,6 +91,8 @@ begin
       (37, 'authenticated', user_id, 'rows',  'insert into private.admin_users (user_id) values (' || quote_literal(user_id) || ')', 'ERR 42501'),
       (38, 'authenticated', user_id, 'value', 'select count(*) from private.admin_users', 'ERR 42501'),
       (39, 'authenticated', user_id, 'rows',  'truncate public.projects cascade', 'ERR 42501'),
+      (43, 'authenticated', user_id, 'value', $q$select public.admin_save_project('{"title":"RPC","slug":"rls-test-rpc","category":"T","visibility":"draft"}'::jsonb, '{}'::uuid[]) is not null$q$, 'ERR 42501'),
+      (44, 'authenticated', inactive_id, 'value', $q$select public.admin_save_project('{"title":"RPC","slug":"rls-test-rpc","category":"T","visibility":"draft"}'::jsonb, '{}'::uuid[]) is not null$q$, 'ERR 42501'),
 
       -- ADMIN INATIVO: tratado como usuário comum
       (40, 'authenticated', inactive_id, 'value', 'select private.is_admin()', 'false'),
@@ -119,6 +123,8 @@ begin
       (70, 'authenticated', admin_id, 'rows',  $q$delete from public.projects where slug = 'rls-test-arch'$q$, 'rows=1'),
       (71, 'authenticated', admin_id, 'value', 'select count(*) from private.admin_users', 'ERR 42501'),
       (72, 'authenticated', admin_id, 'rows',  'truncate public.projects cascade', 'ERR 42501'),
+      (73, 'authenticated', admin_id, 'value', $q$select public.admin_save_project('{"title":"RPC","slug":"rls-test-rpc","category":"T","visibility":"draft"}'::jsonb, '{}'::uuid[]) is not null$q$, 'true'),
+      (74, 'authenticated', admin_id, 'value', $q$select count(*) from public.projects where slug = 'rls-test-rpc'$q$, '1'),
 
       -- SERVICE ROLE (servidor): somente inserir contato com colunas do formulário
       (80, 'service_role', null, 'rows',  $q$insert into public.contacts (name, email, project_type, message) values ('Srv', 'srv@test.invalid', 'Site', 'mensagem com mais de vinte caracteres')$q$, 'rows=1'),

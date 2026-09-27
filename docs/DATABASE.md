@@ -13,6 +13,8 @@ Fonte da verdade: o banco Cloud. Os arquivos em `supabase/migrations/` espelham 
 | 20260927141756 | `rls_split_policies` | uma policy permissiva por (tabela, role, ação); mesma semântica |
 | 20260927142358 | `seed_initial_content` | conteúdo inicial migrado de `src/constants` (idempotente) |
 | 20260927145124 | `auth_is_admin_rpc` | `public.is_admin()`: RPC sem parâmetros para o servidor verificar o próprio usuário; só `authenticated` |
+| 20260927153017 | `admin_save_project` | RPC transacional para salvar projeto + tecnologias |
+| 20260927153121 | `admin_save_project_optional_id` | mesma função com `p_id` opcional no fim (tipos TS fiéis) |
 
 Processo para novas migrations: aplicar pelo conector (`apply_migration`), consultar `list_migrations` e salvar o arquivo local como `<versão>_<nome>.sql` com o mesmo SQL. Toda tabela nova em `public` nasce **sem privilégios** para `anon`/`authenticated`/`service_role`: conceder explicitamente e habilitar RLS na mesma migration.
 
@@ -68,9 +70,17 @@ RLS habilitado em todas as tabelas. Há exatamente uma policy permissiva por (ta
 - `is_admin()` é chamado como `(select private.is_admin())` e avaliado uma vez por query (initPlan).
 - `public.is_admin()` (Fase 5) expõe o mesmo resultado via RPC para o servidor Next.js (`requireAdmin`). É SECURITY INVOKER, sem parâmetros (só responde sobre `auth.uid()`), com EXECUTE apenas para `authenticated`; anon recebe 42501. Detalhes em [ADMIN-ARCHITECTURE.md](ADMIN-ARCHITECTURE.md).
 
+### Função `public.admin_save_project` (Fase 7)
+
+`admin_save_project(p_project jsonb, p_technology_ids uuid[], p_id uuid default null) returns uuid`: cria (sem `p_id`) ou atualiza um projeto e **substitui os vínculos com tecnologias na mesma transação**. A ordem do array vira o `display_order`. `visibility` (`draft` / `published` / `archived`) é traduzida para `published` e `archived_at`; `published_at` é preenchido pelo trigger. `cover_image` não é alterada (Fase 8).
+
+- SECURITY INVOKER: grants e RLS do chamador valem. A checagem explícita de `is_admin()` só antecipa o erro 42501.
+- EXECUTE só para `authenticated`. anon, usuário comum e admin inativo recebem 42501 (coberto na matriz).
+- Erros: `23505` slug duplicado, `P0002` projeto inexistente, `23503` tecnologia inexistente (nada é gravado), `22023` visibilidade inválida.
+
 ### Testes de acesso
 
-[`supabase/tests/rls_matrix.sql`](../supabase/tests/rls_matrix.sql): 67 casos cobrindo anon, usuário comum, admin inativo, admin e service_role (leitura filtrada, escrita, TRUNCATE, colunas de contatos, escalonamento via `admin_users`, schema `private`). Executar pelo conector (`execute_sql`); cria fixtures, simula cada role com `SET LOCAL ROLE` + `request.jwt.claims` e termina com `RAISE`, então a transação sempre é desfeita. Resultado esperado: `RLS_MATRIX pass=67 fail=0`. Executar após qualquer mudança de grants, policies ou schema.
+[`supabase/tests/rls_matrix.sql`](../supabase/tests/rls_matrix.sql): 73 casos cobrindo anon, usuário comum, admin inativo, admin e service_role (leitura filtrada, escrita, TRUNCATE, colunas de contatos, escalonamento via `admin_users`, schema `private`). Executar pelo conector (`execute_sql`); cria fixtures, simula cada role com `SET LOCAL ROLE` + `request.jwt.claims` e termina com `RAISE`, então a transação sempre é desfeita. Resultado esperado: `RLS_MATRIX pass=73 fail=0`. Executar após qualquer mudança de grants, policies ou schema.
 
 ## Advisors (após a Fase 3)
 

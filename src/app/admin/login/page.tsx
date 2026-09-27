@@ -21,7 +21,7 @@ export default async function AdminLoginPage() {
             <p className="text-sm leading-6 text-slate-300">
               A conta <strong>{state.email ?? "atual"}</strong> não tem acesso ao painel.
             </p>
-            <form action={logout} className="font-bold">
+            <form action={logout} data-form="logout" className="font-bold">
               <button className="focus-ring w-full rounded-xl border border-white/10 px-5 py-3.5 hover:bg-white/5">
                 Sair e entrar com outra conta
               </button>

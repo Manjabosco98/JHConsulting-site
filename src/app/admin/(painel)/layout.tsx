@@ -36,7 +36,7 @@ export default async function AdminLayout({ children }: Readonly<{ children: Rea
             </Link>
             {/* globals.css sets `font: inherit` on buttons outside @layer, which
                 overrides Tailwind font utilities: size/weight go on the parent. */}
-            <form action={logout} className="text-sm font-bold">
+            <form action={logout} data-form="logout" className="text-sm font-bold">
               <button className="focus-ring inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-slate-200 hover:bg-white/5">
                 Sair <LogOut size={15} aria-hidden="true" />
               </button>

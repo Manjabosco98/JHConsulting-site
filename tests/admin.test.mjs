@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { loadTs, plain } from "./helpers/load-ts.mjs";
+import { fakeDb } from "./helpers/fake-db.mjs";
 
 test("admin navigation: dashboard only on /admin; sections include sub-routes", () => {
   const { isActiveNav, adminNavItems } = loadTs("src/lib/admin/navigation.ts");
@@ -13,33 +14,6 @@ test("admin navigation: dashboard only on /admin; sections include sub-routes", 
     "/admin", "/admin/projetos", "/admin/servicos", "/admin/tecnologias", "/admin/contatos", "/admin/configuracoes"
   ]);
 });
-
-// Chainable stand-in for the Supabase query builder: records each query as
-// "table op op ..." and resolves it through `respond(key)`.
-function fakeDb(respond) {
-  const log = [];
-  return {
-    log,
-    from(table) {
-      const ops = [];
-      const builder = {
-        select(columns, options) { ops.push(options?.head ? "count" : `select(${columns})`); return builder; },
-        eq(column, value) { ops.push(`${column}=${value}`); return builder; },
-        is(column, value) { ops.push(`${column} is ${value}`); return builder; },
-        not(column, operator, value) { ops.push(`${column} not ${operator} ${value}`); return builder; },
-        order(column, { ascending }) { ops.push(`order ${column} ${ascending ? "asc" : "desc"}`); return builder; },
-        limit(n) { ops.push(`limit ${n}`); return builder; },
-        maybeSingle() { ops.push("single"); return builder; },
-        then(resolve, reject) {
-          const key = [table, ...ops].join(" ");
-          log.push(key);
-          return Promise.resolve(respond(key)).then(resolve, reject);
-        }
-      };
-      return builder;
-    }
-  };
-}
 
 const counts = {
   "projects count": 5,

@@ -271,3 +271,7 @@ Auth por e-mail + senha: `src/proxy.ts` (renovação de sessão e redirect otimi
 ## Atualização — Fase 6 concluída (27/09/2026)
 
 Admin base: sidebar/header responsivos, dashboard com dados reais (`src/lib/repositories/dashboard.ts`), páginas placeholder protegidas para as 5 seções e `error.tsx`. Testes: 26 unitários e 32 E2E, com screenshots desktop/mobile verificados. Débito registrado: `font: inherit` fora de `@layer` em `globals.css`. Conta admin real ainda não criada. Próxima: **Fase 7 — CRUD de projetos**.
+
+## Atualização — Fase 7 concluída (27/09/2026)
+
+CRUD de projetos no painel (lista, filtros, busca, criar, editar, publicar/arquivar, tecnologias ordenadas, excluir). A gravação é atômica via RPC `admin_save_project` (migrations `admin_save_project` e `admin_save_project_optional_id`). Testes: 38 unitários, matriz RLS 73/73, E2E auth 32/32 e projetos 22/22. Próxima: **Fase 8 — Storage** (bucket `portfolio` e capa do projeto).
