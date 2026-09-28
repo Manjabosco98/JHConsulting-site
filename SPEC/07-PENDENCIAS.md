@@ -7,7 +7,7 @@ Nenhuma delas pode ser feita pelo agente, porque exigem suas credenciais, seus d
 | # | Ação | Onde | Por que importa |
 |---|---|---|---|
 | 1 | **Criar a conta de administrador** | Supabase Dashboard → Authentication → Users → Add user (com Auto Confirm). Depois avise para conceder a permissão, ou rode o SQL de [03-CONFIGURACAO.md](03-CONFIGURACAO.md) | Sem isso, ninguém entra no painel. Hoje o Auth tem **0 usuários** |
-| 2 | **Preencher os contatos públicos** | `/admin/configuracoes` | E-mail, WhatsApp, LinkedIn, GitHub e Instagram estão vazios, então esses links **não aparecem** no site. O painel lista o que falta |
+| 2 | **Preencher os contatos públicos restantes** | `/admin/configuracoes` | O WhatsApp já está configurado (`+55 (62) 99610-1996`). **E-mail, LinkedIn, GitHub e Instagram continuam vazios**, então esses links não aparecem no rodapé. O painel lista o que falta |
 | 3 | **Desativar o cadastro público** | Authentication → Sign In / Providers → desmarcar "Allow new users to sign up" | Hoje qualquer pessoa pode criar conta. Não dá acesso a dado nenhum (o RLS garante), mas não há motivo para permitir |
 | 4 | **Configurar a `SUPABASE_SECRET_KEY`** | Settings → API Keys → chave `sb_secret_...`, colar no `.env.local` | A Fase 13 está pronta e testada, mas **é essa chave que autoriza o servidor a gravar o lead**. Sem ela (e sem Resend) o formulário responde 503 |
 | 5 | **Configurar o Resend** | `RESEND_API_KEY`, `CONTACT_FROM_EMAIL`, `CONTACT_TO_EMAIL` | Só o **aviso por e-mail**. Com a chave do item 4, o lead já é gravado e aparece em `/admin/contatos` mesmo sem Resend. Precisa de domínio verificado |
@@ -15,10 +15,7 @@ Nenhuma delas pode ser feita pelo agente, porque exigem suas credenciais, seus d
 
 ## Fases restantes
 
-### Fase 16 — Performance *(próxima)*
-Revisar cache, queries, bundle e imagens. **Inclui a correção do `font: inherit`** (abaixo), que afeta o site público.
-
-### Fase 17 — Testes
+### Fase 17 — Testes *(próxima)*
 Ampliar cobertura dos fluxos críticos, especialmente o formulário de contato. Sem Docker e sem banco local.
 
 ### Fase 18 — Hardening
@@ -39,7 +36,6 @@ Registrada, não esquecida:
 
 | Prioridade | Item | Onde | Fase |
 |---|---|---|---|
-| **Média** | `globals.css` declara `font: inherit` em botões fora de `@layer`, o que vence utilitários do Tailwind 4. O painel contorna aplicando a fonte no elemento pai; o botão do formulário público perdeu o negrito | `src/app/globals.css` | 16 |
 | **Média** | O rate limit identifica o cliente pelo cabeçalho `x-forwarded-for`, que só é confiável atrás de um proxy que o reescreva. No Render é o caso; em acesso direto o valor é falsificável | `src/app/api/contact/route.ts` | 18 |
 | **Média** | Rate limit em memória por processo: coordena dentro de uma instância, não entre várias. A limpeza de janelas expiradas já existe | `src/app/api/contact/route.ts` | 18 |
 | **Média** | Sem `engines`/`.nvmrc` fixando a versão do Node | `package.json` | 21 |

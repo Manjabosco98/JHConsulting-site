@@ -1,6 +1,6 @@
 # 06 — O que foi feito
 
-16 fases concluídas (H0 e 1 a 15), cada uma com validação, testes e commit próprio.
+17 fases concluídas (H0 e 1 a 16), cada uma com validação, testes e commit próprio.
 
 ## Resumo
 
@@ -22,6 +22,7 @@
 | **13** | Contatos: persistência do lead e painel de atendimento | `1cdca07` |
 | **14** | Fim do conteúdo duplicado no código | `aa37fbb` |
 | **15** | SEO dinâmico: dados estruturados e imagem social | `d3781a0` |
+| **16** | Performance e a correção de CSS que afetava o site inteiro | — |
 
 ## Detalhe por fase
 
@@ -112,6 +113,13 @@ Comprovado pelas mesmas 201 verificações E2E: a home continua mostrando os 8 s
 - **`lastModified` do sitemap** deixou de ser o instante da renderização (que anunciava mudança em toda revalidação) e passou a refletir a alteração real de conteúdo.
 - **`description` e título da listagem** passaram a vir do painel, então a meta description da home é editável sem deploy.
 
+### 16 — Performance
+**O `font: inherit` era maior do que parecia.** O bloco de resets do `globals.css` estava fora de `@layer`, e no Tailwind 4 CSS sem layer vence **qualquer** utilitário. Medindo o estilo computado na página real, `a.text-blue-300` renderizava **branco**: todo link com cor de utilitário estava perdendo a cor, não só o botão perdendo o negrito. Mover os resets para `@layer base` devolveu link azul e botão em negrito, sem afetar as classes de componente (`.section-title` etc., que continuam fora de layer de propósito).
+
+**Motion removido.** A dependência custava ~120 KB de JavaScript no cliente e era usada em **um** lugar: o fade de entrada dos cards de Serviços. Trocada por IntersectionObserver + transição CSS, com a mesma distância, duração, atraso e comportamento de animar só uma vez. O JavaScript da home caiu de **705 KB para 589 KB** (não comprimido). Uma regra em `<noscript>` mantém o conteúdo visível com JavaScript desligado — o que antes não acontecia.
+
+**Revisado e mantido como está:** ISR de 1h com revalidação sob demanda; consultas públicas (uma por seção, sem N+1); contagens do painel em paralelo; `next/image` com `sizes` e allowlist restrita ao domínio do Storage; fontes do sistema, sem webfont. Só três componentes de cliente no site público: `Navbar`, `Contact` e `Reveal`.
+
 ## Estado atual do Cloud
 
 | Item | Estado |
@@ -131,6 +139,7 @@ Comprovado pelas mesmas 201 verificações E2E: a home continua mostrando os 8 s
 | Verificação | Resultado |
 |---|---|
 | `npm test` | **113/113** |
+| JavaScript da home | **589 KB** não comprimido (era 705 KB antes da Fase 16) |
 | Matriz de RLS | **89/89** |
 | E2E (8 suítes) | **211/211** — auth 32, projetos 22, storage 23, público 29, serviços 21, tecnologias 28, configurações 28, contatos 28 |
 | `npm run lint` | PASS (1 aviso preexistente em `postcss.config.mjs`) |

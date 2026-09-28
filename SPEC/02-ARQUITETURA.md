@@ -8,7 +8,7 @@
 | UI | React | 19 |
 | Linguagem | TypeScript strict | 5.9 |
 | Estilo | Tailwind CSS (via PostCSS) | 4.3 |
-| Animação | Motion | 12 |
+| Animação | IntersectionObserver + CSS | — |
 | Ícones | Lucide React | 0.468 |
 | Validação | Zod | 4 |
 | E-mail | Resend | 6 |

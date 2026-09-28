@@ -4,7 +4,7 @@ Next.js existente, com evolução incremental para conteúdo administrável no S
 
 ## Stack
 
-Next.js 16.3.3, React 19, TypeScript strict, Tailwind 4, Motion, Lucide, Zod, Resend, `@supabase/supabase-js` 2.117.2 e `@supabase/ssr` 0.12.7. Os pacotes Supabase estão fixados no lockfile. O SDK requer Node >=22; a validação atual usa Node 24.20.0/npm 11.19.0.
+Next.js 16.3.3, React 19, TypeScript strict, Tailwind 4, Lucide, Zod, Resend, `@supabase/supabase-js` 2.117.2 e `@supabase/ssr` 0.12.7. A dependência Motion saiu na Fase 16: era 120 KB de JavaScript no cliente para uma única animação de entrada, hoje feita com IntersectionObserver e CSS. Os pacotes Supabase estão fixados no lockfile. O SDK requer Node >=22; a validação atual usa Node 24.20.0/npm 11.19.0.
 
 ## Desenvolvimento
 

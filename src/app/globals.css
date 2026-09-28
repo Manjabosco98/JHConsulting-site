@@ -11,22 +11,30 @@
   --line: rgba(148, 163, 184, 0.14);
 }
 
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body {
-  margin: 0;
-  background:
-    radial-gradient(circle at 12% 8%, rgba(37,99,235,.16), transparent 30%),
-    radial-gradient(circle at 88% 18%, rgba(34,211,238,.08), transparent 24%),
-    var(--bg);
-  color: var(--text);
-  font-family: Arial, Helvetica, sans-serif;
-  text-rendering: optimizeLegibility;
-}
+/*
+ * Element defaults go in @layer base so Tailwind utilities can override them.
+ * Unlayered CSS wins over every layer, so while these rules sat outside a layer
+ * `a { color: inherit }` silently beat `text-blue-300` (links rendered white)
+ * and `font: inherit` beat `font-bold` on buttons.
+ */
+@layer base {
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(37,99,235,.16), transparent 30%),
+      radial-gradient(circle at 88% 18%, rgba(34,211,238,.08), transparent 24%),
+      var(--bg);
+    color: var(--text);
+    font-family: Arial, Helvetica, sans-serif;
+    text-rendering: optimizeLegibility;
+  }
 
-a { color: inherit; text-decoration: none; }
-button, input, textarea, select { font: inherit; }
-::selection { background: rgba(59,130,246,.35); }
+  a { color: inherit; text-decoration: none; }
+  button, input, textarea, select { font: inherit; }
+  ::selection { background: rgba(59,130,246,.35); }
+}
 
 .container-shell { width: min(1180px, calc(100% - 2rem)); margin-inline: auto; }
 .section-space { padding-block: 6rem; }

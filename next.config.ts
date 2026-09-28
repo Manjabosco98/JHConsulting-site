@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
       : []
   },
   experimental: {
-    optimizePackageImports: ["lucide-react", "motion"],
+    optimizePackageImports: ["lucide-react"],
     // Cover uploads go through a Server Action: 5 MB image + multipart overhead.
     serverActions: { bodySizeLimit: "6mb" }
   }
