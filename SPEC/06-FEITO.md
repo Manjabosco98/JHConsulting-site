@@ -22,7 +22,7 @@
 | **13** | Contatos: persistência do lead e painel de atendimento | `1cdca07` |
 | **14** | Fim do conteúdo duplicado no código | `aa37fbb` |
 | **15** | SEO dinâmico: dados estruturados e imagem social | `d3781a0` |
-| **16** | Performance e a correção de CSS que afetava o site inteiro | — |
+| **16** | Performance e a correção de CSS que afetava o site inteiro | `fab074a` |
 
 ## Detalhe por fase
 
