@@ -23,7 +23,7 @@
 | **14** | Fim do conteúdo duplicado no código | `aa37fbb` |
 | **15** | SEO dinâmico: dados estruturados e imagem social | `d3781a0` |
 | **16** | Performance e a correção de CSS que afetava o site inteiro | `fab074a` |
-| **17** | Cobertura das lacunas reais, com teste de navegador | — |
+| **17** | Cobertura das lacunas reais, com teste de navegador | `c9a7dcb` |
 
 ## Detalhe por fase
 
