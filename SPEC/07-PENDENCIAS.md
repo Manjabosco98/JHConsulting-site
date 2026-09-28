@@ -9,10 +9,10 @@ Nenhuma delas pode ser feita pelo agente, porque exigem suas credenciais, seus d
 | 1 | **Criar a conta de administrador** | Supabase Dashboard → Authentication → Users → Add user (com Auto Confirm). Depois avise para conceder a permissão, ou rode o SQL de [03-CONFIGURACAO.md](03-CONFIGURACAO.md) | Sem isso, ninguém entra no painel. Hoje o Auth tem **0 usuários** |
 | 2 | **Preencher os contatos públicos restantes** | `/admin/configuracoes` | O WhatsApp já está configurado (`+55 (62) 99610-1996`). **E-mail, LinkedIn, GitHub e Instagram continuam vazios**, então esses links não aparecem no rodapé. O painel lista o que falta |
 | 3 | **Desativar o cadastro público** | Authentication → Sign In / Providers → desmarcar "Allow new users to sign up" | Hoje qualquer pessoa pode criar conta. Não dá acesso a dado nenhum (o RLS garante), mas não há motivo para permitir |
-| 4 | **Configurar a `SUPABASE_SECRET_KEY`** | Settings → API Keys → chave `sb_secret_...`, colar no `.env.local` | A Fase 13 está pronta e testada, mas **é essa chave que autoriza o servidor a gravar o lead**. Sem ela (e sem Resend) o formulário responde 503 |
+| ~~4~~ | ~~**Configurar a `SUPABASE_SECRET_KEY`**~~ | — | **Feito.** Gravação confirmada por envio real (`stored: true`) e pela suíte de contatos, que passou a exercitar o caminho com gravação (31 verificações, contra 29 sem a chave) |
 | ~~5~~ | ~~**Configurar o Resend**~~ | — | **Feito.** Domínio `jhconsulting.com.br` verificado (São Paulo) e envio confirmado por um POST real em `/api/contact` (`notified: true`) |
 | 6 | **Definir o domínio em produção** | `NEXT_PUBLIC_SITE_URL=https://jhconsulting.com.br` nas variáveis do Render | Em desenvolvimento continua `localhost:3000`. Já validado: com a URL de produção, canonical, OG, sitemap e HSTS saem corretos |
-| 7 | **Rotacionar a chave do Resend** | Resend → API keys | A chave foi escrita no `.env.example` (versionado) e apareceu no chat. **Não chegou a entrar em nenhum commit**, mas o prudente é gerar outra e colar só no `.env.local` |
+| 7 | **Rotacionar as duas chaves** | Resend → API keys · Supabase → Settings → API Keys | Tanto a do Resend quanto a `SUPABASE_SECRET_KEY` foram coladas no `.env.example` (versionado) e passaram pelo chat. **Nenhuma entrou em commit** — verificado com `git log -S` —, mas o prudente é gerar novas e colar só no `.env.local`. A do Supabase é a mais sensível: ignora o RLS |
 | 8 | **Ligar a proteção contra senha vazada** | Authentication → Policies | Alerta do próprio Supabase. Compara a senha com a base do HaveIBeenPwned. Com uma conta só, protegida por senha, é barato e vale |
 | 9 | **Encurtar a validade do access token** | Authentication → Sessions (JWT expiry) | O padrão é 1h. Depois do logout o refresh já é revogado (Fase 18); esse ajuste reduz a janela do token que ainda está em circulação |
 
@@ -39,7 +39,7 @@ Registrada, não esquecida:
 
 Da especificação original, o que ainda não pode ser marcado:
 
-- [ ] Contatos persistidos no banco — **código pronto e testado**, falta a `SUPABASE_SECRET_KEY` *(sua ação #4)*
+- [x] Contatos persistidos no banco — confirmado em operação, com a chave configurada
 - [x] Resend funcionando de verdade — domínio verificado e envio confirmado
 - [x] Conteúdo sem necessidade nenhuma de editar código *(14)*
 - [ ] Auth completo com admin real criado *(sua ação #1)*

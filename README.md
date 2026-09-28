@@ -31,7 +31,7 @@ Os testes unitários usam mocks de I/O: nenhum banco local, nenhum e-mail enviad
 
 Há mais dois níveis, que exigem um servidor no ar e estão documentados em [SPEC/03-CONFIGURACAO.md](SPEC/03-CONFIGURACAO.md):
 
-- **E2E** (`tests/e2e/`, 8 suítes, 228 verificações) contra o Supabase Cloud real, com usuários temporários;
+- **E2E** (`tests/e2e/`, 8 suítes, 230 verificações) contra o Supabase Cloud real, com usuários temporários;
 - **navegador** (`npm run test:browser`, 12 verificações) para o formulário público, que só existe depois da hidratação. O `fetch` da página é substituído, então não envia e-mail nem grava nada.
 
 A matriz de RLS (`supabase/tests/rls_matrix.sql`, 89 casos) roda pelo conector e sempre desfaz a transação.

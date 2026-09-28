@@ -100,7 +100,9 @@ O formulário do site passou a **gravar o lead antes de tentar o e-mail**. O e-m
 
 **Sem migration:** os grants e policies de `contacts` já existiam desde a Fase 2. A matriz de RLS ganhou 3 casos que reproduzem exatamente o que o código executa.
 
-**Limite em aberto:** o lead só é gravado quando a `SUPABASE_SECRET_KEY` estiver no ambiente. Comprovado por E2E que, sem ela e sem Resend, o endpoint responde 503 `unavailable` em vez de fingir sucesso.
+**Fechado depois da Fase 21**, quando a `SUPABASE_SECRET_KEY` foi configurada: um envio real respondeu `{"ok":true,"stored":true,"notified":true}` e o registro apareceu no banco com `status = NEW`, `source = SITE` e a mensagem sem `\r`. A suíte de contatos passou de 29 para 31 verificações, porque as duas que só existem com gravação deixaram de ser puladas.
+
+Antes disso já estava comprovado por E2E que, sem a chave e sem Resend, o endpoint responde 503 `unavailable` em vez de fingir sucesso.
 
 ### 14 — Fim do conteúdo duplicado
 Saíram de `src/constants/content.ts` os projetos, serviços e tecnologias (e o `techVisual`, que não tinha consumidor). `src/constants/site.ts` ficou reduzido a `name`, `url` e `nav`: e-mail, WhatsApp e redes sociais saíram do código e das variáveis de ambiente, porque a fonte de verdade é `/admin/configuracoes`.
@@ -201,7 +203,7 @@ Com `NEXT_PUBLIC_SITE_URL=https://jhconsulting.com.br`, canonical, `og:image`, `
 | Policies | 36 em `public` + 4 em `storage.objects` |
 | Funções | `is_admin`, `admin_save_project`, `admin_save_technology_group`, `admin_delete_technology` |
 | Conteúdo | 3 projetos, 8 serviços, 32 tecnologias, 7 grupos, 29 membros, 12 vínculos, 1 configuração |
-| Contatos | 0 (a persistência está pronta; falta a `SUPABASE_SECRET_KEY`) |
+| Contatos | 0 — a gravação está **em operação**; os registros de verificação foram removidos |
 | Storage | bucket `portfolio`, 0 objetos |
 | Usuários | 0 (a conta admin ainda será criada por você) |
 | Advisors de segurança | apenas 1 INFO intencional (`admin_users` sem policy) |
@@ -215,7 +217,7 @@ Com `NEXT_PUBLIC_SITE_URL=https://jhconsulting.com.br`, canonical, `og:image`, `
 | JavaScript da home | **589 KB** não comprimido (era 705 KB antes da Fase 16) |
 | Matriz de RLS | **89/89** (última execução na Fase 13; nada depois dela tocou schema, grants, policies ou funções) |
 | Advisors do Supabase | 1 INFO intencional + 1 WARN que virou ação sua |
-| E2E (8 suítes) | **228/228** — auth 32, projetos 22, storage 23, público 45, serviços 21, tecnologias 28, configurações 28, contatos 29 |
+| E2E (8 suítes) | **230/230** — auth 32, projetos 22, storage 23, público 45, serviços 21, tecnologias 28, configurações 28, contatos 31 |
 | `npm run lint` | PASS, **sem nenhum aviso** (o último saiu na Fase 19) |
 | `npm run build` | PASS |
 | `npm run typecheck` | PASS |
