@@ -155,13 +155,12 @@ O histórico local é **espelho exato** do Cloud. Ao criar uma migration:
 
 Nunca reaplicar uma migration às cegas; nunca apagar migration existente sem análise.
 
-## Deploy no Render (Fase 21, não executado)
+## Deploy no Render (preparado, **não executado**)
 
-Previsto: serviço **Node.js**, sem Docker.
+Serviço **Node.js**, sem Docker. O detalhe completo — variáveis, health check, o que fazer depois de publicar e a nota de latência — está em [`docs/DEPLOY-RENDER.md`](../docs/DEPLOY-RENDER.md), e o serviço está descrito em `render.yaml` na raiz (com `autoDeploy: false`).
 
-- Build: `npm install && npm run build`
-- Start: `npm start`
-- Node ≥ 22 (ainda falta fixar `engines`/`.nvmrc`)
-- Variáveis: todas as obrigatórias **no momento do build**, mais as do Resend
-- Supabase Auth → URL Configuration: apontar a Site URL para o domínio
+- Build: `npm ci && npm run build` · Start: `npm start` (lê a variável `PORT`)
+- Node **24**, fixado em `.nvmrc`, em `engines` e em `NODE_VERSION`
+- Validado a partir de um **clone limpo sem `.env.local`**: `npm ci` (33 s) e build (37 s) passam com as variáveis vindas só do ambiente
+- Com `NEXT_PUBLIC_SITE_URL=https://jhconsulting.com.br`, canonical, OG, robots e sitemap saem no domínio real e o HSTS passa a ser emitido
 - Uploads nunca no filesystem do Render: tudo em Supabase Storage

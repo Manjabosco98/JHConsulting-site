@@ -2,7 +2,7 @@
 
 Especificação viva do site institucional e portfólio da JHConsulting. Esta pasta é o ponto de entrada para entender o projeto: o que ele é, como está construído, como configurar, quais decisões foram tomadas, **o que já está pronto e o que falta**.
 
-Data da última revisão: **28/09/2026** (fim da Fase 20). Fases concluídas: H0 e 1 a 20; faltam a 21 e as ações listadas em [07-PENDENCIAS.md](07-PENDENCIAS.md).
+Data da última revisão: **28/09/2026** (fim da Fase 21). **Todas as fases concluídas**; o que resta são as ações listadas em [07-PENDENCIAS.md](07-PENDENCIAS.md) e o deploy, que depende de autorização.
 
 ## Índice
 
@@ -42,6 +42,7 @@ Estas restrições valem para qualquer pessoa ou agente que continuar o trabalho
 | `docs/ADMIN-ARCHITECTURE.md` | Auth, autorização e cada CRUD do painel |
 | `docs/PUBLIC-PROJECTS.md` | Rotas públicas, cache e revalidação |
 | `docs/SITE-SETTINGS.md` | Configurações do site e seus consumidores |
+| `docs/DEPLOY-RENDER.md` | Como publicar no Render, o que foi validado e o que falta |
 | `docs/HANDOFF-CODEX-CLOUD.md` | **Histórico.** Auditoria inicial e diário das fases até a 12 |
 | `docs/ADMIN-MIGRATION-DISCOVERY.md` | **Histórico.** Discovery do código original (Fase 0) |
 | `docs/SUPABASE-FOUNDATION.md` | **Histórico.** Relatório da criação do projeto Cloud (Fase 1) |

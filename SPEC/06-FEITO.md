@@ -1,6 +1,6 @@
 # 06 — O que foi feito
 
-21 fases concluídas (H0 e 1 a 20), cada uma com validação, testes e commit próprio. Falta a Fase 21 (preparação para Render).
+**Todas as 22 fases concluídas** (H0 e 1 a 21), cada uma com validação, testes e commit próprio. O que resta é o deploy, que depende de autorização e das ações listadas em [07-PENDENCIAS.md](07-PENDENCIAS.md).
 
 ## Resumo
 
@@ -27,6 +27,7 @@
 | **18** | Hardening: cabeçalhos, limite de corpo, logout e guardas de segredo | `20d5f81` |
 | **19** | Limpeza do legado de Supabase local e de código morto | `0d17341` |
 | **20** | Documentação revisada e separada entre estado atual e histórico | `a7f7e1d` |
+| **21** | Preparação para Render, validada a partir de clone limpo | — |
 
 ## Detalhe por fase
 
@@ -171,6 +172,25 @@ Corrigidas as afirmações que envelheceram e viraram falsas: em `docs/DATABASE.
 O diário de fases do handoff, que parava na 12, ganhou um fecho apontando para este arquivo.
 
 **Verificações mecânicas:** nenhum link interno quebrado entre os 11 documentos, e nenhum valor de credencial em arquivo versionado — a primeira varredura acusou dois falsos positivos (`re_` casando dentro de `prepare_project_publication`), refeita com padrão ancorado.
+
+### 21 — Preparação para Render
+Node fixado em **24**, nos três lugares que importam: `.nvmrc`, `engines` do `package.json` e `NODE_VERSION` no blueprint.
+
+A validação não foi feita na cópia de trabalho, e sim num **clone limpo do repositório, sem `.env.local`** — a situação real do Render, onde não existe arquivo de ambiente:
+
+| Passo | Resultado |
+|---|---|
+| `npm ci` | 33 s |
+| `npm run build` só com variáveis do ambiente | 37 s, 22 páginas |
+| `npm start` com `PORT` definido | respeita a porta e escuta em todas as interfaces |
+
+Com `NEXT_PUBLIC_SITE_URL=https://jhconsulting.com.br`, canonical, `og:image`, `robots.txt` e `sitemap.xml` saíram no domínio real, e **o HSTS passou a ser emitido** — confirmando na prática a condicional escrita na Fase 18, que o mantém ausente em `localhost`.
+
+`render.yaml` na raiz descreve o serviço com `autoDeploy: false`: publicar é uma decisão, não efeito colateral de um push. Nenhum valor real entra nele. O passo a passo está em [`docs/DEPLOY-RENDER.md`](../docs/DEPLOY-RENDER.md).
+
+**Ponto honesto sobre latência:** o Render não tem região no Brasil. A mais próxima do Supabase (`sa-east-1`) é Virginia, e ainda assim cada consulta atravessa o continente. O site público quase não sente, porque é servido por ISR; quem sente é o painel, que consulta o banco a cada requisição por depender da sessão.
+
+**Nenhum deploy foi feito.**
 
 ## Estado atual do Cloud
 

@@ -54,7 +54,9 @@ O contato público (e-mail, WhatsApp, redes) **não fica em variável de ambient
 
 ## Produção futura
 
-Destino: **Render, serviço Node.js, sem Docker**. Fluxo previsto: `npm install` → `npm run build` → `npm start`. Domínio, env, redirects Auth e configuração final do serviço pertencem à Fase 21. Nenhum deploy está autorizado nesta etapa.
+Destino: **Render, serviço Node.js, sem Docker**. `npm ci` → `npm run build` → `npm start`, com Node 24 fixado em `.nvmrc` e `engines`. O fluxo foi validado a partir de um clone limpo, sem `.env.local`, com as variáveis vindas só do ambiente; `render.yaml` na raiz descreve o serviço com `autoDeploy: false`.
+
+**Nenhum deploy foi feito e nenhum está autorizado.** O passo a passo, as variáveis, a configuração de Auth no domínio e a nota de latência entre Render e Supabase estão em [docs/DEPLOY-RENDER.md](docs/DEPLOY-RENDER.md).
 
 ## Documentação e fases
 
