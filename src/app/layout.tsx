@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL(siteConfig.url),
     title: {
-      default: `${settings.companyName} | Automação, Sistemas, APIs e Dados`,
+      default: `${settings.companyName}`,
       template: `%s | ${settings.companyName}`
     },
     // The meta description follows the panel, so it is editable without a deploy.
