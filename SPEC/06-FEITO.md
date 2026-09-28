@@ -24,7 +24,7 @@
 | **15** | SEO dinâmico: dados estruturados e imagem social | `d3781a0` |
 | **16** | Performance e a correção de CSS que afetava o site inteiro | `fab074a` |
 | **17** | Cobertura das lacunas reais, com teste de navegador | `c9a7dcb` |
-| **18** | Hardening: cabeçalhos, limite de corpo, logout e guardas de segredo | — |
+| **18** | Hardening: cabeçalhos, limite de corpo, logout e guardas de segredo | `20d5f81` |
 
 ## Detalhe por fase
 
