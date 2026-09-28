@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -38,9 +38,12 @@ export function loadTs(file, { mocks = {}, env = publicEnv, globals = {} } = {})
       if (id in mocks) return mocks[id];
       if (id === "zod") return require(id);
       if (id === "server-only" || id === "client-only") return {};
-      if (id.startsWith("@/")) return loadTs(`src/${id.slice(2)}.ts`, { mocks, env, globals });
+      // Imports carry no extension: prefer .ts and fall back to .tsx.
+      const withExtension = (relative) =>
+        existsSync(resolve(root, `${relative}.ts`)) ? `${relative}.ts` : `${relative}.tsx`;
+      if (id.startsWith("@/")) return loadTs(withExtension(`src/${id.slice(2)}`), { mocks, env, globals });
       if (id.startsWith(".")) {
-        return loadTs(`${resolve(dirname(filename), id).slice(root.length + 1)}.ts`, { mocks, env, globals });
+        return loadTs(withExtension(resolve(dirname(filename), id).slice(root.length + 1)), { mocks, env, globals });
       }
       throw new Error(`Unexpected dependency: ${id}`);
     }

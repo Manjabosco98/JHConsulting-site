@@ -86,13 +86,16 @@ O banco guarda o **nome** do ícone Lucide; o site resolve por um mapa fechado d
 
 A verificação usa `Object.hasOwn`, não `in` — com `in`, nomes de protótipo como `toString` passariam pela validação. Isso foi pego por teste.
 
-## 10. Testes em três níveis
+## 10. Testes em quatro níveis
 
 | Nível | O que cobre | Custo |
 |---|---|---|
-| **Unitário** (`npm test`, 108) | Lógica pura e de borda: slugs, validação, mapeamento de erros, ordem, fallback, actions. Sem rede, sem banco | segundos |
+| **Unitário** (`npm test`, 126) | Lógica pura e de borda: slugs, validação, mapeamento de erros, ordem, degradação das seções, actions. Sem rede, sem banco | segundos |
 | **Matriz de RLS** (89 casos) | Permissões reais no Cloud, por papel, em transação desfeita | ~1s |
-| **E2E** (8 suítes, 201 verificações) | Fluxos completos por HTTP contra o Cloud real, incluindo uploads de imagem de verdade | minutos |
+| **E2E** (8 suítes, 211 verificações) | Fluxos completos por HTTP contra o Cloud real, incluindo uploads de imagem de verdade | minutos |
+| **Navegador** (`npm run test:browser`, 12) | O que só existe depois da hidratação: o handler do formulário público, com o `fetch` da página substituído | ~15s |
+
+O nível de navegador nasceu na Fase 17 porque o defeito mais visível do projeto — o formulário mostrando erro depois de um envio aceito — **não era detectável por HTTP**: só aparece quando o React executa o handler. Usa CDP sobre o WebSocket nativo do Node, sem dependência nova e sem container.
 
 Os helpers (`tests/helpers/`) carregam o TypeScript real num contexto isolado e substituem **apenas** framework/SDK, então o teste exercita o código de produção, não uma cópia.
 

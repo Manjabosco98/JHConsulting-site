@@ -55,7 +55,8 @@ As duas coisas são independentes: com a chave e sem Resend, o lead é gravado e
 npm install          # instala dependências
 npm run dev          # desenvolvimento em http://localhost:3000
 npm run lint         # ESLint
-npm test             # 108 testes unitários (sem rede, sem banco)
+npm test             # 126 testes unitários (sem rede, sem banco)
+npm run test:browser # 12 verificações do formulário no navegador (ver abaixo)
 npm run typecheck    # tsc --noEmit
 npm run build        # build de produção
 npm start            # serve o build
@@ -107,6 +108,20 @@ $env:CONTACT_TO_EMAIL = "delivered@resend.dev"; npx next start --hostname 127.0.
 `delivered@resend.dev` é o endereço de teste do Resend: aceita a mensagem e não entrega em caixa nenhuma.
 
 **Nota de ambiente:** durante o desenvolvimento, `npm install`/`build` rodam numa cópia temporária fora da pasta sincronizada pelo Google Drive, para não sincronizar `node_modules`.
+
+## Como rodar o teste de navegador
+
+Cobre o handler do formulário público, que só existe depois da hidratação do React. Substitui o `fetch` da página, então **não envia e-mail nem grava nada**.
+
+1. Servidor de produção no ar (o mesmo dos E2E, porta 3431).
+2. Navegador headless com depuração remota:
+   ```bash
+   msedge --headless=new --remote-debugging-port=9222 --user-data-dir=<pasta-temporaria> about:blank
+   ```
+   Chrome serve igual. Outra porta: exporte `CDP_URL`.
+3. `npm run test:browser`
+
+Não precisa de usuário temporário nem de banco: o teste é só de interface.
 
 ## Criar e revogar administrador
 

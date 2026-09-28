@@ -1,6 +1,6 @@
 # 06 — O que foi feito
 
-17 fases concluídas (H0 e 1 a 16), cada uma com validação, testes e commit próprio.
+18 fases concluídas (H0 e 1 a 17), cada uma com validação, testes e commit próprio.
 
 ## Resumo
 
@@ -23,6 +23,7 @@
 | **14** | Fim do conteúdo duplicado no código | `aa37fbb` |
 | **15** | SEO dinâmico: dados estruturados e imagem social | `d3781a0` |
 | **16** | Performance e a correção de CSS que afetava o site inteiro | `fab074a` |
+| **17** | Cobertura das lacunas reais, com teste de navegador | — |
 
 ## Detalhe por fase
 
@@ -120,6 +121,19 @@ Comprovado pelas mesmas 201 verificações E2E: a home continua mostrando os 8 s
 
 **Revisado e mantido como está:** ISR de 1h com revalidação sob demanda; consultas públicas (uma por seção, sem N+1); contagens do painel em paralelo; `next/image` com `sizes` e allowlist restrita ao domínio do Storage; fontes do sistema, sem webfont. Só três componentes de cliente no site público: `Navbar`, `Contact` e `Reveal`.
 
+### 17 — Testes
+Em vez de inflar a contagem, a fase começou por um levantamento de quais módulos nenhum teste carregava. As lacunas reais eram três.
+
+**Repositórios públicos** (`public-projects`, `public-services`, `public-technologies`): agora têm testes de ordenação por `display_order`, descarte de vínculo cujo lado visível o RLS escondeu, capa virando URL, mapeamento do detalhe e propagação de erro — inclusive a garantia de que `listPublishedProjectSlugs` **nunca lança**, da qual dependem o sitemap e o `generateStaticParams`.
+
+**A decisão da Fase 14 não tinha teste.** Agora cada seção pública é renderizada com o repositório falhando, e o teste exige que apareça o estado neutro e que **não** apareça dado embutido.
+
+**Teste de navegador** para o formulário público, o defeito mais visível que o projeto teve. Ele não era detectável por HTTP: só aparece quando o React executa o handler. Cobre sucesso, 429, 503, queda de rede e o estado do botão, com o `fetch` da página substituído — nenhum e-mail sai e nada é gravado.
+
+**O teste foi verificado por mutação:** reintroduzi o bug numa cópia e confirmei que a suíte acusa exatamente `"Não foi possível enviar agora"` depois de um envio aceito, enquanto os casos de erro continuam passando. Na primeira tentativa a mutação foi feita com `Get-Content`/`Set-Content` do PowerShell 5.1, que corrompeu os acentos do arquivo e invalidou o experimento — refeito lendo e gravando UTF-8 explicitamente.
+
+O helper `loadTs` passou a resolver `.tsx` além de `.ts`, o que é o que permite testar componentes.
+
 ## Estado atual do Cloud
 
 | Item | Estado |
@@ -138,9 +152,10 @@ Comprovado pelas mesmas 201 verificações E2E: a home continua mostrando os 8 s
 
 | Verificação | Resultado |
 |---|---|
-| `npm test` | **113/113** |
+| `npm test` | **126/126** |
+| `npm run test:browser` | **12/12** |
 | JavaScript da home | **589 KB** não comprimido (era 705 KB antes da Fase 16) |
-| Matriz de RLS | **89/89** |
+| Matriz de RLS | **89/89** (última execução na Fase 13; nada depois dela tocou schema, grants, policies ou funções) |
 | E2E (8 suítes) | **211/211** — auth 32, projetos 22, storage 23, público 29, serviços 21, tecnologias 28, configurações 28, contatos 28 |
 | `npm run lint` | PASS (1 aviso preexistente em `postcss.config.mjs`) |
 | `npm run build` | PASS |

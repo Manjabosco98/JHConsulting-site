@@ -16,10 +16,7 @@ Nenhuma delas pode ser feita pelo agente, porque exigem suas credenciais, seus d
 
 ## Fases restantes
 
-### Fase 17 — Testes *(próxima)*
-Ampliar cobertura dos fluxos críticos, especialmente o formulário de contato. Sem Docker e sem banco local.
-
-### Fase 18 — Hardening
+### Fase 18 — Hardening *(próxima)*
 Revisar Auth (inclusive o tempo de vida do access token após logout), RLS, segredos, uploads, APIs, formulários e rate limit.
 
 ### Fase 19 — Limpeza
