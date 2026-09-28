@@ -1,5 +1,7 @@
 # HANDOFF CODEX → CLOUD — FASE H0
 
+> **Registro histórico, não estado atual.** Auditoria do ponto de partida, seguida do diário de encerramento de cada fase. Os números e pendências citados valem para o momento em que cada entrada foi escrita. Para o estado de hoje, veja [`SPEC/`](../SPEC/README.md).
+
 Data: 27/09/2026 (~11:00 BRT). Escopo: auditoria do estado deixado pelo agente anterior (Codex). **Nenhuma implementação nova, nenhuma migration aplicada, nenhum recurso Cloud criado ou alterado.** Única alteração no projeto: este documento.
 
 Fontes de verdade: arquivos em disco + consultas ao Supabase Cloud pelo conector + execução real de lint/testes/build + teste de conectividade com as chaves públicas do `.env.local`.
@@ -295,3 +297,7 @@ Catálogo de tecnologias e grupos N:N gerenciáveis (migration `admin_technology
 ## Atualização — Fase 12 concluída (27/09/2026)
 
 `/admin/configuracoes` com formulário institucional (upsert do singleton) e upload da foto profissional. Os consumidores públicos passaram a ler `site_settings`: metadata, JSON-LD, Hero, About (bio + foto), Footer e todos os links de WhatsApp; a Navbar (client) recebe o link por prop. Contatos vazios simplesmente não aparecem. Descoberto e corrigido: textarea envia CRLF, agora normalizado para `\n` em configurações, projetos e serviços. Testes: 83 unitários e 173 verificações E2E em 7 suítes. **Pendente do usuário:** preencher e-mail, WhatsApp e redes no painel. Próxima: **Fase 13 — contatos**.
+
+## Continuação — Fases 13 a 19
+
+Este diário vai até a Fase 12. A partir da Fase 13 o registro passou para [`SPEC/06-FEITO.md`](../SPEC/06-FEITO.md), que traz cada fase com o commit correspondente e, principalmente, **o que foi descoberto durante a execução** — inclusive os erros cometidos no caminho. Em resumo: contatos persistidos e painel de atendimento (13), fim do conteúdo duplicado no código (14), SEO dinâmico com dados estruturados e imagem social gerada (15), performance e a correção de CSS que afetava links do site inteiro (16), cobertura das lacunas reais com um nível de teste de navegador (17), hardening com cabeçalhos de segurança e guardas de segredo (18) e limpeza do legado de Supabase local (19).

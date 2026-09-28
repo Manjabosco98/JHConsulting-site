@@ -1,6 +1,6 @@
 # 06 — O que foi feito
 
-20 fases concluídas (H0 e 1 a 19), cada uma com validação, testes e commit próprio.
+21 fases concluídas (H0 e 1 a 20), cada uma com validação, testes e commit próprio. Falta a Fase 21 (preparação para Render).
 
 ## Resumo
 
@@ -26,6 +26,7 @@
 | **17** | Cobertura das lacunas reais, com teste de navegador | `c9a7dcb` |
 | **18** | Hardening: cabeçalhos, limite de corpo, logout e guardas de segredo | `20d5f81` |
 | **19** | Limpeza do legado de Supabase local e de código morto | `0d17341` |
+| **20** | Documentação revisada e separada entre estado atual e histórico | — |
 
 ## Detalhe por fase
 
@@ -159,6 +160,17 @@ As variáveis do Turnstile saíram do `.env.example`: eram configuração morta 
 `postcss.config.mjs` passou a exportar uma constante nomeada, e com isso **o lint ficou sem nenhum aviso** — era o único que sobrava desde o início do projeto.
 
 Conferido que toda dependência declarada é realmente importada; nenhuma sobrou.
+
+### 20 — Documentação
+O problema real não era documentação faltando, e sim **documento histórico sendo lido como estado atual**. O discovery, o relatório da fundação e o handoff descrevem coisas como "ainda não existe" ou "na Fase N" que já mudaram — e estavam misturados, no índice do README, com a referência técnica viva.
+
+Os três ganharam um aviso no topo dizendo que são fotografias de um momento, e o README passou a separar **referência técnica sempre atual** de **registro histórico**. A regra de desempate ficou escrita: quando `docs/` e `SPEC/` divergirem sobre o estado de hoje, `SPEC/` é a fonte.
+
+Corrigidas as afirmações que envelheceram e viraram falsas: em `docs/DATABASE.md`, a inserção de contatos que "será feita" já é feita, os contatos públicos que "serão preenchidos" já dependem só do painel, a remoção das constants "só na Fase 14" já aconteceu, e a matriz passou de 86 para 89 casos. Os advisors foram atualizados com a verificação da Fase 18.
+
+O diário de fases do handoff, que parava na 12, ganhou um fecho apontando para este arquivo.
+
+**Verificações mecânicas:** nenhum link interno quebrado entre os 11 documentos, e nenhum valor de credencial em arquivo versionado — a primeira varredura acusou dois falsos positivos (`re_` casando dentro de `prepare_project_publication`), refeita com padrão ancorado.
 
 ## Estado atual do Cloud
 

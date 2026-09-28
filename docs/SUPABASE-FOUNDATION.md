@@ -1,5 +1,7 @@
 # FASE 1 — CRIAÇÃO DO PROJETO SUPABASE CLOUD
 
+> **Registro histórico, não estado atual.** Relatório da Fase 1, preservado como registro. As pendências que ele cita foram resolvidas nas fases seguintes — o `supabase/config.toml`, por exemplo, foi removido na Fase 19. Para o estado de hoje, veja [`SPEC/`](../SPEC/README.md).
+
 Data: 27/09/2026. **STATUS: PASS** (encerrada na auditoria H0, ver `docs/HANDOFF-CODEX-CLOUD.md`). O relatório abaixo registra o estado intermediário "BLOCKED" em que o agente anterior parou; o bloqueio foi superado.
 
 ## Encerramento (H0 / início da Fase 2)

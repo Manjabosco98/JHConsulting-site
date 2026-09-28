@@ -1,5 +1,7 @@
 # FASE 0 — DISCOVERY DO CÓDIGO ATUAL
 
+> **Registro histórico, não estado atual.** Este documento é a fotografia do projeto antes de qualquer fase de implementação, e foi mantido como está de propósito: é ele que explica por que várias decisões foram tomadas. Tudo aqui descrito como "ainda não existe", "deverá" ou "na Fase N" já aconteceu ou foi revisto. Para o estado de hoje, veja [`SPEC/`](../SPEC/README.md).
+
 Data: 27/09/2026. Projeto: JHConsulting. Escopo: exclusivamente análise e validação do código existente, conforme a primeira execução do briefing atual.
 
 ## Resultado e limites

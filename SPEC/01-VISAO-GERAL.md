@@ -47,6 +47,8 @@ O critério de sucesso é simples: **cadastrar ou alterar conteúdo normal do po
 | Tecnologias e seus grupos | `/admin/tecnologias` | Seção Tecnologias e badges dos projetos |
 | Empresa, profissional, cargo, bio, foto, contato e redes | `/admin/configuracoes` | Metadata, Hero, Sobre, Rodapé, links de WhatsApp, JSON-LD |
 
+Os **contatos recebidos** pelo formulário não são conteúdo que você escreve, mas são acompanhados em `/admin/contatos`: a mensagem é registro histórico e imutável; o que muda é o status do atendimento.
+
 ## O que continua no código (por decisão)
 
 Conteúdo **editorial** que não muda com frequência e faz parte da narrativa da página: textos do Hero, seções Problemas, Soluções, Autoridade, Como funciona, Diferenciais e Automação, além dos rótulos e chamadas das seções. Vive em `src/constants/content.ts`.

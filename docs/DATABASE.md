@@ -67,7 +67,7 @@ RLS habilitado em todas as tabelas. Há exatamente uma policy permissiva por (ta
 
 - **Admin** = `authenticated` com `private.is_admin()`: usuário em `private.admin_users` com `active = true`. Admin inativo é tratado como usuário comum.
 - **Usuário autenticado sem admin**: mesmo acesso de leitura que o público; toda escrita é negada (INSERT falha com 42501; UPDATE e DELETE afetam 0 linhas).
-- **Contatos**: nenhum acesso público. A inserção será feita pelo endpoint do servidor com `service_role` (Fase 13), limitada às colunas do formulário.
+- **Contatos**: nenhum acesso público. A inserção é feita pelo endpoint do servidor com `service_role`, limitada às sete colunas do formulário; a leitura de volta é só do `id`. O admin lê tudo e altera **apenas** `status`. Ninguém apaga um contato pela aplicação — a remoção exige o conector.
 - `private.admin_users`: sem policies (negação total pela API), inacessível até para admins via API; consultada apenas por `is_admin()` (SECURITY DEFINER). Admins são cadastrados via SQL/conector (Fase 5).
 - `is_admin()` é chamado como `(select private.is_admin())` e avaliado uma vez por query (initPlan).
 - `public.is_admin()` (Fase 5) expõe o mesmo resultado via RPC para o servidor Next.js (`requireAdmin`). É SECURITY INVOKER, sem parâmetros (só responde sobre `auth.uid()`), com EXECUTE apenas para `authenticated`; anon recebe 42501. Detalhes em [ADMIN-ARCHITECTURE.md](ADMIN-ARCHITECTURE.md).
@@ -102,12 +102,14 @@ Bucket **`portfolio`**:
 
 ### Testes de acesso
 
-[`supabase/tests/rls_matrix.sql`](../supabase/tests/rls_matrix.sql): 86 casos cobrindo anon, usuário comum, admin inativo, admin e service_role (inclui a RPC de projetos e o Storage) (leitura filtrada, escrita, TRUNCATE, colunas de contatos, escalonamento via `admin_users`, schema `private`). Executar pelo conector (`execute_sql`); cria fixtures, simula cada role com `SET LOCAL ROLE` + `request.jwt.claims` e termina com `RAISE`, então a transação sempre é desfeita. Resultado esperado: `RLS_MATRIX pass=86 fail=0`. Executar após qualquer mudança de grants, policies ou schema.
+[`supabase/tests/rls_matrix.sql`](../supabase/tests/rls_matrix.sql): 89 casos cobrindo anon, usuário comum, admin inativo, admin e service_role (inclui a RPC de projetos e o Storage) (leitura filtrada, escrita, TRUNCATE, colunas de contatos, escalonamento via `admin_users`, schema `private`). Executar pelo conector (`execute_sql`); cria fixtures, simula cada role com `SET LOCAL ROLE` + `request.jwt.claims` e termina com `RAISE`, então a transação sempre é desfeita. Resultado esperado: `RLS_MATRIX pass=89 fail=0`. Executar após qualquer mudança de grants, policies ou schema.
 
-## Advisors (após a Fase 3)
+## Advisors
 
-- Segurança: apenas INFO `rls_enabled_no_policy` em `private.admin_users`. É intencional.
-- Performance: somente INFO `unused_index` (banco sem dados reais).
+Última verificação na Fase 18:
+
+- Segurança: INFO `rls_enabled_no_policy` em `private.admin_users` — **intencional**, é a negação total pela API. E WARN de proteção contra senha vazada desligada, que depende de ajuste no painel do Supabase (ver `SPEC/07-PENDENCIAS.md`).
+- Performance: somente INFO `unused_index` (banco sem volume real).
 
 ## Conteúdo inicial (Fase 4)
 
@@ -125,9 +127,9 @@ Migration `seed_initial_content`, idempotente: chaves naturais (`slug`, `id = 1`
 
 - Ordem (`display_order`) = ordem atual do site.
 - Não inventados: descrição longa, capa e links dos projetos; `featured = false`.
-- E-mail, telefone, WhatsApp, LinkedIn, GitHub, Instagram e foto ficaram `NULL`, porque hoje são placeholders de ambiente. Serão preenchidos pelo admin (Fase 12).
-- Validação: comparação campo a campo pela API pública (chave publishable) contra as constants, com ordem, textos, ícones (mesmo componente Lucide), grupos, vínculos, settings e bio (todos PASS); reexecução em transação desfeita sem nenhuma alteração; `rls_matrix.sql` 67/67 com dados reais.
-- As constants continuam sendo a fonte do site até as fases de integração (9–12); a remoção só acontece na Fase 14.
+- E-mail, telefone, WhatsApp, LinkedIn, GitHub, Instagram e foto ficaram `NULL` na migração, porque eram placeholders de ambiente. São preenchidos em `/admin/configuracoes`; hoje só o WhatsApp está definido.
+- Validação **na época da Fase 4**: comparação campo a campo pela API pública contra as constants, com ordem, textos, ícones, grupos, vínculos, settings e bio (todos PASS); reexecução em transação desfeita sem alteração; `rls_matrix.sql` 67/67 com os dados reais daquele momento.
+- As constants deixaram de ser fonte de conteúdo na Fase 14: projetos, serviços e tecnologias saíram do código, e uma falha de consulta degrada para o estado neutro em vez de mostrar dado embutido.
 
 ## Tipos
 

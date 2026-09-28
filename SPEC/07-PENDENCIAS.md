@@ -21,10 +21,7 @@ Nenhuma delas pode ser feita pelo agente, porque exigem suas credenciais, seus d
 ### Fase 19 — Limpeza *(próxima)*
 Remover `supabase/config.toml` e `supabase/.temp` (legado de Supabase local), `techVisual` (constante sem consumidor) e dependências obsoletas.
 
-### Fase 20 — Documentação
-Atualizar README e `docs/`, e revisar esta pasta SPEC.
-
-### Fase 21 — Preparação para Render
+### Fase 21 — Preparação para Render *(última)*
 Fixar versão do Node (`engines`/`.nvmrc`), validar build/start, configurar variáveis, URLs do Auth, domínio e Storage. **Deploy só com sua autorização.**
 
 ## Dívida técnica conhecida

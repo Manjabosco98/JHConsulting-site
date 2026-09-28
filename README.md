@@ -20,14 +20,21 @@ A única infraestrutura de dados autorizada é **Supabase Cloud**, tanto no dese
 ## Validação
 
 ```bash
-npm run lint
-npm test
+npm run lint         # sem erros e sem avisos
+npm test             # 136 unitários, sem rede e sem banco
 npm run build
 npm run typecheck
 npm start
 ```
 
-Os testes existentes usam mocks de I/O, sem banco local ou envio de e-mails. O build deve preceder typecheck num checkout limpo para gerar os tipos de rotas do Next.
+Os testes unitários usam mocks de I/O: nenhum banco local, nenhum e-mail enviado. O build deve preceder o typecheck num checkout limpo, para gerar os tipos de rotas do Next.
+
+Há mais dois níveis, que exigem um servidor no ar e estão documentados em [SPEC/03-CONFIGURACAO.md](SPEC/03-CONFIGURACAO.md):
+
+- **E2E** (`tests/e2e/`, 8 suítes, 228 verificações) contra o Supabase Cloud real, com usuários temporários;
+- **navegador** (`npm run test:browser`, 12 verificações) para o formulário público, que só existe depois da hidratação. O `fetch` da página é substituído, então não envia e-mail nem grava nada.
+
+A matriz de RLS (`supabase/tests/rls_matrix.sql`, 89 casos) roda pelo conector e sempre desfaz a transação.
 
 ## Supabase Cloud
 
@@ -41,7 +48,9 @@ Projeto Cloud: **jhconsulting-site** (ref `qlgxzpowqijcvnwuqchh`, `sa-east-1`). 
 
 ## Resend e configuração pública
 
-`RESEND_API_KEY`, `CONTACT_FROM_EMAIL` e `CONTACT_TO_EMAIL` ficam no servidor e servem apenas ao **aviso** de novo lead: o contato é gravado no banco antes, e a ausência do Resend não impede o registro. URLs, contato público e Analytics são descritos em `.env.example`. Turnstile ainda não está integrado; o anti-spam hoje é honeypot mais rate limit por endereço. O envio real precisa ser validado quando as credenciais forem configuradas.
+`RESEND_API_KEY`, `CONTACT_FROM_EMAIL` e `CONTACT_TO_EMAIL` ficam no servidor e servem apenas ao **aviso** de novo lead: o contato é gravado no banco antes, e a ausência do Resend não impede o registro. O domínio `jhconsulting.com.br` está verificado e o envio foi confirmado por um POST real no endpoint.
+
+O contato público (e-mail, WhatsApp, redes) **não fica em variável de ambiente**: é editado em `/admin/configuracoes`. O anti-spam é honeypot mais rate limit por endereço; não há captcha integrado.
 
 ## Produção futura
 
@@ -51,12 +60,17 @@ Destino: **Render, serviço Node.js, sem Docker**. Fluxo previsto: `npm install`
 
 Comece pela **[especificação em `SPEC/`](SPEC/README.md)**: visão geral, arquitetura, configuração, estratégias, o que está pronto e o que falta.
 
-- [Discovery e problemas conhecidos](docs/ADMIN-MIGRATION-DISCOVERY.md).
-- [Fundação Cloud e relatório da Fase 1](docs/SUPABASE-FOUNDATION.md).
-- [Handoff do Codex (H0)](docs/HANDOFF-CODEX-CLOUD.md).
+Referência técnica, sempre atual:
+
 - [Banco de dados: schema, grants e RLS](docs/DATABASE.md).
-- [Projetos públicos: rotas, cache e revalidação](docs/PUBLIC-PROJECTS.md).
+- [Painel administrativo: Auth, autorização e cada CRUD](docs/ADMIN-ARCHITECTURE.md).
+- [Projetos públicos: rotas, cache, revalidação e SEO](docs/PUBLIC-PROJECTS.md).
 - [Configurações do site: painel e consumidores](docs/SITE-SETTINGS.md).
-- [Painel administrativo: Auth e autorização](docs/ADMIN-ARCHITECTURE.md).
+
+Registro histórico, fotografias de um momento — úteis para entender *por que* as decisões foram tomadas, não para saber como o projeto está hoje:
+
+- [Discovery do código original (Fase 0)](docs/ADMIN-MIGRATION-DISCOVERY.md).
+- [Relatório da criação do projeto Cloud (Fase 1)](docs/SUPABASE-FOUNDATION.md).
+- [Handoff do agente anterior e diário até a Fase 12](docs/HANDOFF-CODEX-CLOUD.md).
 
 Uma fase por vez, com validação e relatório. A fase seguinte depende de autorização do usuário.

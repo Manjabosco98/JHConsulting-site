@@ -2,7 +2,7 @@
 
 Especificação viva do site institucional e portfólio da JHConsulting. Esta pasta é o ponto de entrada para entender o projeto: o que ele é, como está construído, como configurar, quais decisões foram tomadas, **o que já está pronto e o que falta**.
 
-Data da última revisão: **27/09/2026** (fim da Fase 12).
+Data da última revisão: **28/09/2026** (fim da Fase 20). Fases concluídas: H0 e 1 a 20; faltam a 21 e as ações listadas em [07-PENDENCIAS.md](07-PENDENCIAS.md).
 
 ## Índice
 
@@ -14,7 +14,7 @@ Data da última revisão: **27/09/2026** (fim da Fase 12).
 | [04-BANCO-E-SEGURANCA.md](04-BANCO-E-SEGURANCA.md) | Modelo de dados, RLS, funções e o modelo de ameaças assumido |
 | [05-ESTRATEGIAS.md](05-ESTRATEGIAS.md) | Decisões de engenharia e por quê: cache, fonte de verdade, uploads, testes, migrations |
 | [06-FEITO.md](06-FEITO.md) | O que já está implementado, fase por fase, com evidências |
-| [07-PENDENCIAS.md](07-PENDENCIAS.md) | O que falta (Fases 13–21), ações do usuário e dívida técnica |
+| [07-PENDENCIAS.md](07-PENDENCIAS.md) | O que falta (Fase 21), ações do usuário e dívida técnica |
 
 ## Estado em uma frase
 
@@ -42,6 +42,8 @@ Estas restrições valem para qualquer pessoa ou agente que continuar o trabalho
 | `docs/ADMIN-ARCHITECTURE.md` | Auth, autorização e cada CRUD do painel |
 | `docs/PUBLIC-PROJECTS.md` | Rotas públicas, cache e revalidação |
 | `docs/SITE-SETTINGS.md` | Configurações do site e seus consumidores |
-| `docs/HANDOFF-CODEX-CLOUD.md` | Auditoria inicial e registro cronológico das fases |
-| `docs/ADMIN-MIGRATION-DISCOVERY.md` | Discovery do código original (Fase 0) |
-| `docs/SUPABASE-FOUNDATION.md` | Relatório da criação do projeto Cloud (Fase 1) |
+| `docs/HANDOFF-CODEX-CLOUD.md` | **Histórico.** Auditoria inicial e diário das fases até a 12 |
+| `docs/ADMIN-MIGRATION-DISCOVERY.md` | **Histórico.** Discovery do código original (Fase 0) |
+| `docs/SUPABASE-FOUNDATION.md` | **Histórico.** Relatório da criação do projeto Cloud (Fase 1) |
+
+Os três últimos são fotografias de um momento: descrevem coisas como "ainda não existe" ou "na Fase N" que já mudaram. Cada um abre com um aviso nesse sentido. Quando `docs/` e `SPEC/` divergirem sobre o estado atual, **`SPEC/` é a fonte**.
