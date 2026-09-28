@@ -6,9 +6,11 @@ As páginas públicas que mostram projetos leem do Supabase Cloud pela conta an�
 
 | Rota | Render | Conteúdo |
 |---|---|---|
-| `/` (seção Projetos) | ISR 1h | projetos publicados na ordem de exibição + link "Ver todos"; **fallback para `src/constants` em caso de erro** |
-| `/` (seção Serviços) | ISR 1h | serviços ativos na ordem de exibição, ícone resolvido pela allowlist; mesmo fallback (Fase 10) |
-| `/` (seção Tecnologias) | ISR 1h | grupos ativos com suas tecnologias ativas, na ordem definida; mesmo fallback (Fase 11) |
+| `/` (seção Projetos) | ISR 1h | projetos publicados na ordem de exibição + link "Ver todos" |
+| `/` (seção Serviços) | ISR 1h | serviços ativos na ordem de exibição, ícone resolvido pela allowlist |
+| `/` (seção Tecnologias) | ISR 1h | grupos ativos com suas tecnologias ativas, na ordem definida |
+
+Desde a Fase 14 nenhuma dessas seções tem dado embutido: em erro de consulta, o erro vai para o log e a seção mostra seu estado neutro ("… em breve"). O ISR mantém a última renderização boa em cache, então o estado vazio só apareceria numa renderização fria com o banco indisponível.
 | `/projetos` | ISR 1h | listagem completa (mesmo card da home) |
 | `/projetos/[slug]` | SSG + on-demand | capa, problema, solução, descrição, tecnologias ordenadas, links e CTA; `notFound()` para rascunho/arquivado/inexistente |
 | `/sitemap.xml` | ISR 1h | home, `/projetos` e cada projeto publicado |

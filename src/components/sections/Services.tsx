@@ -2,13 +2,16 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 import { listActiveServices } from "@/lib/repositories/public-services";
 import { resolveServiceIcon } from "@/lib/services/icons";
-import { services as fallbackServices } from "@/constants/content";
 
 type ServiceCard = { key: string; title: string; description: string; icon: string; tech: string };
 
-// Reads active services from Supabase; falls back to the bundled constants if
-// the query fails, so the home never loses this section. Constants are removed
-// only in phase 14.
+/**
+ * Services come from /admin/servicos. A failed query degrades to the neutral
+ * empty state instead of a copy bundled at build time: once the panel is in
+ * use, that copy would be wrong, and showing outdated services is worse than
+ * showing none. ISR also keeps serving the last good render, so this is a last
+ * resort rather than the usual path.
+ */
 async function loadServices(): Promise<ServiceCard[]> {
   try {
     const services = await listActiveServices();
@@ -20,14 +23,8 @@ async function loadServices(): Promise<ServiceCard[]> {
       tech: service.tech
     }));
   } catch (error) {
-    console.error(`[home] services fell back to constants: ${(error as Error).message}`);
-    return fallbackServices.map((service) => ({
-      key: service.title,
-      title: service.title,
-      description: service.description,
-      icon: service.icon.displayName ?? "",
-      tech: service.tech
-    }));
+    console.error(`[home] serviços indisponíveis: ${(error as Error).message}`);
+    return [];
   }
 }
 

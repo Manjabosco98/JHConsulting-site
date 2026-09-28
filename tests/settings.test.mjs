@@ -183,35 +183,49 @@ const loadPublic = () => (client, mocks = {}) => loadTs("src/lib/repositories/pu
   }
 });
 
-test("public settings: maps the row, splits the bio and nulls out placeholders", async () => {
+test("public settings: maps the row, splits the bio and nulls out empty fields", async () => {
   const row = {
     company_name: "JHConsulting", professional_name: "João", role: "Analista", description: "Desc",
     bio: "Um.\n\nDois.\n\nTrês.", email: "a@b.co", phone: "", whatsapp: "5562900000000",
-    linkedin_url: "https://linkedin.com/in/x", github_url: "[GITHUB]", instagram_url: null,
+    linkedin_url: "https://linkedin.com/in/x", github_url: "   ", instagram_url: null,
     location: "Goiânia, Goiás, Brasil", service_area: "Brasil", profile_image: PHOTO
   };
   const db = fakeDb(() => ({ data: row, error: null }));
   const settings = plain(await loadPublic()(db).getSiteSettings());
   assert.deepEqual(settings.bio, ["Um.", "Dois.", "Três."]);
   assert.equal(settings.phone, null);
-  assert.equal(settings.githubUrl, null, "placeholder vira null");
+  assert.equal(settings.githubUrl, null, "campo em branco não vira link");
   assert.equal(settings.instagramUrl, null);
   assert.equal(settings.email, "a@b.co");
+  assert.equal(settings.linkedinUrl, "https://linkedin.com/in/x");
   assert.match(settings.profileImageUrl, /\/storage\/v1\/object\/public\/portfolio\/settings\//);
 });
 
-test("public settings: missing row or query error fall back to the constants", async (t) => {
+// Fase 14: sem dado embutido. Uma falha degrada a seção, não substitui por cópia
+// antiga — só a marca sobrevive, porque também é o wordmark da marcação.
+test("public settings: missing row or query error degrade instead of using bundled copy", async (t) => {
   t.mock.method(console, "error", () => {});
+  const degraded = { companyName: "JHConsulting", professionalName: "", role: "", description: "", bio: [],
+    email: null, phone: null, whatsapp: null, linkedinUrl: null, githubUrl: null, instagramUrl: null,
+    location: "", serviceArea: "", profileImageUrl: null };
+
   const missing = fakeDb(() => ({ data: null, error: null }));
-  const fromConstants = plain(await loadPublic()(missing).getSiteSettings());
-  assert.equal(fromConstants.companyName, "JHConsulting");
-  assert.deepEqual(fromConstants.bio, []);
-  assert.equal(fromConstants.email, null, "env placeholders não viram link");
+  assert.deepEqual(plain(await loadPublic()(missing).getSiteSettings()), degraded);
 
   const broken = fakeDb(() => ({ data: null, error: { message: "boom" } }));
-  const recovered = plain(await loadPublic()(broken).getSiteSettings());
-  assert.equal(recovered.companyName, "JHConsulting");
-  assert.equal(recovered.profileImageUrl, null);
+  assert.deepEqual(plain(await loadPublic()(broken).getSiteSettings()), degraded);
+});
+
+test("constants no longer carry content that lives in the database", () => {
+  const content = loadTs("src/constants/content.ts");
+  for (const gone of ["services", "projects", "technologies", "techVisual"]) {
+    assert.equal(gone in content, false, `${gone} deveria ter saído das constants`);
+  }
+  assert.ok(content.problems.length && content.workflow.length, "o texto editorial continua no código");
+
+  const { siteConfig } = loadTs("src/constants/site.ts", { env: { NEXT_PUBLIC_SITE_URL: "https://exemplo.com.br" } });
+  assert.deepEqual(Object.keys(plain(siteConfig)).sort(), ["name", "nav", "url"]);
+  assert.equal(siteConfig.url, "https://exemplo.com.br");
 });
 
 test("whatsapp link: digits only, custom message, and contact fallback", () => {

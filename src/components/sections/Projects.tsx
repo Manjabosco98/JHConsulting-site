@@ -3,11 +3,8 @@ import { ArrowRight } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ProjectCard, type ProjectCardData } from "@/components/projects/ProjectCard";
 import { listPublishedProjects } from "@/lib/repositories/public-projects";
-import { projects as fallbackProjects } from "@/constants/content";
 
-// Reads published projects from Supabase. If the query fails, falls back to the
-// bundled constants so the home never loses this section. Constants are removed
-// only in phase 14.
+/** Projects come from /admin/projetos; see Services.tsx for why there is no bundled fallback. */
 async function loadProjects(): Promise<ProjectCardData[]> {
   try {
     const projects = await listPublishedProjects();
@@ -21,8 +18,8 @@ async function loadProjects(): Promise<ProjectCardData[]> {
       href: `/projetos/${project.slug}`
     }));
   } catch (error) {
-    console.error(`[home] projects fell back to constants: ${(error as Error).message}`);
-    return fallbackProjects.map((project) => ({ ...project, href: null }));
+    console.error(`[home] projetos indisponíveis: ${(error as Error).message}`);
+    return [];
   }
 }
 

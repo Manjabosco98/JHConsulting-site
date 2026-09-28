@@ -122,7 +122,7 @@ Serviços não têm relacionamentos, então a gravação usa **escrita direta na
 
 **Ícones:** `src/lib/services/icons.ts` mantém a allowlist (31 ícones Lucide). O banco guarda só o **nome**; o Zod aceita apenas nomes da lista e `resolveServiceIcon()` cai no ícone padrão se encontrar um nome desconhecido, então o site nunca quebra por um valor inesperado. A checagem usa `Object.hasOwn` — com `in`, nomes de protótipo como `toString` passariam pela validação.
 
-**Seção pública:** `src/components/sections/Services.tsx` lê os serviços ativos do Supabase (`listActiveServices`) preservando o layout original, com **fallback para as constants** em caso de erro. Escritas chamam `revalidatePublicServices()` → `revalidatePath("/")`.
+**Seção pública:** `src/components/sections/Services.tsx` lê os serviços ativos do Supabase (`listActiveServices`) preservando o layout original. Desde a Fase 14 **não há fallback embutido**: um erro registra no log e a seção mostra o estado neutro. Escritas chamam `revalidatePublicServices()` → `revalidatePath("/")`.
 
 ## Tecnologias e grupos (Fase 11)
 
@@ -134,7 +134,7 @@ Serviços não têm relacionamentos, então a gravação usa **escrita direta na
 
 - **Grupos** usam a RPC `admin_save_technology_group` (grupo + membros numa transação). O `TechnologyPicker` (`src/components/admin/TechnologyPicker.tsx`) é compartilhado com o formulário de projetos.
 - **Excluir tecnologia** usa `admin_delete_technology`: remove os vínculos de grupo e apaga. Se algum **projeto** usa a tecnologia, a exclusão é bloqueada e a página mostra a orientação (remover dos projetos ou apenas desmarcar "Ativa"). Excluir um **grupo** não afeta o catálogo.
-- **Seção pública:** `src/components/sections/Technologies.tsx` lê grupos ativos e suas tecnologias ativas, na ordem definida, com fallback para as constants. `revalidatePublicTechnologies()` revalida também as páginas de projetos, porque os badges de tecnologia aparecem nelas.
+- **Seção pública:** `src/components/sections/Technologies.tsx` lê grupos ativos e suas tecnologias ativas, na ordem definida, sem fallback embutido (Fase 14). `revalidatePublicTechnologies()` revalida também as páginas de projetos, porque os badges de tecnologia aparecem nelas.
 
 ## Contatos (Fase 13)
 

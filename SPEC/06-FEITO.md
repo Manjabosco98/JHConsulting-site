@@ -1,6 +1,6 @@
 # 06 — O que foi feito
 
-14 fases concluídas (H0 e 1 a 13), cada uma com validação, testes e commit próprio.
+15 fases concluídas (H0 e 1 a 14), cada uma com validação, testes e commit próprio.
 
 ## Resumo
 
@@ -20,6 +20,7 @@
 | **11** | Tecnologias, grupos N:N e seção pública | `b64d3c7` |
 | **12** | Configurações institucionais | `b47df61` |
 | **13** | Contatos: persistência do lead e painel de atendimento | `1cdca07` |
+| **14** | Fim do conteúdo duplicado no código | — |
 
 ## Detalhe por fase
 
@@ -94,6 +95,15 @@ O formulário do site passou a **gravar o lead antes de tentar o e-mail**. O e-m
 
 **Limite em aberto:** o lead só é gravado quando a `SUPABASE_SECRET_KEY` estiver no ambiente. Comprovado por E2E que, sem ela e sem Resend, o endpoint responde 503 `unavailable` em vez de fingir sucesso.
 
+### 14 — Fim do conteúdo duplicado
+Saíram de `src/constants/content.ts` os projetos, serviços e tecnologias (e o `techVisual`, que não tinha consumidor). `src/constants/site.ts` ficou reduzido a `name`, `url` e `nav`: e-mail, WhatsApp e redes sociais saíram do código e das variáveis de ambiente, porque a fonte de verdade é `/admin/configuracoes`.
+
+**A decisão que faltava:** em falha de consulta, a seção mostra o estado neutro que já existia em vez de dado embutido. O raciocínio está em [05-ESTRATEGIAS.md](05-ESTRATEGIAS.md) — resumidamente, depois que o painel começa a ser usado a cópia do build vira informação errada, e o ISR já protege contra indisponibilidade momentânea servindo a última renderização boa.
+
+As configurações institucionais degradam para um objeto com apenas a marca preenchida, cenário inalcançável na prática porque a linha é singleton e nenhum papel consegue apagá-la.
+
+Comprovado pelas mesmas 201 verificações E2E: a home continua mostrando os 8 serviços, os 3 projetos e os 7 grupos de tecnologia, agora sem nenhum dado embutido.
+
 ## Estado atual do Cloud
 
 | Item | Estado |
@@ -112,7 +122,7 @@ O formulário do site passou a **gravar o lead antes de tentar o e-mail**. O e-m
 
 | Verificação | Resultado |
 |---|---|
-| `npm test` | **108/108** |
+| `npm test` | **109/109** |
 | Matriz de RLS | **89/89** |
 | E2E (8 suítes) | **201/201** — auth 32, projetos 22, storage 23, público 19, serviços 21, tecnologias 28, configurações 28, contatos 28 |
 | `npm run lint` | PASS (1 aviso preexistente em `postcss.config.mjs`) |

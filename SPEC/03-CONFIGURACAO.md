@@ -45,11 +45,9 @@ As duas coisas são independentes: com a chave e sem Resend, o lead é gravado e
 | `NEXT_PUBLIC_GA_ID` | Google Analytics, se houver |
 | `TURNSTILE_SECRET_KEY`, `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Reservadas; anti-spam não integrado |
 
-### Herdadas, hoje apenas fallback
+### Removidas na Fase 14
 
-`NEXT_PUBLIC_WHATSAPP_NUMBER`, `NEXT_PUBLIC_CONTACT_EMAIL`, `NEXT_PUBLIC_LINKEDIN_URL`, `NEXT_PUBLIC_GITHUB_URL`, `NEXT_PUBLIC_INSTAGRAM_URL`.
-
-A **fonte de verdade desses dados agora é `/admin/configuracoes`** (tabela `site_settings`). As variáveis só são usadas se a consulta ao banco falhar. Remoção prevista na Fase 14/19.
+`NEXT_PUBLIC_WHATSAPP_NUMBER`, `NEXT_PUBLIC_CONTACT_EMAIL`, `NEXT_PUBLIC_LINKEDIN_URL`, `NEXT_PUBLIC_GITHUB_URL` e `NEXT_PUBLIC_INSTAGRAM_URL` **não são mais lidas**. A fonte de verdade desses dados é `/admin/configuracoes` (tabela `site_settings`). Se ainda existirem no seu `.env.local`, são inofensivas, mas podem sair.
 
 ## Comandos
 

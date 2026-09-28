@@ -1,6 +1,6 @@
 # JHConsulting — Site institucional e portfólio
 
-Next.js existente, com evolução incremental para conteúdo administrável no Supabase Cloud. Projetos, serviços, tecnologias e as informações institucionais já vêm do Supabase (com ISR e revalidação on-demand); as seções editoriais restantes ainda usam `src/constants/content.ts` até a Fase 14. O formulário usa Zod, honeypot, rate limit e Resend.
+Next.js existente, com evolução incremental para conteúdo administrável no Supabase Cloud. Projetos, serviços, tecnologias, informações institucionais e contatos vêm do Supabase (com ISR e revalidação on-demand). `src/constants/content.ts` guarda apenas o texto editorial da página, que não é conteúdo administrável. O formulário usa Zod, honeypot, rate limit, grava o lead no banco e avisa por Resend.
 
 ## Stack
 

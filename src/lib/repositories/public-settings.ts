@@ -23,41 +23,47 @@ export type SiteSettings = {
   profileImageUrl: string | null;
 };
 
-/** Placeholders from the old env-based config are treated as "not set". */
-const placeholders = new Set(["[EMAIL]", "[WHATSAPP]", "[LINKEDIN]", "[GITHUB]", "[INSTAGRAM]"]);
 function optional(value: string | null | undefined): string | null {
   const trimmed = (value ?? "").trim();
-  return !trimmed || placeholders.has(trimmed) ? null : trimmed;
+  return trimmed || null;
 }
 
 function paragraphs(text: string) {
   return text.split(/\n\s*\n/).map((block) => block.trim()).filter(Boolean);
 }
 
-/** Values bundled in the code, used until settings exist and if the query fails. */
-function fallbackSettings(): SiteSettings {
+/**
+ * Degraded mode: the page still renders, but with no institutional data at all
+ * instead of a stale copy bundled at build time. Only the brand name survives,
+ * because it is also the wordmark in the markup.
+ *
+ * In practice this is unreachable: the row is a singleton that the seed created
+ * and that no role can delete (see the RLS matrix). It exists for a query that
+ * fails on a cold render — and even then ISR keeps serving the last good page.
+ */
+function degradedSettings(): SiteSettings {
   return {
     companyName: siteConfig.name,
-    professionalName: siteConfig.professional,
-    role: siteConfig.role,
-    description: siteConfig.description,
+    professionalName: "",
+    role: "",
+    description: "",
     bio: [],
-    email: optional(siteConfig.email),
+    email: null,
     phone: null,
-    whatsapp: optional(siteConfig.whatsapp),
-    linkedinUrl: optional(siteConfig.linkedin),
-    githubUrl: optional(siteConfig.github),
-    instagramUrl: optional(siteConfig.instagram),
-    location: siteConfig.location,
-    serviceArea: siteConfig.serviceArea,
+    whatsapp: null,
+    linkedinUrl: null,
+    githubUrl: null,
+    instagramUrl: null,
+    location: "",
+    serviceArea: "",
     profileImageUrl: null
   };
 }
 
 /**
- * Institutional settings for the public site. Deduplicated per request, so every
- * section can call it. Never throws: falls back to the bundled constants, which
- * keeps the site rendering if the row is missing or the query fails.
+ * Institutional settings for the public site, from /admin/configuracoes.
+ * Deduplicated per request, so every section can call it. Never throws: a
+ * failure degrades the section instead of breaking the whole page.
  */
 export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
   try {
@@ -66,7 +72,10 @@ export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
       .select("company_name, professional_name, role, description, bio, email, phone, whatsapp, linkedin_url, github_url, instagram_url, location, service_area, profile_image")
       .maybeSingle();
     if (error) throw new Error(error.message);
-    if (!data) return fallbackSettings();
+    if (!data) {
+      console.error("[settings] linha única de site_settings ausente.");
+      return degradedSettings();
+    }
 
     return {
       companyName: data.company_name,
@@ -85,7 +94,7 @@ export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
       profileImageUrl: publicImageUrl(data.profile_image)
     };
   } catch (error) {
-    console.error(`[settings] fell back to constants: ${(error as Error).message}`);
-    return fallbackSettings();
+    console.error(`[settings] consulta falhou, seguindo em modo degradado: ${(error as Error).message}`);
+    return degradedSettings();
   }
 });

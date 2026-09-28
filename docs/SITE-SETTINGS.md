@@ -19,7 +19,7 @@ A linha singleton `public.site_settings` (id = 1) alimenta a identidade, o conta
 
 ## Consumidores públicos
 
-`getSiteSettings()` (`src/lib/repositories/public-settings.ts`) é memoizado por requisição (`cache`) e **nunca lança**: sem a linha, ou em erro de consulta, cai para `src/constants/site.ts` + variáveis de ambiente, com placeholders (`[EMAIL]`, `[WHATSAPP]`…) tratados como vazio.
+`getSiteSettings()` (`src/lib/repositories/public-settings.ts`) é memoizado por requisição (`cache`) e **nunca lança**. Desde a Fase 14 não existe fallback para constants ou variáveis de ambiente: sem a linha, ou em erro de consulta, devolve um objeto **degradado** com apenas `companyName` preenchido (a marca, que também é o wordmark da marcação) e registra o erro. Na prática é inalcançável — a linha é singleton, criada pelo seed, e nenhum papel consegue apagá-la.
 
 | Consumidor | Usa |
 |---|---|
@@ -37,5 +37,5 @@ A linha singleton `public.site_settings` (id = 1) alimenta a identidade, o conta
 
 ## Testes
 
-- `tests/settings.test.mjs` (em `npm test`): validação (obrigatórios, e-mail, WhatsApp com DDD, URLs, opcionais → `NULL`), upsert, foto (upload/rollback/remoção, caminhos), actions e o fallback do `getSiteSettings`.
+- `tests/settings.test.mjs` (em `npm test`): validação (obrigatórios, e-mail, WhatsApp com DDD, URLs, opcionais → `NULL`), upsert, foto (upload/rollback/remoção, caminhos), actions, o modo degradado do `getSiteSettings` e a checagem de que as constants não carregam mais conteúdo do banco.
 - `tests/e2e/admin-settings.e2e.mjs`: 28 verificações reais — validação sem gravar, salvar contatos refletindo em home/rodapé/WhatsApp/JSON-LD/páginas internas, upload com recusa de SVG disfarçado, foto aparecendo na seção Sobre, remoção limpando Storage, bloqueio de não-admin/anônimo e **restauração dos valores originais** no fim.

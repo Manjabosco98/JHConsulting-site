@@ -1,11 +1,9 @@
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { listPublicTechnologyGroups } from "@/lib/repositories/public-technologies";
-import { technologies as fallbackTechnologies } from "@/constants/content";
 
 type Group = { key: string; name: string; technologies: readonly string[] };
 
-// Reads active groups and their active technologies from Supabase; falls back to
-// the bundled constants if the query fails. Constants are removed in phase 14.
+/** Groups come from /admin/tecnologias; see Services.tsx for why there is no bundled fallback. */
 async function loadGroups(): Promise<Group[]> {
   try {
     const groups = await listPublicTechnologyGroups();
@@ -13,8 +11,8 @@ async function loadGroups(): Promise<Group[]> {
       .filter((group) => group.technologies.length)
       .map((group) => ({ key: group.id, name: group.name, technologies: group.technologies }));
   } catch (error) {
-    console.error(`[home] technologies fell back to constants: ${(error as Error).message}`);
-    return Object.entries(fallbackTechnologies).map(([name, items]) => ({ key: name, name, technologies: items }));
+    console.error(`[home] tecnologias indisponíveis: ${(error as Error).message}`);
+    return [];
   }
 }
 

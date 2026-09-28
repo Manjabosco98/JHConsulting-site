@@ -57,7 +57,7 @@ Também permanecem em código, de propósito:
 - a **navegação** (estrutura da página);
 - a **URL do site** e chaves (configuração de deploy, em variáveis de ambiente).
 
-A limpeza do que sobrou de conteúdo migrado está prevista na Fase 14 (ver [07-PENDENCIAS.md](07-PENDENCIAS.md)).
+Desde a Fase 14 não há mais conteúdo duplicado: o que o banco administra saiu das constantes, e as seções degradam para um estado neutro se a consulta falhar.
 
 ## Identidade visual a preservar
 

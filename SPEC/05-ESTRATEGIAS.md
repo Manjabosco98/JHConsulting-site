@@ -8,13 +8,17 @@ O site original é a base oficial. A cada fase, uma área sai das constantes e p
 
 **Como se garante:** screenshots antes/depois em desktop e mobile em cada fase que mexe no público, e o card de projeto foi extraído para um componente compartilhado mantendo a marcação original.
 
-## 2. Fallback para as constantes
+## 2. Uma fonte de verdade, e degradação em vez de cópia velha
 
-As seções que leem do banco (Projetos, Serviços, Tecnologias, e as configurações) **caem para `src/constants/` se a consulta falhar**, com o erro no log.
+Durante as fases 9 a 12 as seções caíam para `src/constants/` se a consulta falhasse. Isso fazia sentido enquanto o dado embutido era **idêntico** ao migrado. A partir do momento em que o painel passa a ser usado, deixa de fazer: a cópia embutida no build vira informação errada sobre serviços, projetos e contato.
 
-**Por quê:** uma indisponibilidade momentânea do banco não deve apagar a seção de serviços do site de uma consultoria. O dado de fallback é exatamente o mesmo que foi migrado, então visualmente não há diferença.
+Na Fase 14 o fallback foi removido. Em falha de consulta, cada seção mostra seu **estado neutro** já existente ("Serviços serão publicados em breve.") e registra o erro no log.
 
-**Consequência:** as constantes continuam no repositório até a Fase 14, e essa dependência precisa ser removida com cuidado (ver [07-PENDENCIAS.md](07-PENDENCIAS.md)).
+**Por que isso não deixa o site frágil:** com ISR, uma revalidação que falha mantém a última renderização boa em cache. O estado vazio só apareceria numa renderização fria com o banco fora — cenário em que mostrar dado desatualizado seria pior do que mostrar nada.
+
+As configurações institucionais têm um caso à parte: os campos obrigatórios não podem simplesmente sumir, então `getSiteSettings()` devolve um objeto **degradado** com apenas a marca preenchida. Na prática é inalcançável — a linha é singleton, foi criada pelo seed e nenhum papel consegue apagá-la (casos 60 e 63 da matriz de RLS).
+
+**O que continua no código de propósito:** o texto editorial da página (Hero, Problemas, Soluções, Autoridade, Como funciona, Diferenciais, Automação), a estrutura de navegação e a URL do site. Nada disso é conteúdo que o cliente edite.
 
 ## 3. Cache: ISR + revalidação sob demanda
 

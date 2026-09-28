@@ -51,7 +51,7 @@ src/
 │   ├── revalidate.ts             invalidação de cache por área
 │   ├── slug.ts, whatsapp.ts      helpers puros
 │   └── admin/                    navegação e rótulos do painel
-├── constants/                    conteúdo editorial e fallback
+├── constants/                    texto editorial da página e configuração de deploy
 ├── types/database.ts             tipos gerados do schema real
 └── proxy.ts                      renovação de sessão + redirect otimista
 

@@ -12,7 +12,7 @@ Data da última revisão: **27/09/2026** (fim da Fase 12).
 | [02-ARQUITETURA.md](02-ARQUITETURA.md) | Stack, estrutura de pastas, camadas e como uma página é renderizada |
 | [03-CONFIGURACAO.md](03-CONFIGURACAO.md) | Supabase, variáveis de ambiente, comandos, como rodar e operar |
 | [04-BANCO-E-SEGURANCA.md](04-BANCO-E-SEGURANCA.md) | Modelo de dados, RLS, funções e o modelo de ameaças assumido |
-| [05-ESTRATEGIAS.md](05-ESTRATEGIAS.md) | Decisões de engenharia e por quê: cache, fallback, uploads, testes, migrations |
+| [05-ESTRATEGIAS.md](05-ESTRATEGIAS.md) | Decisões de engenharia e por quê: cache, fonte de verdade, uploads, testes, migrations |
 | [06-FEITO.md](06-FEITO.md) | O que já está implementado, fase por fase, com evidências |
 | [07-PENDENCIAS.md](07-PENDENCIAS.md) | O que falta (Fases 13–21), ações do usuário e dívida técnica |
 
