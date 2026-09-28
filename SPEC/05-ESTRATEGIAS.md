@@ -86,18 +86,41 @@ A verificação usa `Object.hasOwn`, não `in` — com `in`, nomes de protótipo
 
 | Nível | O que cobre | Custo |
 |---|---|---|
-| **Unitário** (`npm test`, 83) | Lógica pura e de borda: slugs, validação, mapeamento de erros, ordem, fallback, actions. Sem rede, sem banco | segundos |
-| **Matriz de RLS** (86 casos) | Permissões reais no Cloud, por papel, em transação desfeita | ~1s |
-| **E2E** (7 suítes, 173 verificações) | Fluxos completos por HTTP contra o Cloud real, incluindo uploads de imagem de verdade | minutos |
+| **Unitário** (`npm test`, 108) | Lógica pura e de borda: slugs, validação, mapeamento de erros, ordem, fallback, actions. Sem rede, sem banco | segundos |
+| **Matriz de RLS** (89 casos) | Permissões reais no Cloud, por papel, em transação desfeita | ~1s |
+| **E2E** (8 suítes, 201 verificações) | Fluxos completos por HTTP contra o Cloud real, incluindo uploads de imagem de verdade | minutos |
 
 Os helpers (`tests/helpers/`) carregam o TypeScript real num contexto isolado e substituem **apenas** framework/SDK, então o teste exercita o código de produção, não uma cópia.
 
-Os E2E criam e removem seus próprios dados, e a suíte de configurações **restaura** os valores originais. Cada fase termina verificando que o banco voltou ao estado esperado.
+Os E2E criam e removem seus próprios dados, e a suíte de configurações **restaura** os valores originais. A exceção é a de contatos: um lead não é apagável pela aplicação, por decisão de projeto, então a limpeza é feita pelo conector. Cada fase termina verificando que o banco voltou ao estado esperado.
 
 ## 11. Git e migrations espelhadas
 
 O projeto não tinha Git; foi criado um commit de base antes de qualquer mudança, e cada fase é um commit descritivo. As migrations locais têm exatamente as versões aplicadas no Cloud, então o histórico do repositório conta a mesma história do banco.
 
-## 12. Segredos
+## 12. Contato: gravar primeiro, notificar depois
+
+O lead é escrito no banco **antes** de qualquer tentativa de e-mail, e o e-mail é tratado como notificação.
+
+| Situação | Resposta ao visitante | Consequência |
+|---|---|---|
+| Gravou e notificou | 200 | nada a fazer |
+| Gravou, e-mail falhou ou não configurado | 200 | o lead está em `/admin/contatos`; a falha fica no log |
+| Não gravou, e-mail saiu | 200 | o lead está na caixa de entrada |
+| Nenhum dos dois | **503** | é o único caso em que pedir outro canal é honesto |
+
+**Por quê:** um formulário de captação que responde "enviado" sem ter guardado nada em lugar algum é a pior falha possível neste site. E o inverso também: uma indisponibilidade do Resend não deve devolver erro a quem já está registrado.
+
+O honeypot é a exceção deliberada: responde como sucesso e **não grava nada**, para não dar retorno útil a um bot.
+
+## 13. A chave privilegiada existe para um caso só
+
+A `service_role` é usada exclusivamente para gravar o lead do formulário público — o único momento em que alguém não autenticado legitimamente escreve no banco. Tudo no painel continua usando a sessão do admin, com o RLS valendo.
+
+O que mantém isso estreito não é a confiança no código, são os **grants por coluna**: a `service_role` pode inserir apenas `name, company, email, whatsapp, project_type, message, source`, e ler de volta apenas `id`. Não define `status`, não lê e-mail de ninguém, não toca em nenhuma outra tabela. Os quatro casos da matriz de RLS (80–84, 99–100) provam isso no banco real.
+
+**Alternativa recusada:** liberar `insert` para `anon` (ou uma RPC `SECURITY DEFINER` aberta) dispensaria a chave, mas permitiria gravar contatos direto na API, sem passar pelo rate limit do endpoint. Manter a escrita no servidor é o que torna o limite efetivo.
+
+## 14. Segredos
 
 Nenhum valor real aparece em documento, log ou commit. `.env*` é ignorado (exceto o exemplo). A chave privilegiada nunca recebe prefixo `NEXT_PUBLIC_`. Erros de configuração citam o **nome** da variável, nunca o valor.

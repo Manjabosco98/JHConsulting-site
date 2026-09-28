@@ -31,17 +31,17 @@ Os testes existentes usam mocks de I/O, sem banco local ou envio de e-mails. O b
 
 ## Supabase Cloud
 
-Os clientes browser e server estão separados em `src/lib/supabase/`. Ambos usam apenas URL HTTPS e chave **publishable**, via `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. A factory de servidor é por requisição e recebe os cookies do Next. A home pode ser construída sem essas variáveis porque ainda não chama os clientes.
+Os clientes público, de sessão e de browser estão separados em `src/lib/supabase/` e usam apenas URL HTTPS e chave **publishable**, via `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. A factory de servidor é por requisição e recebe os cookies do Next. Essas duas variáveis são necessárias já no build, porque as páginas públicas leem do banco.
 
-`SUPABASE_SECRET_KEY` é reservada para uso privilegiado futuro (inserção de contatos, Fase 13); nunca pode receber prefixo `NEXT_PUBLIC_`. O painel fica em `/admin` (login em `/admin/login`, e-mail + senha): o proxy renova a sessão e o servidor autoriza via `requireAdmin()`. Veja [docs/ADMIN-ARCHITECTURE.md](docs/ADMIN-ARCHITECTURE.md), inclusive como criar o administrador.
+`SUPABASE_SECRET_KEY` (`sb_secret_...`) é usada em **um único lugar**: gravar o contato recebido pelo formulário público (`src/lib/supabase/secret.ts`). Nunca pode receber prefixo `NEXT_PUBLIC_`. Sem ela o site funciona, mas os leads não são registrados. O painel fica em `/admin` (login em `/admin/login`, e-mail + senha): o proxy renova a sessão e o servidor autoriza via `requireAdmin()`. Veja [docs/ADMIN-ARCHITECTURE.md](docs/ADMIN-ARCHITECTURE.md), inclusive como criar o administrador.
 
-Projeto Cloud: **jhconsulting-site** (ref `qlgxzpowqijcvnwuqchh`, `sa-east-1`). Operações suportadas devem ser realizadas pelo conector Supabase. Os arquivos em `supabase/migrations` espelham exatamente o histórico aplicado no Cloud (mesmas versões); toda nova migration deve ser aplicada pelo conector e salva aqui com a versão retornada. Schema, grants e RLS estão descritos em [docs/DATABASE.md](docs/DATABASE.md). O seed será tratado na Fase 4.
+Projeto Cloud: **jhconsulting-site** (ref `qlgxzpowqijcvnwuqchh`, `sa-east-1`). Operações suportadas devem ser realizadas pelo conector Supabase. Os arquivos em `supabase/migrations` espelham exatamente o histórico aplicado no Cloud (mesmas versões); toda nova migration deve ser aplicada pelo conector e salva aqui com a versão retornada. Schema, grants e RLS estão descritos em [docs/DATABASE.md](docs/DATABASE.md).
 
 `src/types/database.ts` é gerado a partir do schema Cloud. A geração pelo conector é preferencial. Como alternativa de manutenção com a CLI já autenticada, exporte `SUPABASE_PROJECT_ID` no terminal e execute `npm run supabase:types`. O script exige projeto remoto explícito, usa somente schema `public` e preserva os tipos anteriores se falhar; não usa banco local. Regerar sempre após alterar o schema.
 
 ## Resend e configuração pública
 
-Preservar `RESEND_API_KEY`, `CONTACT_FROM_EMAIL` e `CONTACT_TO_EMAIL` no servidor. URLs, contato público e Analytics são descritos em `.env.example`. Turnstile ainda não está integrado. As falhas conhecidas do formulário e os limites do rate limit estão documentados no discovery; o envio real precisa ser validado quando as credenciais forem configuradas.
+`RESEND_API_KEY`, `CONTACT_FROM_EMAIL` e `CONTACT_TO_EMAIL` ficam no servidor e servem apenas ao **aviso** de novo lead: o contato é gravado no banco antes, e a ausência do Resend não impede o registro. URLs, contato público e Analytics são descritos em `.env.example`. Turnstile ainda não está integrado; o anti-spam hoje é honeypot mais rate limit por endereço. O envio real precisa ser validado quando as credenciais forem configuradas.
 
 ## Produção futura
 

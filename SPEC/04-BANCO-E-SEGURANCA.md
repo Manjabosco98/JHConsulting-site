@@ -20,7 +20,7 @@ services   site_settings (id=1)   contacts        private.admin_users ── aut
 | `technology_group_members` | Quais tecnologias em cada grupo (N:N) | 29 |
 | `services` | Serviços da home: ícone, linha editorial, ordem, ativo | 8 |
 | `site_settings` | Linha única (`id = 1`) com identidade, contato e redes | 1 |
-| `contacts` | Leads do formulário, com status | 0 (Fase 13) |
+| `contacts` | Leads do formulário, com status de atendimento | 0 |
 | `private.admin_users` | Quem é administrador (`active`) | 0 |
 
 Decisões de modelagem que valem registro:
@@ -83,15 +83,21 @@ O que foi considerado e está coberto:
 | Texto editável quebrar o JSON-LD | `<` escapado na serialização | Código |
 | Página com sessão ser cacheada por CDN | Proxy envia `Cache-Control: no-store` junto dos cookies | E2E |
 | `/admin` aparecer em busca | `noindex` por metadata e header, `Disallow` no robots | E2E |
+| Bot inundando o formulário | Honeypot (responde 200 e não grava) + 5 envios por minuto por endereço | Unitário + E2E |
+| Corpo malformado derrubar o endpoint | `request.json()` em try/catch → 400 | Unitário + E2E |
+| Lead ser perdido por falha de e-mail | Grava antes de notificar; 503 só quando os dois falham | Unitário + E2E |
+| Chave privilegiada escrever além do formulário | Grants por coluna: insere 7 colunas, lê só `id`, nada de `status` | Matriz |
 
 Limites conhecidos, registrados de propósito:
 
 - **Logout não invalida o access token já emitido** (até 1h, padrão do Supabase). É comportamento de JWT; revisão na Fase 18.
 - **Cadastro público do Auth está aberto.** Não dá acesso a dados, mas deve ser desativado.
 - **Rate limit do formulário é em memória por processo.** Não coordena entre instâncias.
+- **O cliente do rate limit é identificado por `x-forwarded-for`.** Confiável atrás de um proxy que reescreva o cabeçalho (o caso do Render); em acesso direto, falsificável.
+- **Anti-spam se resume a honeypot e rate limit.** O Turnstile existe só como variável de ambiente.
 
 ## Como validar a segurança
 
-`supabase/tests/rls_matrix.sql` — **86 casos** cobrindo anon, usuário comum, admin inativo, admin e `service_role`, incluindo as RPCs e o Storage. Roda pelo conector, cria seus próprios dados e termina com `RAISE`, então **a transação é sempre desfeita**.
+`supabase/tests/rls_matrix.sql` — **89 casos** cobrindo anon, usuário comum, admin inativo, admin e `service_role`, incluindo as RPCs e o Storage. Roda pelo conector, cria seus próprios dados e termina com `RAISE`, então **a transação é sempre desfeita**.
 
-Resultado esperado: `RLS_MATRIX pass=86 fail=0`. Rodar após qualquer mudança em schema, grants, policies ou funções.
+Resultado esperado: `RLS_MATRIX pass=89 fail=0`. Rodar após qualquer mudança em schema, grants, policies ou funções.

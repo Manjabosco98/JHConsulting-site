@@ -136,6 +136,21 @@ Serviços não têm relacionamentos, então a gravação usa **escrita direta na
 - **Excluir tecnologia** usa `admin_delete_technology`: remove os vínculos de grupo e apaga. Se algum **projeto** usa a tecnologia, a exclusão é bloqueada e a página mostra a orientação (remover dos projetos ou apenas desmarcar "Ativa"). Excluir um **grupo** não afeta o catálogo.
 - **Seção pública:** `src/components/sections/Technologies.tsx` lê grupos ativos e suas tecnologias ativas, na ordem definida, com fallback para as constants. `revalidatePublicTechnologies()` revalida também as páginas de projetos, porque os badges de tecnologia aparecem nelas.
 
+## Contatos (Fase 13)
+
+| Rota | Função |
+|---|---|
+| `POST /api/contact` | endpoint público do formulário |
+| `/admin/contatos` | lista com abas por status e contagem |
+| `/admin/contatos/[id]` | mensagem completa, dados do lead, responder por e-mail/WhatsApp e alterar status |
+
+**Ordem do endpoint:** rate limit → parse do JSON (malformado = 400) → validação Zod espelhando as constraints → honeypot (200 sem gravar) → **gravar** → **notificar**. Só responde 503 quando gravação e e-mail falham; nos demais casos o corpo traz `{ ok: true, stored, notified }`.
+
+- **Gravação** (`src/lib/repositories/contacts.ts` + `src/lib/supabase/secret.ts`): usa a `SUPABASE_SECRET_KEY` (`sb_secret_...`), o único ponto do app que usa a chave privilegiada. Os grants por coluna em `public.contacts` limitam a inserção a `name, company, email, whatsapp, project_type, message, source` e a leitura ao `id`.
+- **Notificação** (`src/lib/contact/notify.ts`): Resend, tratado como best-effort — nunca lança. `src/lib/contact/config.ts` responde se está configurado sem importar o SDK, para o painel poder avisar.
+- **Status**: `updateContactStatusAction` é a única escrita do admin; o grant é `update(status)`, então nome, mensagem e contato do visitante são imutáveis pela aplicação.
+- **Sem revalidação pública**: contato não aparece no site. As páginas do painel já são dinâmicas por usarem sessão.
+
 ## Administradores
 
 Admin é um usuário do Supabase Auth com linha ativa em `private.admin_users`. Não existe cadastro pelo site.
@@ -162,6 +177,8 @@ Produção (Fase 21): configurar em Authentication → URL Configuration a Site 
 - `tests/technologies.test.mjs` (em `npm test`): validação de tecnologia e grupo (slug, ordem, duplicatas), repositório (contagens de uso, RPCs, mapeamento de erros) e actions (inclusive exclusão bloqueada).
 - `tests/services.test.mjs` (em `npm test`): allowlist de ícones (inclui nomes de protótipo), validação do formulário, repositório (insert/update, slug duplicado, linha ausente) e actions.
 - `tests/projects.test.mjs` (em `npm test`): slug, validação do formulário, repositório (filtros, busca literal, mapeamento de erros) e actions (admin obrigatório, criar, editar, slug duplicado, excluir).
+- `tests/contacts.test.mjs` (em `npm test`): validação do payload (limites iguais aos do banco, CRLF, corpo que não é objeto), repositório (insert das colunas concedidas, classificação de erros, contagens, status), notificação (configuração ausente, erro do Resend, exceção do SDK), endpoint (400/429/503, honeypot, ordem gravar→notificar) e a action de status.
+- `tests/e2e/admin-contacts.e2e.mjs`: 28 verificações do endpoint público e do painel (JSON malformado, honeypot sem gravar, rate limit por endereço, abas e filtro, detalhe, mudança de status, status fora do enum, bloqueio de não-admin/anônimo, contatos invisíveis ao público). **Não limpa o que cria** — contato não é apagável pela aplicação; a remoção é pelo conector (`delete from public.contacts where email like 'e2e-contato-%@test.invalid'`).
 - `tests/e2e/admin-auth.e2e.mjs`: 32 verificações HTTP contra o Cloud real (Auth + dashboard com números reais + seções protegidas).
 - `tests/e2e/admin-projects.e2e.mjs`: 22 verificações do CRUD real (validação, slug duplicado, rascunho invisível ao público, publicar, reordenar tecnologias, arquivar, bloqueio de não-admin/anônimo, excluir, sem resíduos). Os helpers ficam em `tests/e2e/http.mjs`.
 - `tests/storage.test.mjs` (em `npm test`): detecção por magic bytes (inclui SVG disfarçado), limites, caminhos, URL pública, fluxo de troca com rollback, remoção e actions.

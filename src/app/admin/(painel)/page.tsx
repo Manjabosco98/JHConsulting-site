@@ -4,7 +4,7 @@ import { AlertTriangle, ArrowRight, CheckCircle2 } from "lucide-react";
 import { requireAdmin } from "@/lib/auth/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getDashboardData } from "@/lib/repositories/dashboard";
-import { contactStatusLabels, formatDateTime } from "@/lib/admin/labels";
+import { contactStatusBadge, contactStatusLabels, formatDateTime } from "@/lib/admin/labels";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 
 export const metadata: Metadata = { title: "Dashboard" };
@@ -76,14 +76,16 @@ export default async function AdminDashboardPage() {
           {data.recentContacts.length ? (
             <ul className="mt-4 divide-y divide-white/5">
               {data.recentContacts.map((contact) => (
-                <li key={contact.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
-                  <div className="min-w-0">
-                    <p className="truncate font-bold">{contact.name}{contact.company ? ` · ${contact.company}` : ""}</p>
-                    <p className="text-slate-400">{contact.project_type} · {formatDateTime(contact.created_at)}</p>
-                  </div>
-                  <span className="rounded-full border border-white/10 px-2.5 py-1 text-xs font-bold text-slate-300">
-                    {contactStatusLabels[contact.status]}
-                  </span>
+                <li key={contact.id}>
+                  <Link href={`/admin/contatos/${contact.id}`} className="focus-ring flex flex-wrap items-center justify-between gap-2 rounded py-3 text-sm hover:bg-white/[.03]">
+                    <div className="min-w-0">
+                      <p className="truncate font-bold">{contact.name}{contact.company ? ` · ${contact.company}` : ""}</p>
+                      <p className="text-slate-400">{contact.project_type} · {formatDateTime(contact.created_at)}</p>
+                    </div>
+                    <span className={`rounded-full border px-2.5 py-1 text-xs font-bold ${contactStatusBadge[contact.status]}`}>
+                      {contactStatusLabels[contact.status]}
+                    </span>
+                  </Link>
                 </li>
               ))}
             </ul>

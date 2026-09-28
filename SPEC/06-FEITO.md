@@ -1,6 +1,6 @@
 # 06 — O que foi feito
 
-13 fases concluídas (H0 e 1 a 12), cada uma com validação, testes e commit próprio.
+14 fases concluídas (H0 e 1 a 13), cada uma com validação, testes e commit próprio.
 
 ## Resumo
 
@@ -19,6 +19,7 @@
 | **10** | CRUD de serviços e seção pública | `b915c83` |
 | **11** | Tecnologias, grupos N:N e seção pública | `b64d3c7` |
 | **12** | Configurações institucionais | `b47df61` |
+| **13** | Contatos: persistência do lead e painel de atendimento | — |
 
 ## Detalhe por fase
 
@@ -79,6 +80,20 @@ Formulário institucional (upsert do singleton) e upload da foto profissional. M
 
 **Bug corrigido:** `<textarea>` envia CRLF; os parsers de configurações, projetos e serviços normalizam para `\n`.
 
+### 13 — Contatos
+O formulário do site passou a **gravar o lead antes de tentar o e-mail**. O e-mail virou notificação: uma falha de entrega não perde o contato, e uma falha de gravação não impede o aviso. A requisição só falha (503) quando **os dois** caminhos falham — o único caso em que faz sentido pedir ao visitante para usar outro canal.
+
+`/admin/contatos` com abas por status e contagem, detalhe com a mensagem completa, botões de responder por e-mail e abrir no WhatsApp, e alteração de status. O painel avisa, na própria página, quando a `SUPABASE_SECRET_KEY` ou o Resend não estão configurados.
+
+**Três defeitos conhecidos corrigidos:**
+- o formulário mostrava erro mesmo quando o envio dava certo (`e.currentTarget` fica nulo depois do `await`);
+- JSON malformado no endpoint virava 500, agora é 400;
+- exceção do SDK do Resend não era tratada.
+
+**Sem migration:** os grants e policies de `contacts` já existiam desde a Fase 2. A matriz de RLS ganhou 3 casos que reproduzem exatamente o que o código executa.
+
+**Limite em aberto:** o lead só é gravado quando a `SUPABASE_SECRET_KEY` estiver no ambiente. Comprovado por E2E que, sem ela e sem Resend, o endpoint responde 503 `unavailable` em vez de fingir sucesso.
+
 ## Estado atual do Cloud
 
 | Item | Estado |
@@ -88,7 +103,7 @@ Formulário institucional (upsert do singleton) e upload da foto profissional. M
 | Policies | 36 em `public` + 4 em `storage.objects` |
 | Funções | `is_admin`, `admin_save_project`, `admin_save_technology_group`, `admin_delete_technology` |
 | Conteúdo | 3 projetos, 8 serviços, 32 tecnologias, 7 grupos, 29 membros, 12 vínculos, 1 configuração |
-| Contatos | 0 (persistência é a Fase 13) |
+| Contatos | 0 (a persistência está pronta; falta a `SUPABASE_SECRET_KEY`) |
 | Storage | bucket `portfolio`, 0 objetos |
 | Usuários | 0 (a conta admin ainda será criada por você) |
 | Advisors de segurança | apenas 1 INFO intencional (`admin_users` sem policy) |
@@ -97,9 +112,9 @@ Formulário institucional (upsert do singleton) e upload da foto profissional. M
 
 | Verificação | Resultado |
 |---|---|
-| `npm test` | **83/83** |
-| Matriz de RLS | **86/86** |
-| E2E (7 suítes) | **173/173** — auth 32, projetos 22, storage 23, público 19, serviços 21, tecnologias 28, configurações 28 |
+| `npm test` | **108/108** |
+| Matriz de RLS | **89/89** |
+| E2E (8 suítes) | **201/201** — auth 32, projetos 22, storage 23, público 19, serviços 21, tecnologias 28, configurações 28, contatos 28 |
 | `npm run lint` | PASS (1 aviso preexistente em `postcss.config.mjs`) |
 | `npm run build` | PASS |
 | `npm run typecheck` | PASS |

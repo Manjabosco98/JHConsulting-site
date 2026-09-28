@@ -18,7 +18,7 @@ Data da última revisão: **27/09/2026** (fim da Fase 12).
 
 ## Estado em uma frase
 
-O site continua sendo o Next.js original, agora com painel administrativo protegido em `/admin`, e **projetos, serviços, tecnologias e informações institucionais vindo do Supabase Cloud** — editáveis sem alterar código e sem novo deploy. Contatos do formulário ainda **não** são persistidos (Fase 13).
+O site continua sendo o Next.js original, agora com painel administrativo protegido em `/admin`, e **projetos, serviços, tecnologias e informações institucionais vindo do Supabase Cloud** — editáveis sem alterar código e sem novo deploy. Os contatos do formulário têm persistência e painel de atendimento prontos; falta apenas configurar a `SUPABASE_SECRET_KEY` para que a gravação entre em operação.
 
 ## Regras permanentes do projeto
 

@@ -1,4 +1,4 @@
--- Matriz de acesso (grants + RLS) — Fases 3, 7, 8 e 10 (inclui Storage).
+-- Matriz de acesso (grants + RLS) — Fases 3, 7, 8, 10 e 13 (inclui Storage).
 -- DELETE em storage.objects é bloqueado por trigger do Supabase para qualquer role
 -- (só via Storage API): coberto em tests/e2e/admin-storage.e2e.mjs.
 -- Executar no Supabase Cloud pelo conector (execute_sql). Sem banco local.
@@ -7,7 +7,7 @@
 -- rascunho, arquivado, ativo/inativo), simula cada role com SET LOCAL ROLE +
 -- request.jwt.claims e compara o resultado com o esperado.
 -- Termina SEMPRE com RAISE EXCEPTION: a transação é desfeita e nada persiste.
--- Saída esperada: "RLS_MATRIX pass=86 fail=0"; em falha, seguida das falhas (label: obtido != esperado).
+-- Saída esperada: "RLS_MATRIX pass=89 fail=0"; em falha, seguida das falhas (label: obtido != esperado).
 --
 -- Tipos de caso: value = valor da 1ª coluna; rows = linhas afetadas;
 -- qualquer erro vira "ERR <sqlstate>" (42501 = privilégio/RLS negado).
@@ -133,6 +133,8 @@ begin
       (81, 'service_role', null, 'rows',  $q$insert into public.contacts (name, email, project_type, message, status) values ('Srv', 'srv@test.invalid', 'Site', 'mensagem com mais de vinte caracteres', 'CONVERTED')$q$, 'ERR 42501'),
       (82, 'service_role', null, 'value', 'select count(email) from public.contacts', 'ERR 42501'),
       (83, 'service_role', null, 'value', 'select count(*) from public.projects', 'ERR 42501'),
+      -- Fase 13: exatamente o insert que src/lib/repositories/contacts.ts executa
+      (84, 'service_role', null, 'rows',  $q$insert into public.contacts (name, company, email, whatsapp, project_type, message, source) values ('Srv2', 'ACME', 'srv2@test.invalid', '11999990000', 'Automação', 'mensagem com mais de vinte caracteres', 'SITE')$q$, 'rows=1'),
 
       -- STORAGE (bucket portfolio): escrita e listagem pela API só para admin ativo
       (85, 'anon', null, 'rows', $q$insert into storage.objects (bucket_id, name) values ('portfolio', 'rls-test/anon.png')$q$, 'ERR 42501'),
@@ -149,7 +151,11 @@ begin
       (95, 'authenticated', user_id, 'rows', $q$update public.services set active = false where slug like 'rls-test-%'$q$, 'rows=0'),
       (96, 'authenticated', admin_id, 'rows', $q$update public.services set active = false where slug = 'rls-test-s-on'$q$, 'rows=1'),
       (97, 'authenticated', admin_id, 'rows', $q$delete from public.services where slug = 'rls-test-s-off'$q$, 'rows=1'),
-      (98, 'authenticated', user_id, 'rows', $q$delete from public.services where slug like 'rls-test-%'$q$, 'rows=0')
+      (98, 'authenticated', user_id, 'rows', $q$delete from public.services where slug like 'rls-test-%'$q$, 'rows=0'),
+
+      -- Fase 13: o servidor lê de volta só o id e nunca altera um contato
+      (99,  'service_role', null, 'value', 'select id is not null from public.contacts limit 1', 'true'),
+      (100, 'service_role', null, 'rows',  $q$update public.contacts set status = 'CONVERTED'$q$, 'ERR 42501')
     ) as t(id, role, uid, kind, sql, expected)
     order by id
   loop

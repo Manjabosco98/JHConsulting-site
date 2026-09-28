@@ -63,10 +63,10 @@ supabase/
 tests/
 ├── *.test.mjs                    unitários (npm test)
 ├── helpers/                      loader de TS isolado e banco falso
-└── e2e/                          7 suítes HTTP contra o Cloud real
+└── e2e/                          8 suítes HTTP contra o Cloud real
 ```
 
-## Três clientes Supabase, três propósitos
+## Quatro clientes Supabase, quatro propósitos
 
 Esta separação é central para entender o projeto:
 
@@ -75,8 +75,9 @@ Esta separação é central para entender o projeto:
 | **Público** (anônimo, sem cookies) | `lib/supabase/public.ts` | chave publishable | Páginas públicas. Sem cookies, então a página continua cacheável (ISR). O RLS libera só o conteúdo publicado |
 | **Servidor** (sessão) | `lib/supabase/server.ts` | chave publishable + cookies | Painel e Server Actions. Age **como o admin logado**, então o RLS aplica `is_admin()` no banco |
 | **Browser** | `lib/supabase/client.ts` | chave publishable | Disponível para uso client-side; hoje usado apenas indiretamente (login pelos testes E2E) |
+| **Privilegiado** | `lib/supabase/secret.ts` | `SUPABASE_SECRET_KEY` | **Um caso só**: gravar o lead do formulário público. Ignora o RLS, então quem o mantém estreito são os grants por coluna em `contacts` |
 
-Nenhum deles usa chave privilegiada. A `SUPABASE_SECRET_KEY` está reservada para o endpoint de contato (Fase 13).
+Os três primeiros nunca usam chave privilegiada. O quarto é `server-only` e não é importado por nenhum componente de cliente.
 
 ## Camadas de uma escrita no painel
 

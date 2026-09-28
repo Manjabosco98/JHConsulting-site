@@ -30,10 +30,12 @@ Arquivo local: `.env.local` (ignorado pelo Git). O modelo versionado é `.env.ex
 
 | Variável | Uso |
 |---|---|
-| `RESEND_API_KEY` | Envio do e-mail do formulário |
+| `SUPABASE_SECRET_KEY` | **Grava o lead** no banco. Formato `sb_secret_...`, somente servidor, nunca com prefixo `NEXT_PUBLIC_`. É a única variável realmente necessária para não perder um contato |
+| `RESEND_API_KEY` | Aviso por e-mail do novo lead |
 | `CONTACT_FROM_EMAIL` | Remetente (domínio verificado no Resend) |
-| `CONTACT_TO_EMAIL` | Destinatário dos leads |
-| `SUPABASE_SECRET_KEY` | **Fase 13**: gravar o contato no banco. Somente servidor, nunca com prefixo `NEXT_PUBLIC_` |
+| `CONTACT_TO_EMAIL` | Destinatário dos avisos |
+
+As duas coisas são independentes: com a chave e sem Resend, o lead é gravado e aparece em `/admin/contatos` sem aviso por e-mail; com Resend e sem a chave, o aviso chega mas o lead não fica registrado. Sem nenhuma das duas, o endpoint responde **503** em vez de fingir sucesso.
 
 ### Opcionais / ferramentas
 
@@ -55,7 +57,7 @@ A **fonte de verdade desses dados agora é `/admin/configuracoes`** (tabela `sit
 npm install          # instala dependências
 npm run dev          # desenvolvimento em http://localhost:3000
 npm run lint         # ESLint
-npm test             # 83 testes unitários (sem rede, sem banco)
+npm test             # 108 testes unitários (sem rede, sem banco)
 npm run typecheck    # tsc --noEmit
 npm run build        # build de produção
 npm start            # serve o build
@@ -66,7 +68,7 @@ npm run supabase:types   # regenera src/types/database.ts (exige SUPABASE_PROJEC
 
 ## Como rodar os testes E2E
 
-As 7 suítes em `tests/e2e/` batem no **Supabase Cloud real** e exigem servidor de produção e dois usuários temporários.
+As 8 suítes em `tests/e2e/` batem no **Supabase Cloud real** e exigem servidor de produção e dois usuários temporários.
 
 1. Criar os usuários temporários (pelo conector Supabase ou SQL Editor). O SQL completo está em `docs/ADMIN-ARCHITECTURE.md`; cria `e2e-admin@test.invalid` (admin) e `e2e-user@test.invalid` (sem permissão), ambos com a senha que você escolher.
 2. Subir o servidor:
@@ -78,11 +80,19 @@ As 7 suítes em `tests/e2e/` batem no **Supabase Cloud real** e exigem servidor 
    ```bash
    E2E_PASSWORD='<senha>' node --env-file=.env.local tests/e2e/admin-auth.e2e.mjs
    # idem para admin-projects, admin-storage, public-projects,
-   #            admin-services, admin-technologies, admin-settings
+   #            admin-services, admin-technologies, admin-settings, admin-contacts
    ```
 4. Apagar os usuários: `delete from auth.users where email like 'e2e-%@test.invalid';`
 
 As suítes limpam o que criam e a de configurações restaura os valores originais. Mesmo assim, confira ao final que não sobrou resíduo (`slug like 'e2e-%'`).
+
+**Exceção: contatos.** Um contato é registro histórico — nem o admin nem a `service_role` podem apagar. A suíte de contatos, portanto, **não limpa o que cria**; a remoção é feita pelo conector depois:
+
+```sql
+delete from public.contacts where email like 'e2e-contato-%@test.invalid';
+```
+
+Sem a `SUPABASE_SECRET_KEY`, a suíte não consegue criar o lead pelo formulário e usa um contato semeado com esse mesmo padrão de e-mail.
 
 **Nota de ambiente:** durante o desenvolvimento, `npm install`/`build` rodam numa cópia temporária fora da pasta sincronizada pelo Google Drive, para não sincronizar `node_modules`.
 
