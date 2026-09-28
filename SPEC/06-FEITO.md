@@ -25,7 +25,7 @@
 | **16** | Performance e a correção de CSS que afetava o site inteiro | `fab074a` |
 | **17** | Cobertura das lacunas reais, com teste de navegador | `c9a7dcb` |
 | **18** | Hardening: cabeçalhos, limite de corpo, logout e guardas de segredo | `20d5f81` |
-| **19** | Limpeza do legado de Supabase local e de código morto | — |
+| **19** | Limpeza do legado de Supabase local e de código morto | `0d17341` |
 
 ## Detalhe por fase
 
