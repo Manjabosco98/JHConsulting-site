@@ -19,7 +19,7 @@
 | **10** | CRUD de serviços e seção pública | `b915c83` |
 | **11** | Tecnologias, grupos N:N e seção pública | `b64d3c7` |
 | **12** | Configurações institucionais | `b47df61` |
-| **13** | Contatos: persistência do lead e painel de atendimento | — |
+| **13** | Contatos: persistência do lead e painel de atendimento | `1cdca07` |
 
 ## Detalhe por fase
 
