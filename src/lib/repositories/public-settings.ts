@@ -21,6 +21,8 @@ export type SiteSettings = {
   location: string;
   serviceArea: string;
   profileImageUrl: string | null;
+  /** When the institutional data last changed; feeds the sitemap. */
+  updatedAt: string | null;
 };
 
 function optional(value: string | null | undefined): string | null {
@@ -56,7 +58,8 @@ function degradedSettings(): SiteSettings {
     instagramUrl: null,
     location: "",
     serviceArea: "",
-    profileImageUrl: null
+    profileImageUrl: null,
+    updatedAt: null
   };
 }
 
@@ -69,7 +72,7 @@ export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
   try {
     const { data, error } = await createPublicClient()
       .from("site_settings")
-      .select("company_name, professional_name, role, description, bio, email, phone, whatsapp, linkedin_url, github_url, instagram_url, location, service_area, profile_image")
+      .select("company_name, professional_name, role, description, bio, email, phone, whatsapp, linkedin_url, github_url, instagram_url, location, service_area, profile_image, updated_at")
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!data) {
@@ -91,7 +94,8 @@ export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
       instagramUrl: optional(data.instagram_url),
       location: data.location,
       serviceArea: data.service_area,
-      profileImageUrl: publicImageUrl(data.profile_image)
+      profileImageUrl: publicImageUrl(data.profile_image),
+      updatedAt: data.updated_at
     };
   } catch (error) {
     console.error(`[settings] consulta falhou, seguindo em modo degradado: ${(error as Error).message}`);

@@ -4,6 +4,9 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowUpRight, Github } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { DEFAULT_OG_IMAGE } from "@/lib/seo/og";
+import { siteConfig } from "@/constants/site";
 import { getSiteSettings } from "@/lib/repositories/public-settings";
 import { whatsappLink } from "@/lib/whatsapp";
 import { Footer } from "@/components/layout/Footer";
@@ -25,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!project) return { title: "Projeto não encontrado", robots: { index: false, follow: false } };
 
   const description = (project.shortDescription || project.problem || project.solution).slice(0, 200) || undefined;
-  const images = project.coverUrl ? [project.coverUrl] : undefined;
+  const images = project.coverUrl ? [project.coverUrl] : [DEFAULT_OG_IMAGE];
   return {
     title: project.title,
     description,
@@ -46,6 +49,35 @@ export default async function ProjetoDetailPage({ params }: Props) {
 
   const description = paragraphs(project.description);
   const message = `Olá João, vi o projeto ${project.title} no site da JHConsulting e gostaria de conversar sobre um projeto parecido.`;
+
+  const base = siteConfig.url.replace(/\/$/, "");
+  const canonical = `${base}/projetos/${project.slug}`;
+  const summary = project.shortDescription || project.problem || project.solution;
+  // Every value below is admin-editable text; JsonLd escapes it before output.
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    name: project.title,
+    url: canonical,
+    genre: project.category,
+    dateModified: project.updatedAt,
+    ...(summary ? { description: summary } : {}),
+    ...(project.publishedAt ? { datePublished: project.publishedAt } : {}),
+    ...(project.coverUrl ? { image: project.coverUrl } : {}),
+    ...(project.status ? { creativeWorkStatus: project.status } : {}),
+    ...(project.technologies.length ? { keywords: project.technologies.join(", ") } : {}),
+    ...(settings.professionalName ? { creator: { "@type": "Person", name: settings.professionalName } } : {}),
+    provider: { "@type": "Organization", name: settings.companyName, url: base }
+  };
+  const breadcrumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Início", item: base },
+      { "@type": "ListItem", position: 2, name: "Projetos", item: `${base}/projetos` },
+      { "@type": "ListItem", position: 3, name: project.title, item: canonical }
+    ]
+  };
 
   return (
     <>
@@ -127,6 +159,8 @@ export default async function ProjetoDetailPage({ params }: Props) {
       </main>
       <Footer />
       <WhatsAppButton />
+      <JsonLd data={schema} />
+      <JsonLd data={breadcrumb} />
     </>
   );
 }

@@ -91,4 +91,27 @@ check("sem resíduos no banco", Array.isArray(residue) && residue.length === 0, 
 const finalHome = await body("/");
 check("home volta a mostrar apenas os projetos reais (SGECHAT)", finalHome.includes("SGECHAT") && !finalHome.includes(pubTitle));
 
+// SEO (Fase 15): imagem social padrão, canonical e dados estruturados
+const ogImage = await get("/opengraph-image");
+check("imagem OG padrão é gerada como PNG", ogImage.status === 200 && (ogImage.headers.get("content-type") ?? "").includes("image/png"), `${ogImage.status} ${ogImage.headers.get("content-type")}`);
+check("home referencia a imagem OG e o Twitter herda", /property="og:image" content="[^"]*\/opengraph-image/.test(finalHome) && /name="twitter:image"/.test(finalHome));
+
+const seoDetail = await body("/projetos/sgechat");
+check("detalhe tem canonical próprio", /rel="canonical" href="[^"]*\/projetos\/sgechat"/.test(seoDetail));
+check("detalhe sem capa cai na imagem OG padrão", /property="og:image" content="[^"]*\/opengraph-image/.test(seoDetail));
+const seoBlocks = [...seoDetail.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1].replaceAll("\\u003c", "<")));
+check("detalhe publica CreativeWork e BreadcrumbList", seoBlocks.some((b) => b["@type"] === "CreativeWork") && seoBlocks.some((b) => b["@type"] === "BreadcrumbList"), JSON.stringify(seoBlocks.map((b) => b["@type"])));
+const seoWork = seoBlocks.find((b) => b["@type"] === "CreativeWork");
+check("CreativeWork traz título, url absoluta, data e tecnologias", seoWork?.name === "SGECHAT" && /^https?:\/\/[^/]+\/projetos\/sgechat$/.test(seoWork?.url ?? "") && Boolean(seoWork?.dateModified) && String(seoWork?.keywords ?? "").includes("Next.js"), JSON.stringify(seoWork).slice(0, 200));
+const seoTrail = seoBlocks.find((b) => b["@type"] === "BreadcrumbList");
+check("BreadcrumbList vai de Início até o projeto", seoTrail?.itemListElement?.length === 3 && seoTrail.itemListElement[2].name === "SGECHAT");
+
+const seoListing = await body("/projetos");
+check("listagem tem canonical e imagem social", /rel="canonical" href="[^"]*\/projetos"/.test(seoListing) && /property="og:image"/.test(seoListing));
+
+const seoMap = await body("/sitemap.xml");
+const seoLastmods = [...seoMap.matchAll(/<lastmod>([^<]+)<\/lastmod>/g)].map((m) => m[1]);
+check("sitemap lista home, listagem e os projetos publicados", seoMap.includes("/projetos/sgechat") && seoLastmods.length >= 4, `${seoLastmods.length} lastmod`);
+check("lastmod não é o instante da renderização", seoLastmods.every((value) => Number.isFinite(Date.parse(value))) && seoLastmods.some((value) => Date.now() - Date.parse(value) > 60_000), seoLastmods.join(" "));
+
 finish();

@@ -14,6 +14,7 @@ import { Differentials } from "@/components/sections/Differentials";
 import { PrimaryCTA } from "@/components/sections/PrimaryCTA";
 import { Contact } from "@/components/sections/Contact";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { siteConfig } from "@/constants/site";
 import { getSiteSettings } from "@/lib/repositories/public-settings";
 import { whatsappLink } from "@/lib/whatsapp";
@@ -61,11 +62,7 @@ export default async function Home() {
       </main>
       <Footer />
       <WhatsAppButton />
-      {/* Escaping < keeps editable text from breaking out of the script tag. */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, "\\u003c") }}
-      />
+      <JsonLd data={schema} />
     </>
   );
 }

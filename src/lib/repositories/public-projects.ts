@@ -22,6 +22,7 @@ export type PublicProject = PublicProjectSummary & {
   repositoryUrl: string | null;
   demoUrl: string | null;
   publishedAt: string | null;
+  updatedAt: string;
 };
 
 // RLS already limits rows to published, non-archived projects and their visible
@@ -72,7 +73,7 @@ export async function listPublishedProjects(): Promise<PublicProjectSummary[]> {
 export async function getPublishedProjectBySlug(slug: string): Promise<PublicProject | null> {
   const { data, error } = await createPublicClient()
     .from("projects")
-    .select(`${summarySelect}, description, repository_url, demo_url, published_at`)
+    .select(`${summarySelect}, description, repository_url, demo_url, published_at, updated_at`)
     .eq("slug", slug)
     .maybeSingle();
   if (error) throw new Error(`getPublishedProjectBySlug: ${error.message}`);
@@ -82,7 +83,8 @@ export async function getPublishedProjectBySlug(slug: string): Promise<PublicPro
     description: data.description,
     repositoryUrl: data.repository_url,
     demoUrl: data.demo_url,
-    publishedAt: data.published_at
+    publishedAt: data.published_at,
+    updatedAt: data.updated_at
   };
 }
 

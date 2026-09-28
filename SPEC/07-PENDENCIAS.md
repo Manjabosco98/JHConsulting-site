@@ -15,10 +15,7 @@ Nenhuma delas pode ser feita pelo agente, porque exigem suas credenciais, seus d
 
 ## Fases restantes
 
-### Fase 15 — SEO dinâmico *(próxima)*
-JSON-LD por projeto, Open Graph com a capa, imagem OG padrão, refino de canonical e do sitemap.
-
-### Fase 16 — Performance
+### Fase 16 — Performance *(próxima)*
 Revisar cache, queries, bundle e imagens. **Inclui a correção do `font: inherit`** (abaixo), que afeta o site público.
 
 ### Fase 17 — Testes

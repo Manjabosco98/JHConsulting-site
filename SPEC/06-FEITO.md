@@ -1,6 +1,6 @@
 # 06 — O que foi feito
 
-15 fases concluídas (H0 e 1 a 14), cada uma com validação, testes e commit próprio.
+16 fases concluídas (H0 e 1 a 15), cada uma com validação, testes e commit próprio.
 
 ## Resumo
 
@@ -20,7 +20,8 @@
 | **11** | Tecnologias, grupos N:N e seção pública | `b64d3c7` |
 | **12** | Configurações institucionais | `b47df61` |
 | **13** | Contatos: persistência do lead e painel de atendimento | `1cdca07` |
-| **14** | Fim do conteúdo duplicado no código | — |
+| **14** | Fim do conteúdo duplicado no código | `aa37fbb` |
+| **15** | SEO dinâmico: dados estruturados e imagem social | — |
 
 ## Detalhe por fase
 
@@ -104,6 +105,13 @@ As configurações institucionais degradam para um objeto com apenas a marca pre
 
 Comprovado pelas mesmas 201 verificações E2E: a home continua mostrando os 8 serviços, os 3 projetos e os 7 grupos de tecnologia, agora sem nenhum dado embutido.
 
+### 15 — SEO dinâmico
+- **Dados estruturados por projeto**: `CreativeWork` (título, resumo, capa, categoria, tecnologias como keywords, datas de publicação e alteração, autor e organização) e `BreadcrumbList` de Início → Projetos → projeto. O componente `JsonLd` centraliza a serialização e escapa `<`, o que impede texto editado no painel de escapar da tag `<script>`.
+- **Imagem social padrão** gerada em `/opengraph-image` a partir das configurações, em vez de um PNG versionado: renomear a empresa ou mudar o cargo no painel muda a imagem, sem ferramenta de design e sem deploy.
+- **Descoberta durante a fase:** uma página que declara o próprio `openGraph` substitui o do pai, **inclusive a imagem** que a convenção de arquivo forneceria. As páginas de projeto e a listagem ficavam sem imagem social nenhuma. `DEFAULT_OG_IMAGE` resolve, e o E2E passou a verificar.
+- **`lastModified` do sitemap** deixou de ser o instante da renderização (que anunciava mudança em toda revalidação) e passou a refletir a alteração real de conteúdo.
+- **`description` e título da listagem** passaram a vir do painel, então a meta description da home é editável sem deploy.
+
 ## Estado atual do Cloud
 
 | Item | Estado |
@@ -122,9 +130,9 @@ Comprovado pelas mesmas 201 verificações E2E: a home continua mostrando os 8 s
 
 | Verificação | Resultado |
 |---|---|
-| `npm test` | **109/109** |
+| `npm test` | **113/113** |
 | Matriz de RLS | **89/89** |
-| E2E (8 suítes) | **201/201** — auth 32, projetos 22, storage 23, público 19, serviços 21, tecnologias 28, configurações 28, contatos 28 |
+| E2E (8 suítes) | **211/211** — auth 32, projetos 22, storage 23, público 29, serviços 21, tecnologias 28, configurações 28, contatos 28 |
 | `npm run lint` | PASS (1 aviso preexistente em `postcss.config.mjs`) |
 | `npm run build` | PASS |
 | `npm run typecheck` | PASS |

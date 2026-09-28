@@ -14,7 +14,8 @@ export async function generateMetadata(): Promise<Metadata> {
       default: `${settings.companyName} | Automação, Sistemas, APIs e Dados`,
       template: `%s | ${settings.companyName}`
     },
-    description: "Automação de processos, desenvolvimento de sistemas, APIs, integrações, dashboards, dados e inteligência artificial para empresas.",
+    // The meta description follows the panel, so it is editable without a deploy.
+    description: settings.description || undefined,
     keywords: ["automação de processos","desenvolvimento de sistemas","automação empresarial","automação Python","integração de sistemas","desenvolvimento de APIs","consultoria tecnológica","dashboards","Power BI","análise de dados","inteligência artificial para empresas","automação contábil","automação fiscal","Goiânia","Goiás"],
     alternates: { canonical: "/" },
     openGraph: {

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Navbar } from "@/components/layout/Navbar";
+import { DEFAULT_OG_IMAGE } from "@/lib/seo/og";
 import { getSiteSettings } from "@/lib/repositories/public-settings";
 import { whatsappLink } from "@/lib/whatsapp";
 import { Footer } from "@/components/layout/Footer";
@@ -10,17 +11,16 @@ import { listPublishedProjects } from "@/lib/repositories/public-projects";
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = {
-  title: "Projetos",
-  description: "Cases de automação, desenvolvimento de sistemas, APIs, integrações e dados desenvolvidos pela JHConsulting.",
-  alternates: { canonical: "/projetos" },
-  openGraph: {
-    type: "website",
-    url: "/projetos",
-    title: "Projetos | JHConsulting",
-    description: "Cases de automação, sistemas, APIs, integrações e dados."
-  }
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { companyName } = await getSiteSettings();
+  const description = `Cases de automação, desenvolvimento de sistemas, APIs, integrações e dados desenvolvidos pela ${companyName}.`;
+  return {
+    title: "Projetos",
+    description,
+    alternates: { canonical: "/projetos" },
+    openGraph: { type: "website", url: "/projetos", title: `Projetos | ${companyName}`, description, images: [DEFAULT_OG_IMAGE] }
+  };
+}
 
 export default async function ProjetosPage() {
   const [projects, settings] = await Promise.all([listPublishedProjects(), getSiteSettings()]);

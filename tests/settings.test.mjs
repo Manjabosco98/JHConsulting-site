@@ -188,10 +188,12 @@ test("public settings: maps the row, splits the bio and nulls out empty fields",
     company_name: "JHConsulting", professional_name: "João", role: "Analista", description: "Desc",
     bio: "Um.\n\nDois.\n\nTrês.", email: "a@b.co", phone: "", whatsapp: "5562900000000",
     linkedin_url: "https://linkedin.com/in/x", github_url: "   ", instagram_url: null,
-    location: "Goiânia, Goiás, Brasil", service_area: "Brasil", profile_image: PHOTO
+    location: "Goiânia, Goiás, Brasil", service_area: "Brasil", profile_image: PHOTO,
+    updated_at: "2026-09-20T12:00:00Z"
   };
   const db = fakeDb(() => ({ data: row, error: null }));
   const settings = plain(await loadPublic()(db).getSiteSettings());
+  assert.equal(settings.updatedAt, "2026-09-20T12:00:00Z", "alimenta o lastModified do sitemap");
   assert.deepEqual(settings.bio, ["Um.", "Dois.", "Três."]);
   assert.equal(settings.phone, null);
   assert.equal(settings.githubUrl, null, "campo em branco não vira link");
@@ -207,7 +209,7 @@ test("public settings: missing row or query error degrade instead of using bundl
   t.mock.method(console, "error", () => {});
   const degraded = { companyName: "JHConsulting", professionalName: "", role: "", description: "", bio: [],
     email: null, phone: null, whatsapp: null, linkedinUrl: null, githubUrl: null, instagramUrl: null,
-    location: "", serviceArea: "", profileImageUrl: null };
+    location: "", serviceArea: "", profileImageUrl: null, updatedAt: null };
 
   const missing = fakeDb(() => ({ data: null, error: null }));
   assert.deepEqual(plain(await loadPublic()(missing).getSiteSettings()), degraded);
