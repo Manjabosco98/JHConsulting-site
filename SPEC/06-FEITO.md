@@ -27,7 +27,7 @@
 | **18** | Hardening: cabeçalhos, limite de corpo, logout e guardas de segredo | `20d5f81` |
 | **19** | Limpeza do legado de Supabase local e de código morto | `0d17341` |
 | **20** | Documentação revisada e separada entre estado atual e histórico | `a7f7e1d` |
-| **21** | Preparação para Render, validada a partir de clone limpo | — |
+| **21** | Preparação para Render, validada a partir de clone limpo | `4ddd6d3` |
 
 ## Detalhe por fase
 
