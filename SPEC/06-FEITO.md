@@ -26,7 +26,7 @@
 | **17** | Cobertura das lacunas reais, com teste de navegador | `c9a7dcb` |
 | **18** | Hardening: cabeçalhos, limite de corpo, logout e guardas de segredo | `20d5f81` |
 | **19** | Limpeza do legado de Supabase local e de código morto | `0d17341` |
-| **20** | Documentação revisada e separada entre estado atual e histórico | — |
+| **20** | Documentação revisada e separada entre estado atual e histórico | `a7f7e1d` |
 
 ## Detalhe por fase
 
