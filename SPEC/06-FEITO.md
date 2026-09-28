@@ -21,7 +21,7 @@
 | **12** | Configurações institucionais | `b47df61` |
 | **13** | Contatos: persistência do lead e painel de atendimento | `1cdca07` |
 | **14** | Fim do conteúdo duplicado no código | `aa37fbb` |
-| **15** | SEO dinâmico: dados estruturados e imagem social | — |
+| **15** | SEO dinâmico: dados estruturados e imagem social | `d3781a0` |
 
 ## Detalhe por fase
 
