@@ -29,8 +29,7 @@ const serverOnlyNames = [
   "SUPABASE_SECRET_KEY",
   "RESEND_API_KEY",
   "CONTACT_FROM_EMAIL",
-  "CONTACT_TO_EMAIL",
-  "TURNSTILE_SECRET_KEY"
+  "CONTACT_TO_EMAIL"
 ];
 
 test("nenhuma variável pública tem nome de segredo", () => {

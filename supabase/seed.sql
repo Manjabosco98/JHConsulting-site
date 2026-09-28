@@ -1,4 +1,0 @@
--- O conteúdo inicial está na migration versionada
--- supabase/migrations/20260927142358_seed_initial_content.sql (Fase 4),
--- aplicada no Supabase Cloud pelo conector. Idempotente (ON CONFLICT DO NOTHING).
--- Este projeto não usa Supabase local; não executar `supabase db reset`.

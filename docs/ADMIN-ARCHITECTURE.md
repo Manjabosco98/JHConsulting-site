@@ -58,7 +58,7 @@ src/app/admin/
 |---|---|
 | Itens e regra de item ativo | `src/lib/admin/navigation.ts` (`isActiveNav`) |
 | Navegação (client, `usePathname`, `aria-current`) | `src/components/admin/AdminNav.tsx` |
-| Cabeçalho de página / placeholder | `src/components/admin/AdminPageHeader.tsx`, `AdminPlaceholder.tsx` |
+| Cabeçalho de página | `src/components/admin/AdminPageHeader.tsx` |
 | Rótulos de status e datas (pt-BR, America/Sao_Paulo) | `src/lib/admin/labels.ts` |
 | Dados do dashboard | `src/lib/repositories/dashboard.ts` |
 

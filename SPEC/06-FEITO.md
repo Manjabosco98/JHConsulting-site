@@ -1,6 +1,6 @@
 # 06 — O que foi feito
 
-19 fases concluídas (H0 e 1 a 18), cada uma com validação, testes e commit próprio.
+20 fases concluídas (H0 e 1 a 19), cada uma com validação, testes e commit próprio.
 
 ## Resumo
 
@@ -25,6 +25,7 @@
 | **16** | Performance e a correção de CSS que afetava o site inteiro | `fab074a` |
 | **17** | Cobertura das lacunas reais, com teste de navegador | `c9a7dcb` |
 | **18** | Hardening: cabeçalhos, limite de corpo, logout e guardas de segredo | `20d5f81` |
+| **19** | Limpeza do legado de Supabase local e de código morto | — |
 
 ## Detalhe por fase
 
@@ -148,6 +149,17 @@ Ficou de fora, conscientemente, a CSP de `script-src`: exigiria nonce por requis
 
 **Alertas do Supabase:** dois. O de `private.admin_users` sem policy é intencional (negação total pela API). O outro, proteção contra senha vazada desligada, virou ação sua.
 
+### 19 — Limpeza
+Saíram `supabase/config.toml` e `supabase/seed.sql`. Não era só arquivo inútil: o `config.toml` descrevia um ambiente local que não existe e trazia `project_id = "jhconsulting"`, que **não é o ref do projeto Cloud** — exatamente o tipo de pista falsa que faria alguém apontar para o lugar errado. Em `supabase/` restaram as migrations e a matriz de RLS. O `.temp` da CLI, que era ignorado pelo Git, saiu do disco.
+
+Saiu também o `AdminPlaceholder`, marcador das seções ainda não implementadas — todas têm página real desde a Fase 13.
+
+As variáveis do Turnstile saíram do `.env.example`: eram configuração morta há 19 fases. Integrar um captcha depois é decidir por uma funcionalidade, não reativar código.
+
+`postcss.config.mjs` passou a exportar uma constante nomeada, e com isso **o lint ficou sem nenhum aviso** — era o único que sobrava desde o início do projeto.
+
+Conferido que toda dependência declarada é realmente importada; nenhuma sobrou.
+
 ## Estado atual do Cloud
 
 | Item | Estado |
@@ -172,7 +184,7 @@ Ficou de fora, conscientemente, a CSP de `script-src`: exigiria nonce por requis
 | Matriz de RLS | **89/89** (última execução na Fase 13; nada depois dela tocou schema, grants, policies ou funções) |
 | Advisors do Supabase | 1 INFO intencional + 1 WARN que virou ação sua |
 | E2E (8 suítes) | **228/228** — auth 32, projetos 22, storage 23, público 45, serviços 21, tecnologias 28, configurações 28, contatos 29 |
-| `npm run lint` | PASS (1 aviso preexistente em `postcss.config.mjs`) |
+| `npm run lint` | PASS, **sem nenhum aviso** (o último saiu na Fase 19) |
 | `npm run build` | PASS |
 | `npm run typecheck` | PASS |
 

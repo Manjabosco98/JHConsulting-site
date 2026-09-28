@@ -43,7 +43,6 @@ As duas coisas são independentes: com a chave e sem Resend, o lead é gravado e
 |---|---|
 | `SUPABASE_PROJECT_ID` | Geração de tipos pela CLI (`npm run supabase:types`). Não é segredo |
 | `NEXT_PUBLIC_GA_ID` | Google Analytics, se houver |
-| `TURNSTILE_SECRET_KEY`, `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Reservadas; anti-spam não integrado |
 
 ### Removidas na Fase 14
 

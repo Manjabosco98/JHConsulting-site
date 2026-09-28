@@ -15,7 +15,7 @@ npm run dev
 
 Acesse `http://localhost:3000`. Configure `.env.local` com os campos de `.env.example`. Não substitua um arquivo de ambiente já configurado nem versionar credenciais. O Next carrega esse arquivo automaticamente.
 
-A única infraestrutura de dados autorizada é **Supabase Cloud**, tanto no desenvolvimento quanto na produção. Não usar Docker, Supabase local ou banco local. Os antigos scripts npm de start/stop/status/reset do Supabase foram removidos. O `supabase/config.toml` preexistente é legado local, não configura o projeto Cloud e não deve ser executado/aplicado.
+A única infraestrutura de dados autorizada é **Supabase Cloud**, tanto no desenvolvimento quanto na produção. Não usar Docker, Supabase local ou banco local. Os scripts npm de start/stop/status/reset do Supabase já haviam sido removidos; na Fase 19 saíram também o `supabase/config.toml` e o `supabase/seed.sql`, que descreviam um ambiente local inexistente — o `project_id` daquele arquivo sequer era o ref do projeto Cloud. Em `supabase/` restam apenas as migrations (espelho do Cloud) e a matriz de RLS.
 
 ## Validação
 

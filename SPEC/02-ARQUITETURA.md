@@ -57,11 +57,11 @@ src/
 
 supabase/
 ├── migrations/                   espelho exato do histórico aplicado no Cloud
-├── tests/rls_matrix.sql          matriz de acesso (86 casos)
-└── config.toml                   legado local, sem efeito (limpeza na Fase 19)
+└── tests/rls_matrix.sql          matriz de acesso (89 casos)
 
 tests/
 ├── *.test.mjs                    unitários (npm test)
+├── browser/                      formulário público via CDP (npm run test:browser)
 ├── helpers/                      loader de TS isolado e banco falso
 └── e2e/                          8 suítes HTTP contra o Cloud real
 ```

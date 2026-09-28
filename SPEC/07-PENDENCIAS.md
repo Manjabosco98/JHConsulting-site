@@ -37,10 +37,7 @@ Registrada, não esquecida:
 | **Baixa** | Sem CSP de `script-src`: exigiria nonce por requisição. As diretivas sem nonce já estão aplicadas | `next.config.ts` | decisão |
 | **Média** | Sem `engines`/`.nvmrc` fixando a versão do Node | `package.json` | 21 |
 | **Baixa** | Access token continua válido até expirar após o logout (padrão de JWT). O refresh já é revogado; o resto é a configuração da ação #9 | Auth | sua ação #9 |
-| **Baixa** | Aviso de lint em `postcss.config.mjs` (export anônimo) | — | 19 |
-| **Baixa** | `AdminPlaceholder` ficou sem uso: era o marcador das seções não implementadas e todas já têm página real | `src/components/admin/AdminPlaceholder.tsx` | 19 |
-| **Baixa** | `supabase/config.toml` e `.temp` são legado de Supabase local, sem efeito | `supabase/` | 19 |
-| **Baixa** | Turnstile só existe como variável de ambiente; anti-spam não integrado | — | 18 |
+| **Baixa** | Anti-spam é só honeypot + rate limit. As variáveis do Turnstile saíram na Fase 19 por serem configuração morta; integrar um captcha depois é decidir por uma funcionalidade, não reativar código | — | decisão |
 | **Baixa** | O wordmark "JHConsulting" está em markup, então renomear a empresa no painel não muda o logo | `Navbar`, `Footer` | decisão |
 | **Baixa** | `docs/SUPABASE-FOUNDATION.md` e o discovery guardam numeração antiga de fases nos comentários | `docs/` | 20 |
 
