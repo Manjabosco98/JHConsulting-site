@@ -114,4 +114,19 @@ const seoLastmods = [...seoMap.matchAll(/<lastmod>([^<]+)<\/lastmod>/g)].map((m)
 check("sitemap lista home, listagem e os projetos publicados", seoMap.includes("/projetos/sgechat") && seoLastmods.length >= 4, `${seoLastmods.length} lastmod`);
 check("lastmod não é o instante da renderização", seoLastmods.every((value) => Number.isFinite(Date.parse(value))) && seoLastmods.some((value) => Date.now() - Date.parse(value) > 60_000), seoLastmods.join(" "));
 
+// Cabeçalhos de segurança (Fase 18): valem para todas as rotas
+for (const path of ["/", "/projetos", "/admin/login"]) {
+  const headers = (await get(path)).headers;
+  const csp = headers.get("content-security-policy") ?? "";
+  check(`${path}: sem sniffing de tipo`, headers.get("x-content-type-options") === "nosniff", String(headers.get("x-content-type-options")));
+  check(`${path}: não pode ser enquadrado`, headers.get("x-frame-options") === "DENY" && csp.includes("frame-ancestors 'none'"), `${headers.get("x-frame-options")} | ${csp}`);
+  check(`${path}: referrer restrito entre origens`, headers.get("referrer-policy") === "strict-origin-when-cross-origin", String(headers.get("referrer-policy")));
+  check(`${path}: base e form-action presos à origem`, csp.includes("base-uri 'self'") && csp.includes("form-action 'self'"), csp);
+  check(`${path}: permissões de dispositivo negadas`, /camera=\(\)/.test(headers.get("permissions-policy") ?? ""), String(headers.get("permissions-policy")));
+}
+// HSTS só entra quando o site é servido por HTTPS; em desenvolvimento seria um tiro no pé.
+const httpsSite = (process.env.NEXT_PUBLIC_SITE_URL ?? "").startsWith("https://");
+const hsts = (await get("/")).headers.get("strict-transport-security");
+check(`HSTS acompanha o protocolo do site (${httpsSite ? "https" : "http"})`, httpsSite ? Boolean(hsts) : hsts === null, String(hsts));
+
 finish();

@@ -261,13 +261,38 @@ function loadRoute({ hasKey = true, store, notify } = {}) {
   return { route, calls };
 }
 
-const request = (body, ip = "203.0.113.10") => ({
-  headers: { get: (name) => (name === "x-forwarded-for" ? ip : null) },
-  json: async () => {
-    if (body === MALFORMED) throw new SyntaxError("Unexpected token");
-    return body;
-  }
-});
+/** Minimal stand-in for the request body stream, so the size cap is exercised. */
+function bodyStream(chunks) {
+  let index = 0;
+  let cancelled = false;
+  return {
+    getReader: () => ({
+      read: async () =>
+        !cancelled && index < chunks.length ? { done: false, value: chunks[index++] } : { done: true },
+      cancel: async () => {
+        cancelled = true;
+      }
+    })
+  };
+}
+
+const encoder = new TextEncoder();
+
+const request = (body, ip = "203.0.113.10", options = {}) => {
+  const text = body === MALFORMED ? "{isso-nao-e-json" : JSON.stringify(body);
+  const chunks = options.chunks ?? [encoder.encode(text)];
+  const declared = "contentLength" in options ? options.contentLength : chunks.reduce((total, chunk) => total + chunk.byteLength, 0);
+  return {
+    headers: {
+      get: (name) => {
+        if (name === "x-forwarded-for") return ip;
+        if (name === "content-length") return declared === null ? null : String(declared);
+        return null;
+      }
+    },
+    body: bodyStream(chunks)
+  };
+};
 
 test("endpoint: malformed JSON is a 400, not a 500", async () => {
   const { route, calls } = loadRoute();
@@ -333,6 +358,48 @@ test("endpoint: rate limit is per client and lets the sixth request through only
   assert.equal((await route.POST(request(validPayload))).status, 429);
   // Another address is unaffected by the first one's window.
   assert.equal((await route.POST(request(validPayload, "198.51.100.7"))).status, 200);
+});
+
+test("endpoint: the client is the last forwarded hop, which a visitor cannot forge", async () => {
+  const { route } = loadRoute();
+  // A visitor sending their own header cannot escape the bucket: the proxy
+  // appends the address it saw, and only that last hop counts.
+  const spoofed = (n) => `10.0.0.${n}, 203.0.113.200`;
+  for (let attempt = 1; attempt <= 5; attempt += 1) {
+    assert.equal((await route.POST(request(validPayload, spoofed(attempt)))).status, 200, `tentativa ${attempt}`);
+  }
+  assert.equal((await route.POST(request(validPayload, spoofed(99)))).status, 429, "trocar o primeiro hop não deve liberar");
+  assert.equal((await route.POST(request(validPayload, "10.0.0.1, 203.0.113.201"))).status, 200, "outro proxy, outro balde");
+});
+
+test("endpoint: an oversized body is refused before parsing", async (t) => {
+  t.mock.method(console, "error", () => {});
+  const { route, calls } = loadRoute();
+
+  const declared = await route.POST(request(validPayload, "198.51.100.30", { contentLength: 200_000 }));
+  assert.equal(declared.status, 413);
+  assert.deepEqual(plain(declared.body), { ok: false, error: "payload_too_large" });
+
+  // Without Content-Length the stream itself has to be measured and cancelled.
+  const big = new Uint8Array(40_000);
+  big.fill(65);
+  const chunked = await route.POST(request(validPayload, "198.51.100.31", { contentLength: null, chunks: [big, big] }));
+  assert.equal(chunked.status, 413);
+  assert.deepEqual(calls, [], "nada deve chegar ao banco ou ao e-mail");
+});
+
+test("endpoint: a body split inside a multi-byte character is reassembled correctly", async () => {
+  const { route, calls } = loadRoute();
+  const bytes = encoder.encode(JSON.stringify(validPayload));
+  // Cut right after the lead byte of an accented character ("Automação"), the
+  // case a naive chunk-by-chunk decode turns into mojibake.
+  const lead = bytes.findIndex((byte) => byte >= 0xc0);
+  assert.ok(lead > 0, "o payload precisa ter um caractere acentuado");
+  const chunks = [bytes.slice(0, lead + 1), bytes.slice(lead + 1)];
+
+  const response = await route.POST(request(validPayload, "198.51.100.32", { chunks, contentLength: null }));
+  assert.equal(response.status, 200, JSON.stringify(plain(response.body)));
+  assert.deepEqual(calls, ["store", `notify:${CONTACT_ID}`]);
 });
 
 class Redirect extends Error {

@@ -62,6 +62,10 @@ check("mensagem curta responde 400", shortMessage.status === 400, `${shortMessag
 const badEmail = await sendJson({ ...lead, email: "sem-arroba" }, "198.51.100.3");
 check("e-mail inválido responde 400", badEmail.status === 400, `${badEmail.status}`);
 
+// Fase 18: corpo grande é recusado antes de qualquer parsing.
+const oversized = await send(JSON.stringify({ ...lead, message: "x".repeat(200_000) }), "198.51.100.6");
+check("corpo acima do limite responde 413", oversized.status === 413, `${oversized.status}`);
+
 const honeypot = await sendJson({ ...lead, email: `e2e-contato-bot-${stamp}@test.invalid`, website: "http://spam.example" }, "198.51.100.4");
 const honeypotBody = await honeypot.json();
 check("honeypot responde 200 sem gravar", honeypot.status === 200 && honeypotBody.stored === false, `${honeypot.status} ${JSON.stringify(honeypotBody)}`);

@@ -32,6 +32,9 @@ export function loadTs(file, { mocks = {}, env = publicEnv, globals = {} } = {})
     process: { env },
     URL,
     Intl,
+    // Web APIs the Next runtime provides but a bare vm context does not.
+    TextDecoder,
+    TextEncoder,
     console,
     ...globals,
     require(id) {

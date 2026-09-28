@@ -13,13 +13,12 @@ Nenhuma delas pode ser feita pelo agente, porque exigem suas credenciais, seus d
 | ~~5~~ | ~~**Configurar o Resend**~~ | — | **Feito.** Domínio `jhconsulting.com.br` verificado (São Paulo) e envio confirmado por um POST real em `/api/contact` (`notified: true`) |
 | 6 | **Definir o domínio em produção** | `NEXT_PUBLIC_SITE_URL=https://jhconsulting.com.br` | No Render, na Fase 21. Em desenvolvimento continua `localhost:3000`; afeta canonical, sitemap e OG |
 | 7 | **Rotacionar a chave do Resend** | Resend → API keys | A chave foi escrita no `.env.example` (versionado) e apareceu no chat. **Não chegou a entrar em nenhum commit**, mas o prudente é gerar outra e colar só no `.env.local` |
+| 8 | **Ligar a proteção contra senha vazada** | Authentication → Policies | Alerta do próprio Supabase. Compara a senha com a base do HaveIBeenPwned. Com uma conta só, protegida por senha, é barato e vale |
+| 9 | **Encurtar a validade do access token** | Authentication → Sessions (JWT expiry) | O padrão é 1h. Depois do logout o refresh já é revogado (Fase 18); esse ajuste reduz a janela do token que ainda está em circulação |
 
 ## Fases restantes
 
-### Fase 18 — Hardening *(próxima)*
-Revisar Auth (inclusive o tempo de vida do access token após logout), RLS, segredos, uploads, APIs, formulários e rate limit.
-
-### Fase 19 — Limpeza
+### Fase 19 — Limpeza *(próxima)*
 Remover `supabase/config.toml` e `supabase/.temp` (legado de Supabase local), `techVisual` (constante sem consumidor) e dependências obsoletas.
 
 ### Fase 20 — Documentação
@@ -34,10 +33,10 @@ Registrada, não esquecida:
 
 | Prioridade | Item | Onde | Fase |
 |---|---|---|---|
-| **Média** | O rate limit identifica o cliente pelo cabeçalho `x-forwarded-for`, que só é confiável atrás de um proxy que o reescreva. No Render é o caso; em acesso direto o valor é falsificável | `src/app/api/contact/route.ts` | 18 |
-| **Média** | Rate limit em memória por processo: coordena dentro de uma instância, não entre várias. A limpeza de janelas expiradas já existe | `src/app/api/contact/route.ts` | 18 |
+| **Média** | Rate limit em memória por processo: coordena dentro de uma instância, não entre várias. A limpeza de janelas expiradas e a leitura do último hop já existem | `src/app/api/contact/route.ts` | quando houver mais de uma instância |
+| **Baixa** | Sem CSP de `script-src`: exigiria nonce por requisição. As diretivas sem nonce já estão aplicadas | `next.config.ts` | decisão |
 | **Média** | Sem `engines`/`.nvmrc` fixando a versão do Node | `package.json` | 21 |
-| **Média** | Access token continua válido até expirar após o logout (padrão de JWT) | Auth | 18 |
+| **Baixa** | Access token continua válido até expirar após o logout (padrão de JWT). O refresh já é revogado; o resto é a configuração da ação #9 | Auth | sua ação #9 |
 | **Baixa** | Aviso de lint em `postcss.config.mjs` (export anônimo) | — | 19 |
 | **Baixa** | `AdminPlaceholder` ficou sem uso: era o marcador das seções não implementadas e todas já têm página real | `src/components/admin/AdminPlaceholder.tsx` | 19 |
 | **Baixa** | `supabase/config.toml` e `.temp` são legado de Supabase local, sem efeito | `supabase/` | 19 |

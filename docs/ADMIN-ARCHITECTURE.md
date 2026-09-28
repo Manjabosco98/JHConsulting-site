@@ -168,6 +168,8 @@ Admin é um usuário do Supabase Auth com linha ativa em `private.admin_users`. 
 
 Revogar: `update private.admin_users set active = false where user_id = ...` (efeito imediato na próxima requisição).
 
+**Logout** usa `signOut({ scope: "global" })` desde a Fase 18: revoga os refresh tokens no servidor, não só apaga os cookies. O access token já emitido continua válido até expirar (comportamento de JWT); encurtar esse tempo é configuração em Authentication → Sessions. O login de uma conta sem permissão continua usando escopo local, porque a conta pertence a quem se autenticou.
+
 Produção (Fase 21): configurar em Authentication → URL Configuration a Site URL do domínio no Render. Login por senha não depende de redirect URLs; recuperação de senha, se implementada, dependerá.
 
 ## Testes

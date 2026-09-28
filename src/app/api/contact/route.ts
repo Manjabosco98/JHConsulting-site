@@ -8,8 +8,52 @@ const WINDOW_MS = 60_000;
 const MAX_PER_WINDOW = 5;
 /** Sweeping at this size keeps the map bounded without a timer. */
 const MAX_TRACKED_CLIENTS = 5_000;
+/** A valid submission is under 5 KB; the rest is abuse or a mistake. */
+const MAX_BODY_BYTES = 64 * 1024;
 
 const buckets = new Map<string, { count: number; resetAt: number }>();
+
+/**
+ * The nearest proxy appends the address it actually observed, so the **last**
+ * entry is the one a client cannot forge — the first one is entirely
+ * client-controlled. Without a proxy in front there is nothing trustworthy in
+ * this header at all, which is why the limit below is a speed bump against
+ * casual abuse and never an access control.
+ */
+function clientKey(request: Request) {
+  const hops = (request.headers.get("x-forwarded-for") ?? "")
+    .split(",")
+    .map((hop) => hop.trim())
+    .filter(Boolean);
+  return hops.at(-1) ?? "unknown";
+}
+
+/**
+ * Reads the body with a hard ceiling. Checking Content-Length alone would let a
+ * chunked request through, so the stream itself is measured and cancelled.
+ */
+async function readLimitedText(request: Request, limit: number): Promise<string | null> {
+  const declared = Number(request.headers.get("content-length"));
+  if (Number.isFinite(declared) && declared > limit) return null;
+
+  const reader = request.body?.getReader();
+  if (!reader) return "";
+
+  const decoder = new TextDecoder();
+  let size = 0;
+  let text = "";
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > limit) {
+      await reader.cancel();
+      return null;
+    }
+    text += decoder.decode(value, { stream: true });
+  }
+  return text + decoder.decode();
+}
 
 function limited(ip: string) {
   const now = Date.now();
@@ -49,12 +93,18 @@ async function store(payload: ContactPayload): Promise<Stored> {
  * visitor must be told to use another channel.
  */
 export async function POST(request: Request) {
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  if (limited(ip)) return NextResponse.json({ ok: false, error: "rate_limit" }, { status: 429 });
+  if (limited(clientKey(request))) {
+    return NextResponse.json({ ok: false, error: "rate_limit" }, { status: 429 });
+  }
+
+  const raw = await readLimitedText(request, MAX_BODY_BYTES);
+  if (raw === null) {
+    return NextResponse.json({ ok: false, error: "payload_too_large" }, { status: 413 });
+  }
 
   let body: unknown;
   try {
-    body = await request.json();
+    body = JSON.parse(raw);
   } catch {
     // Malformed JSON is a client error; it used to surface as a 500.
     return NextResponse.json({ ok: false, error: "invalid_payload" }, { status: 400 });

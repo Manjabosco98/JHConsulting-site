@@ -41,6 +41,10 @@ export async function login(_previous: LoginState, formData: FormData): Promise<
 
 export async function logout() {
   const supabase = await createClient();
-  await supabase.auth.signOut({ scope: "local" });
+  // "global" revokes the refresh tokens on the server, not just the cookies:
+  // a token captured before logout stops being renewable. The access token
+  // already issued still lives until it expires — that is how JWTs work, and
+  // shortening it is a setting in Supabase Auth.
+  await supabase.auth.signOut({ scope: "global" });
   redirect(ADMIN_LOGIN_PATH);
 }

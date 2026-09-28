@@ -105,10 +105,21 @@ test("login: admin is redirected to /admin; password is passed only to Supabase"
   assert.deepEqual(plain(client.calls[0]), ["signIn", { email: "a@b.co", password: "secret" }]);
 });
 
-test("logout signs out the local session and returns to login", async () => {
+// Fase 18: escopo "global" revoga os refresh tokens no servidor, não só os
+// cookies. Um token capturado antes do logout deixa de poder ser renovado.
+test("logout revokes the session on the server and returns to login", async () => {
   const client = fakeSupabase();
   await assert.rejects(loadActions(client).logout(), (error) => error.url === "/admin/login");
-  assert.deepEqual(plain(client.calls), [["signOut", { scope: "local" }]]);
+  assert.deepEqual(plain(client.calls), [["signOut", { scope: "global" }]]);
+});
+
+// Já o login de uma conta sem permissão encerra apenas a sessão local: a conta
+// é de quem se autenticou, e não há motivo para derrubá-la em outros aparelhos.
+test("login: conta sem permissão é deslogada localmente, não globalmente", async () => {
+  const client = fakeSupabase({ isAdmin: false });
+  const state = plain(await loadActions(client).login({ error: null, email: "" }, form({ email: "a@b.co", password: "x" })));
+  assert.match(state.error, /não tem acesso/);
+  assert.deepEqual(plain(client.calls.at(-1)), ["signOut", { scope: "local" }]);
 });
 
 test("proxy refreshes cookies with no-cache headers and keeps them on the login redirect", async () => {

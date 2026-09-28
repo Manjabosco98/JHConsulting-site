@@ -55,7 +55,7 @@ As duas coisas são independentes: com a chave e sem Resend, o lead é gravado e
 npm install          # instala dependências
 npm run dev          # desenvolvimento em http://localhost:3000
 npm run lint         # ESLint
-npm test             # 126 testes unitários (sem rede, sem banco)
+npm test             # 136 testes unitários (sem rede, sem banco)
 npm run test:browser # 12 verificações do formulário no navegador (ver abaixo)
 npm run typecheck    # tsc --noEmit
 npm run build        # build de produção

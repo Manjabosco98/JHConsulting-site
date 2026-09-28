@@ -87,14 +87,24 @@ O que foi considerado e está coberto:
 | Corpo malformado derrubar o endpoint | `request.json()` em try/catch → 400 | Unitário + E2E |
 | Lead ser perdido por falha de e-mail | Grava antes de notificar; 503 só quando os dois falham | Unitário + E2E |
 | Chave privilegiada escrever além do formulário | Grants por coluna: insere 7 colunas, lê só `id`, nada de `status` | Matriz |
+| Site embutido em iframe (clickjacking) | `X-Frame-Options: DENY` e CSP `frame-ancestors 'none'` em todas as rotas | E2E |
+| Navegador adivinhando tipo de conteúdo | `X-Content-Type-Options: nosniff` | E2E |
+| URL vazando para outra origem | `Referrer-Policy: strict-origin-when-cross-origin` | E2E |
+| `<base>` ou formulário sequestrado | CSP `base-uri 'self'` e `form-action 'self'` | E2E |
+| Corpo gigante no endpoint de contato | Stream medido e cancelado em 64 KB, não só `Content-Length` | Unitário + E2E |
+| Sessão renovada depois do logout | Logout com escopo `global`: os refresh tokens são revogados no servidor | Unitário |
+| Rate limit driblado forjando `X-Forwarded-For` | Conta o **último** hop, que é o que o proxy mais próximo observou | Unitário |
+| Segredo versionado ou embutido no bundle | Guardas estáticos sobre o código e sobre o `.env.example` | Unitário |
 
 Limites conhecidos, registrados de propósito:
 
-- **Logout não invalida o access token já emitido** (até 1h, padrão do Supabase). É comportamento de JWT; revisão na Fase 18.
+- **Logout não invalida o access token já emitido.** Desde a Fase 18 os refresh tokens são revogados no servidor (escopo `global`), então a sessão não pode ser renovada; o access token em circulação continua válido até expirar, porque é assim que JWT funciona. Encurtar esse tempo é uma configuração no Supabase Auth.
 - **Cadastro público do Auth está aberto.** Não dá acesso a dados, mas deve ser desativado.
+- **Proteção contra senha vazada está desligada** (alerta do próprio Supabase). Com uma conta só, protegida por senha, vale ligar.
 - **Rate limit do formulário é em memória por processo.** Não coordena entre instâncias.
-- **O cliente do rate limit é identificado por `x-forwarded-for`.** Confiável atrás de um proxy que reescreva o cabeçalho (o caso do Render); em acesso direto, falsificável.
+- **O cliente do rate limit vem do último hop de `x-forwarded-for`.** Atrás de um proxy que acrescenta o endereço observado — o caso do Render — o valor é confiável. Sem proxy nenhum na frente, não há nada confiável nesse cabeçalho, e o limite vale como freio contra abuso casual, nunca como controle de acesso.
 - **Anti-spam se resume a honeypot e rate limit.** O Turnstile existe só como variável de ambiente.
+- **Não há CSP de `script-src`.** As diretivas aplicadas são as que não exigem nonce; uma política de scripts de verdade exigiria nonce por requisição, com risco de quebra e pouco ganho num site sem incorporações de terceiros.
 
 ## Como validar a segurança
 

@@ -1,6 +1,6 @@
 # 06 — O que foi feito
 
-18 fases concluídas (H0 e 1 a 17), cada uma com validação, testes e commit próprio.
+19 fases concluídas (H0 e 1 a 18), cada uma com validação, testes e commit próprio.
 
 ## Resumo
 
@@ -24,6 +24,7 @@
 | **15** | SEO dinâmico: dados estruturados e imagem social | `d3781a0` |
 | **16** | Performance e a correção de CSS que afetava o site inteiro | `fab074a` |
 | **17** | Cobertura das lacunas reais, com teste de navegador | `c9a7dcb` |
+| **18** | Hardening: cabeçalhos, limite de corpo, logout e guardas de segredo | — |
 
 ## Detalhe por fase
 
@@ -134,6 +135,19 @@ Em vez de inflar a contagem, a fase começou por um levantamento de quais módul
 
 O helper `loadTs` passou a resolver `.tsx` além de `.ts`, o que é o que permite testar componentes.
 
+### 18 — Hardening
+**O site não enviava nenhum cabeçalho de segurança.** Medi antes de escrever: só `x-robots-tag` no painel. Agora todas as rotas enviam CSP (`frame-ancestors 'none'`, `base-uri 'self'`, `form-action 'self'`, `object-src 'none'`), `X-Frame-Options`, `nosniff`, `Referrer-Policy`, `Permissions-Policy` e `Cross-Origin-Opener-Policy`. HSTS entra **apenas** quando o site é HTTPS — em `localhost` seria um tiro no pé.
+
+Ficou de fora, conscientemente, a CSP de `script-src`: exigiria nonce por requisição, com risco real de quebra e pouco ganho num site sem incorporações de terceiros.
+
+**Endpoint de contato:** o corpo passou a ser lido com teto de 64 KB medindo o **stream**, não só o `Content-Length` — senão uma requisição *chunked* passava direto. E o cliente do rate limit passou a ser o **último** hop de `x-forwarded-for`, que é o endereço que o proxy mais próximo observou; o primeiro é totalmente controlado por quem envia.
+
+**Logout** passou a usar escopo `global`: os refresh tokens são revogados no servidor, não só apagados do cookie. Um token capturado antes do logout deixa de poder ser renovado. O login de conta sem permissão continua com escopo local, porque a conta é de quem se autenticou.
+
+**Guardas estáticos de segredo**, que leem o código em vez de executá-lo: nenhuma variável `NEXT_PUBLIC_` com nome de segredo, ninguém lê variável de servidor sem `server-only`, nenhum componente de cliente toca nelas, e **o `.env.example` não pode conter valor com cara de credencial** — exatamente o deslize que aconteceu nesta sessão.
+
+**Alertas do Supabase:** dois. O de `private.admin_users` sem policy é intencional (negação total pela API). O outro, proteção contra senha vazada desligada, virou ação sua.
+
 ## Estado atual do Cloud
 
 | Item | Estado |
@@ -152,11 +166,12 @@ O helper `loadTs` passou a resolver `.tsx` além de `.ts`, o que é o que permit
 
 | Verificação | Resultado |
 |---|---|
-| `npm test` | **126/126** |
+| `npm test` | **136/136** |
 | `npm run test:browser` | **12/12** |
 | JavaScript da home | **589 KB** não comprimido (era 705 KB antes da Fase 16) |
 | Matriz de RLS | **89/89** (última execução na Fase 13; nada depois dela tocou schema, grants, policies ou funções) |
-| E2E (8 suítes) | **211/211** — auth 32, projetos 22, storage 23, público 29, serviços 21, tecnologias 28, configurações 28, contatos 28 |
+| Advisors do Supabase | 1 INFO intencional + 1 WARN que virou ação sua |
+| E2E (8 suítes) | **228/228** — auth 32, projetos 22, storage 23, público 45, serviços 21, tecnologias 28, configurações 28, contatos 29 |
 | `npm run lint` | PASS (1 aviso preexistente em `postcss.config.mjs`) |
 | `npm run build` | PASS |
 | `npm run typecheck` | PASS |
