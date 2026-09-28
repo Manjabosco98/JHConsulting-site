@@ -24,7 +24,7 @@ Arquivo local: `.env.local` (ignorado pelo Git). O modelo versionado é `.env.ex
 |---|---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | Todos os clientes Supabase | Precisa ser HTTPS. **Necessária no build** (o `next/image` monta a allowlist a partir dela) |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Todos os clientes Supabase | Formato `sb_publishable_...`. Pública por natureza; a proteção é o RLS |
-| `NEXT_PUBLIC_SITE_URL` | `metadataBase`, canonical, robots, sitemap | Em produção, o domínio real |
+| `NEXT_PUBLIC_SITE_URL` | `metadataBase`, canonical, robots, sitemap | `http://localhost:3000` em desenvolvimento; `https://jhconsulting.com.br` em produção |
 
 ### Necessárias para o formulário de contato
 
@@ -91,6 +91,20 @@ delete from public.contacts where email like 'e2e-contato-%@test.invalid';
 ```
 
 Sem a `SUPABASE_SECRET_KEY`, a suíte não consegue criar o lead pelo formulário e usa um contato semeado com esse mesmo padrão de e-mail.
+
+**Com o Resend configurado, a suíte de contatos envia um e-mail de verdade** (um por execução — as tentativas de rate limit usam o honeypot justamente para não enviar).
+
+Quem envia é o **servidor**, não o processo de teste, então o destino de teste tem que ser definido ao **subir o servidor**. Tanto o Next quanto o Node dão precedência à variável já presente no ambiente sobre a do `.env.local`:
+
+```bash
+CONTACT_TO_EMAIL=delivered@resend.dev npx next start --hostname 127.0.0.1 --port 3431
+```
+
+```powershell
+$env:CONTACT_TO_EMAIL = "delivered@resend.dev"; npx next start --hostname 127.0.0.1 --port 3431
+```
+
+`delivered@resend.dev` é o endereço de teste do Resend: aceita a mensagem e não entrega em caixa nenhuma.
 
 **Nota de ambiente:** durante o desenvolvimento, `npm install`/`build` rodam numa cópia temporária fora da pasta sincronizada pelo Google Drive, para não sincronizar `node_modules`.
 

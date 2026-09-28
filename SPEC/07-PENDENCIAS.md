@@ -10,8 +10,9 @@ Nenhuma delas pode ser feita pelo agente, porque exigem suas credenciais, seus d
 | 2 | **Preencher os contatos públicos restantes** | `/admin/configuracoes` | O WhatsApp já está configurado (`+55 (62) 99610-1996`). **E-mail, LinkedIn, GitHub e Instagram continuam vazios**, então esses links não aparecem no rodapé. O painel lista o que falta |
 | 3 | **Desativar o cadastro público** | Authentication → Sign In / Providers → desmarcar "Allow new users to sign up" | Hoje qualquer pessoa pode criar conta. Não dá acesso a dado nenhum (o RLS garante), mas não há motivo para permitir |
 | 4 | **Configurar a `SUPABASE_SECRET_KEY`** | Settings → API Keys → chave `sb_secret_...`, colar no `.env.local` | A Fase 13 está pronta e testada, mas **é essa chave que autoriza o servidor a gravar o lead**. Sem ela (e sem Resend) o formulário responde 503 |
-| 5 | **Configurar o Resend** | `RESEND_API_KEY`, `CONTACT_FROM_EMAIL`, `CONTACT_TO_EMAIL` | Só o **aviso por e-mail**. Com a chave do item 4, o lead já é gravado e aparece em `/admin/contatos` mesmo sem Resend. Precisa de domínio verificado |
-| 6 | **Definir o domínio** | `NEXT_PUBLIC_SITE_URL` | Hoje aponta para localhost; afeta canonical, sitemap e OG |
+| ~~5~~ | ~~**Configurar o Resend**~~ | — | **Feito.** Domínio `jhconsulting.com.br` verificado (São Paulo) e envio confirmado por um POST real em `/api/contact` (`notified: true`) |
+| 6 | **Definir o domínio em produção** | `NEXT_PUBLIC_SITE_URL=https://jhconsulting.com.br` | No Render, na Fase 21. Em desenvolvimento continua `localhost:3000`; afeta canonical, sitemap e OG |
+| 7 | **Rotacionar a chave do Resend** | Resend → API keys | A chave foi escrita no `.env.example` (versionado) e apareceu no chat. **Não chegou a entrar em nenhum commit**, mas o prudente é gerar outra e colar só no `.env.local` |
 
 ## Fases restantes
 
@@ -52,7 +53,7 @@ Registrada, não esquecida:
 Da especificação original, o que ainda não pode ser marcado:
 
 - [ ] Contatos persistidos no banco — **código pronto e testado**, falta a `SUPABASE_SECRET_KEY` *(sua ação #4)*
-- [ ] Resend funcionando de verdade *(sua ação #5)*
+- [x] Resend funcionando de verdade — domínio verificado e envio confirmado
 - [x] Conteúdo sem necessidade nenhuma de editar código *(14)*
 - [ ] Auth completo com admin real criado *(sua ação #1)*
 - [ ] Aplicação preparada para Render *(21)*

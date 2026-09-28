@@ -66,28 +66,42 @@ const honeypot = await sendJson({ ...lead, email: `e2e-contato-bot-${stamp}@test
 const honeypotBody = await honeypot.json();
 check("honeypot responde 200 sem gravar", honeypot.status === 200 && honeypotBody.stored === false, `${honeypot.status} ${JSON.stringify(honeypotBody)}`);
 
+// Único envio válido da suíte. Com Resend configurado ele dispara um e-mail de
+// verdade, então rode com CONTACT_TO_EMAIL=delivered@resend.dev para não usar
+// a caixa real (ver SPEC/03-CONFIGURACAO.md).
 const created = await sendJson(lead, "198.51.100.5");
 const createdBody = await created.json();
 const stored = created.status === 200 && createdBody.stored === true;
+const notified = createdBody.notified === true;
 if (stored) {
-  check("lead válido é gravado (200 stored=true)", true);
+  check("lead válido é gravado (200 stored=true)", created.status === 200);
+} else if (notified) {
+  check(
+    "sem SUPABASE_SECRET_KEY o lead não é gravado, mas o e-mail ainda sai (200)",
+    created.status === 200 && createdBody.stored === false,
+    `${created.status} ${JSON.stringify(createdBody)}`
+  );
 } else {
   check(
-    "sem SUPABASE_SECRET_KEY e sem Resend o endpoint responde 503 unavailable",
+    "sem gravação e sem e-mail o endpoint responde 503 unavailable",
     created.status === 503 && createdBody.error === "unavailable",
     `${created.status} ${JSON.stringify(createdBody)}`
   );
 }
 
-// Rate limit: 5 por minuto por endereço, o sexto é barrado
+// Rate limit: 5 por minuto por endereço, o sexto é barrado. Usa payloads de
+// honeypot — o limite é aplicado antes da validação, então a contagem é a
+// mesma, sem gravar contato nem disparar e-mail.
 const rateIp = "198.51.100.90";
 let rateStatus = 0;
-for (let i = 0; i < 6; i += 1) rateStatus = (await sendJson({ ...lead, email: `e2e-contato-rate-${i}-${stamp}@test.invalid` }, rateIp)).status;
+for (let i = 0; i < 6; i += 1) {
+  rateStatus = (await sendJson({ ...lead, website: `bot-${i}` }, rateIp)).status;
+}
 check("sexta tentativa do mesmo endereço responde 429", rateStatus === 429, `${rateStatus}`);
 
 const after = (await admin.from("contacts").select("id", { count: "exact", head: true })).count ?? 0;
-const expectedNew = stored ? 6 : 0; // o lead + 5 aceitos no teste de rate limit
-check("nenhuma gravação inesperada (honeypot e inválidos não contam)", after - before === expectedNew, `antes=${before} depois=${after}`);
+const expectedNew = stored ? 1 : 0; // só o lead válido; honeypot e inválidos não gravam
+check("nenhuma gravação inesperada (honeypot, inválidos e rate limit não contam)", after - before === expectedNew, `antes=${before} depois=${after}`);
 
 // ---------- Painel ----------
 const target = (
