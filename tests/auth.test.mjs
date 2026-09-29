@@ -37,6 +37,20 @@ function loadActions(client) {
   });
 }
 
+// O login registra a causa real da falha no servidor (Fase 21). Aqui o console
+// é coletado: mantém a saída da suíte limpa e permite verificar o que foi (e o
+// que não foi) registrado.
+const captureErrors = async (run) => {
+  const original = console.error;
+  const logs = [];
+  console.error = (...args) => logs.push(args);
+  try {
+    return { result: await run(), logs };
+  } finally {
+    console.error = original;
+  }
+};
+
 const form = (fields) => {
   const data = new FormData();
   Object.entries(fields).forEach(([key, value]) => data.set(key, value));
@@ -80,20 +94,47 @@ test("login: invalid input never reaches Supabase", async () => {
 });
 
 test("login: wrong credentials get a generic message; rate limit is explained", async () => {
-  const wrong = await loadActions(fakeSupabase({ signInError: { status: 400, message: "Invalid login credentials" } }))
-    .login({ error: null, email: "" }, form({ email: " A@B.co ", password: "secret" }));
-  assert.deepEqual(plain(wrong), { error: "E-mail ou senha incorretos.", email: "a@b.co" });
-  const limited = await loadActions(fakeSupabase({ signInError: { status: 429 } }))
-    .login({ error: null, email: "" }, form({ email: "a@b.co", password: "secret" }));
-  assert.match(limited.error, /Muitas tentativas/);
+  const signIn = (signInError, fields) =>
+    captureErrors(() =>
+      loadActions(fakeSupabase({ signInError })).login({ error: null, email: "" }, form(fields)));
+
+  const wrong = await signIn(
+    { status: 400, code: "invalid_credentials", name: "AuthApiError" },
+    { email: " A@B.co ", password: "secret" }
+  );
+  assert.deepEqual(plain(wrong.result), { error: "E-mail ou senha incorretos.", email: "a@b.co" });
+  // A tela continua genérica, mas o servidor registra a causa real: é o que
+  // separa senha errada de conta sem identity em auth.identities.
+  assert.equal(wrong.logs.length, 1);
+  assert.ok(wrong.logs[0][0].startsWith("[admin/login]"), wrong.logs[0][0]);
+  assert.deepEqual(plain(wrong.logs[0][1]), { status: 400, code: "invalid_credentials", name: "AuthApiError" });
+  // O log não pode carregar identificador nem credencial.
+  const logged = JSON.stringify(plain(wrong.logs));
+  assert.ok(!logged.includes("a@b.co") && !logged.includes("secret"), logged);
+
+  const limited = await signIn({ status: 429 }, { email: "a@b.co", password: "secret" });
+  assert.match(limited.result.error, /Muitas tentativas/);
+  assert.equal(limited.logs.length, 1);
 });
 
 test("login: valid non-admin is signed out immediately", async () => {
   const client = fakeSupabase({ isAdmin: false });
-  const state = await loadActions(client).login({ error: null, email: "" }, form({ email: "a@b.co", password: "secret" }));
-  assert.match(state.error, /não tem acesso/);
+  const denied = await captureErrors(() =>
+    loadActions(client).login({ error: null, email: "" }, form({ email: "a@b.co", password: "secret" })));
+  assert.match(denied.result.error, /não tem acesso/);
   assert.deepEqual(client.calls.map(([name]) => name), ["signIn", "rpc", "signOut"]);
   assert.deepEqual(plain(client.calls[2][1]), { scope: "local" });
+  // Conta autenticada sem permissão é caminho previsto: nada a registrar.
+  assert.equal(denied.logs.length, 0);
+
+  // Já um RPC quebrado é defeito de infraestrutura e tem de aparecer no log,
+  // ainda que a tela mostre a mesma mensagem.
+  const broken = await captureErrors(() =>
+    loadActions(fakeSupabase({ rpcError: { code: "42501", message: "permission denied" } }))
+      .login({ error: null, email: "" }, form({ email: "a@b.co", password: "secret" })));
+  assert.match(broken.result.error, /não tem acesso/);
+  assert.equal(broken.logs.length, 1);
+  assert.ok(broken.logs[0][0].includes("RPC is_admin"), broken.logs[0][0]);
 });
 
 test("login: admin is redirected to /admin; password is passed only to Supabase", async () => {

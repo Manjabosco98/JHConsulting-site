@@ -12,6 +12,26 @@ const credentialsSchema = z.object({
 
 export type LoginState = { error: string | null; email: string };
 
+type LoggableError = { status?: number; code?: string; name?: string };
+
+/**
+ * Records on the server *why* a login failed. The screen keeps the generic
+ * message; only the operator, in the host's logs, sees the cause. Never
+ * includes the e-mail, the password or the whole error object: the fields
+ * below are the ones that distinguish the cases without describing the account.
+ *
+ * Phase 21: an admin created by a direct insert into `auth.users`, with no row
+ * in `auth.identities`, fails here exactly like a wrong password. Without this
+ * line the two are indistinguishable in production.
+ */
+function logLoginFailure(stage: string, error: LoggableError) {
+  console.error(`[admin/login] ${stage}`, {
+    status: error.status ?? null,
+    code: error.code ?? null,
+    name: error.name ?? null
+  });
+}
+
 export async function login(_previous: LoginState, formData: FormData): Promise<LoginState> {
   const rawEmail = String(formData.get("email") ?? "").slice(0, 254);
   const parsed = credentialsSchema.safeParse({
@@ -23,6 +43,7 @@ export async function login(_previous: LoginState, formData: FormData): Promise<
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error) {
+    logLoginFailure("Supabase Auth recusou a credencial", error);
     // Generic message: never reveal whether the e-mail exists.
     const message = error.status === 429
       ? "Muitas tentativas. Aguarde alguns minutos e tente novamente."
@@ -32,6 +53,9 @@ export async function login(_previous: LoginState, formData: FormData): Promise<
 
   const { data: isAdmin, error: rpcError } = await supabase.rpc("is_admin");
   if (rpcError || isAdmin !== true) {
+    // Fails closed either way, but the log separates "RPC broke" from
+    // "this account is not in private.admin_users".
+    if (rpcError) logLoginFailure("RPC is_admin falhou", rpcError);
     await supabase.auth.signOut({ scope: "local" });
     return { error: "Esta conta não tem acesso ao painel.", email: parsed.data.email };
   }
