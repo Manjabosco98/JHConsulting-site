@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ImagePlus, Trash2, Upload } from "lucide-react";
 import type { CoverFormState } from "@/app/admin/(painel)/projetos/actions";
 import { ACCEPTED_IMAGE_TYPES, MAX_IMAGE_BYTES } from "@/lib/storage/images";
+import { ConfirmButton } from "@/components/ui/ConfirmButton";
 
 type Props = {
   action: (state: CoverFormState, formData: FormData) => Promise<CoverFormState>;
@@ -61,11 +62,17 @@ export function CoverImageForm({ action, currentUrl, title }: Props) {
             <Upload size={15} aria-hidden="true" /> {pending ? "Enviando..." : "Enviar capa"}
           </button>
           {currentUrl ? (
-            <button name="intent" value="remove" disabled={pending}
-              onClick={(event) => { if (!window.confirm("Remover a capa deste projeto?")) event.preventDefault(); }}
-              className="focus-ring inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-slate-200 hover:bg-white/5 disabled:opacity-50">
+            <ConfirmButton
+              name="intent"
+              value="remove"
+              disabled={pending}
+              question="Remover a capa deste projeto?"
+              detail="A imagem é apagada do armazenamento. Você pode enviar outra quando quiser."
+              confirmLabel="Remover capa"
+              className="focus-ring inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-slate-200 hover:bg-white/5 disabled:opacity-50"
+            >
               <Trash2 size={15} aria-hidden="true" /> Remover capa
-            </button>
+            </ConfirmButton>
           ) : null}
         </div>
         <p aria-live="polite" className={`text-sm ${state.status === "error" ? "text-red-300" : "text-emerald-300"}`}>

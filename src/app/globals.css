@@ -68,6 +68,30 @@
   .skeleton { animation: none; }
 }
 
+/*
+ * Confirmation dialog of the admin panel (replaces window.confirm).
+ * The font reset is here because the <dialog> sits inside the <form>, which
+ * already passes text-sm/font-bold down for its trigger button.
+ */
+.confirm-dialog {
+  padding: 0;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, #141d33, var(--bg-soft));
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 400;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, .55);
+}
+.confirm-dialog::backdrop {
+  background: rgba(3, 7, 18, .72);
+  backdrop-filter: blur(3px);
+}
+.confirm-dialog[open] { animation: confirm-dialog-in .16s ease-out; }
+@keyframes confirm-dialog-in {
+  from { opacity: 0; transform: translateY(8px) scale(.985); }
+  to { opacity: 1; transform: none; }
+}
+
 @media (max-width: 768px) {
   .section-space { padding-block: 4.5rem; }
   .container-shell { width: min(100% - 1.25rem, 1180px); }
