@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Plus } from "lucide-react";
-import { requireAdmin } from "@/lib/auth/admin";
+import { requireAdminWith } from "@/lib/auth/admin";
 import { createClient } from "@/lib/supabase/server";
 import { listAdminTechnologies, listAdminTechnologyGroups } from "@/lib/repositories/technologies";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
@@ -9,11 +9,10 @@ import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 export const metadata: Metadata = { title: "Tecnologias" };
 
 export default async function AdminTechnologiesPage({ searchParams }: { searchParams: Promise<{ excluido?: string; grupo_excluido?: string }> }) {
-  await requireAdmin();
   const supabase = await createClient();
   const [query, technologies, groups] = await Promise.all([
     searchParams,
-    listAdminTechnologies(supabase),
+    requireAdminWith(listAdminTechnologies(supabase)),
     listAdminTechnologyGroups(supabase)
   ]);
   const activeTechnologies = technologies.filter((technology) => technology.active).length;

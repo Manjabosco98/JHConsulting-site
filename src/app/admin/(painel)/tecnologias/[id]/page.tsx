@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { z } from "zod";
-import { requireAdmin } from "@/lib/auth/admin";
+import { requireAdminWith } from "@/lib/auth/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getAdminTechnology } from "@/lib/repositories/technologies";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
@@ -23,11 +23,10 @@ const deleteErrors: Record<string, string> = {
 };
 
 export default async function EditTechnologyPage({ params, searchParams }: Props) {
-  await requireAdmin();
   const [{ id }, query] = await Promise.all([params, searchParams]);
   if (!z.string().uuid().safeParse(id).success) notFound();
 
-  const technology = await getAdminTechnology(await createClient(), id);
+  const technology = await requireAdminWith(getAdminTechnology(await createClient(), id));
   if (!technology) notFound();
   const deleteError = query.erro ? deleteErrors[query.erro] ?? deleteErrors.unknown : null;
 

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { z } from "zod";
-import { requireAdmin } from "@/lib/auth/admin";
+import { requireAdminWith } from "@/lib/auth/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getAdminService } from "@/lib/repositories/services";
 import { DEFAULT_SERVICE_ICON, isServiceIconName } from "@/lib/services/icons";
@@ -18,11 +18,10 @@ export const metadata: Metadata = { title: "Editar serviço" };
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ criado?: string; erro?: string }> };
 
 export default async function EditServicePage({ params, searchParams }: Props) {
-  await requireAdmin();
   const [{ id }, query] = await Promise.all([params, searchParams]);
   if (!z.string().uuid().safeParse(id).success) notFound();
 
-  const service = await getAdminService(await createClient(), id);
+  const service = await requireAdminWith(getAdminService(await createClient(), id));
   if (!service) notFound();
 
   return (

@@ -15,25 +15,32 @@ test("admin navigation: dashboard only on /admin; sections include sub-routes", 
   ]);
 });
 
-const counts = {
-  "projects count": 5,
-  "projects count published=true": 3,
-  "projects count archived_at not is null": 1,
-  "projects count published=false archived_at is null": 1,
-  "services count": 8,
-  "services count active=true": 7,
-  "technologies count": 32,
-  "technologies count active=true": 30,
-  "contacts count": 4,
-  "contacts count status=NEW": 2
+const projectRows = [
+  { published: true, archived_at: null },
+  { published: true, archived_at: null },
+  { published: true, archived_at: null },
+  { published: false, archived_at: null },
+  { published: false, archived_at: "2026-01-01T00:00:00Z" }
+];
+const serviceRows = Array.from({ length: 8 }, (_, i) => ({ active: i < 7 }));
+const technologyRows = Array.from({ length: 32 }, (_, i) => ({ active: i < 30 }));
+const contactRows = Array.from({ length: 4 }, (_, i) => ({ status: i < 2 ? "NEW" : "OPEN" }));
+
+const listed = {
+  "contacts select(id, name, company, project_type, status, created_at) order created_at desc limit 5":
+    [{ id: "c1", name: "Ana", company: "", project_type: "Site", status: "NEW", created_at: "2026-09-27T12:00:00Z" }],
+  "projects select(id, title, published, archived_at, updated_at) order updated_at desc limit 5":
+    [{ id: "p1", title: "SGECHAT", published: true, archived_at: null, updated_at: "2026-09-27T12:00:00Z" }]
 };
 
 function respond(overrides = {}) {
   return (key) => {
     if (key in overrides) return overrides[key];
-    if (key in counts) return { count: counts[key], error: null };
-    if (key.startsWith("contacts select")) return { data: [{ id: "c1", name: "Ana", company: "", project_type: "Site", status: "NEW", created_at: "2026-09-27T12:00:00Z" }], error: null };
-    if (key.startsWith("projects select")) return { data: [{ id: "p1", title: "SGECHAT", published: true, archived_at: null, updated_at: "2026-09-27T12:00:00Z" }], error: null };
+    if (key === "projects select(published, archived_at)") return { data: projectRows, error: null };
+    if (key === "services select(active)") return { data: serviceRows, error: null };
+    if (key === "technologies select(active)") return { data: technologyRows, error: null };
+    if (key === "contacts select(status)") return { data: contactRows, error: null };
+    if (key in listed) return { data: listed[key], error: null };
     if (key.startsWith("site_settings")) return { data: { email: "a@b.co", whatsapp: null, linkedin_url: "", github_url: "https://github.com/x", profile_image: null }, error: null };
     throw new Error(`Unexpected query: ${key}`);
   };
@@ -66,7 +73,7 @@ test("dashboard lists empty public contact fields; null when settings row is mis
 test("dashboard errors never expose database details to the page", async (t) => {
   const logged = t.mock.method(console, "error", () => {});
   await assert.rejects(
-    loadDashboard().getDashboardData(fakeDb(respond({ "contacts count status=NEW": { count: null, error: { message: "relation secret_table" } } }))),
+    loadDashboard().getDashboardData(fakeDb(respond({ "contacts select(status)": { data: null, error: { message: "relation secret_table" } } }))),
     (error) => error.message === "Não foi possível carregar o dashboard." && !error.message.includes("secret")
   );
   assert.match(logged.mock.calls[0].arguments[0], /secret_table/);

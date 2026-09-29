@@ -97,6 +97,8 @@ test("server clients and cookie stores are isolated per request", async () => {
   const writes = [];
   const server = load("src/lib/supabase/server.ts", publicEnv, {
     "server-only": {},
+    // Identity: no cross-call sharing, so every call rebuilds from cookies().
+    "react": { cache: (fn) => fn },
     "next/headers": { cookies: async () => {
       const requestId = ++count;
       return {
@@ -120,9 +122,27 @@ test("server clients and cookie stores are isolated per request", async () => {
 test("read-only Server Component cookies do not crash the factory adapter", async () => {
   const server = load("src/lib/supabase/server.ts", publicEnv, {
     "server-only": {},
+    // Identity: no cross-call sharing, so every call rebuilds from cookies().
+    "react": { cache: (fn) => fn },
     "next/headers": { cookies: async () => ({ getAll: () => [], set() { throw new Error("read-only"); } }) },
     "@supabase/ssr": { createServerClient: (_url, _key, options) => options }
   });
   const client = await server.createClient();
   assert.doesNotThrow(() => client.cookies.setAll([{ name: "session", value: "value", options: {} }]));
+});
+
+test("factory is wrapped in React cache so guard, layout and page share one client", async () => {
+  let cookieReads = 0;
+  let cacheWraps = 0;
+  const server = load("src/lib/supabase/server.ts", publicEnv, {
+    "server-only": {},
+    "react": { cache: (fn) => { cacheWraps += 1; return fn; } },
+    "next/headers": { cookies: async () => { cookieReads += 1; return { getAll: () => [], set() {} }; } },
+    "@supabase/ssr": { createServerClient: (url, key, options) => ({ url, key, options }) }
+  });
+  assert.equal(cacheWraps, 1);
+  assert.equal(typeof server.createClient, "function");
+  await server.createClient();
+  await server.createClient();
+  assert.equal(cookieReads, 2);
 });

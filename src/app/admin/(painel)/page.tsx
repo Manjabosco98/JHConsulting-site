@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AlertTriangle, ArrowRight, CheckCircle2 } from "lucide-react";
-import { requireAdmin } from "@/lib/auth/admin";
+import { requireAdminWith } from "@/lib/auth/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getDashboardData } from "@/lib/repositories/dashboard";
 import { contactStatusBadge, contactStatusLabels, formatDateTime } from "@/lib/admin/labels";
@@ -29,8 +29,7 @@ function projectState(project: { published: boolean; archived_at: string | null 
 }
 
 export default async function AdminDashboardPage() {
-  await requireAdmin();
-  const data = await getDashboardData(await createClient());
+  const data = await requireAdminWith(getDashboardData(await createClient()));
   const { projects, services, technologies, contacts } = data;
 
   return (

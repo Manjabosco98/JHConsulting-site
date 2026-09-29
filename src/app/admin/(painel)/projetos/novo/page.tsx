@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { requireAdmin } from "@/lib/auth/admin";
+import { requireAdminWith } from "@/lib/auth/admin";
 import { createClient } from "@/lib/supabase/server";
 import { listProjectSuggestions, listTechnologyOptions } from "@/lib/repositories/projects";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
@@ -17,9 +17,11 @@ const emptyProject: ProjectFormValues = {
 };
 
 export default async function NewProjectPage() {
-  await requireAdmin();
   const supabase = await createClient();
-  const [technologies, suggestions] = await Promise.all([listTechnologyOptions(supabase), listProjectSuggestions(supabase)]);
+  const [technologies, suggestions] = await Promise.all([
+    requireAdminWith(listTechnologyOptions(supabase)),
+    listProjectSuggestions(supabase)
+  ]);
 
   return (
     <div className="grid gap-6">

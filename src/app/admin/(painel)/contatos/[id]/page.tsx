@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Mail, MessageCircle } from "lucide-react";
 import { z } from "zod";
-import { requireAdmin } from "@/lib/auth/admin";
+import { requireAdminWith } from "@/lib/auth/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getAdminContact } from "@/lib/repositories/contacts";
 import { contactStatusBadge, contactStatusLabels, contactStatuses, formatDateTime } from "@/lib/admin/labels";
@@ -35,11 +35,10 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 export default async function AdminContactPage({ params, searchParams }: Props) {
-  await requireAdmin();
   const [{ id }, flags] = await Promise.all([params, searchParams]);
   if (!uuid.safeParse(id).success) notFound();
 
-  const contact = await getAdminContact(await createClient(), id);
+  const contact = await requireAdminWith(getAdminContact(await createClient(), id));
   if (!contact) notFound();
 
   const phone = contact.whatsapp.replace(/\D/g, "");

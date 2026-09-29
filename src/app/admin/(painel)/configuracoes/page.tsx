@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { AlertTriangle } from "lucide-react";
-import { requireAdmin } from "@/lib/auth/admin";
+import { requireAdminWith } from "@/lib/auth/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getAdminSettings } from "@/lib/repositories/settings";
 import { publicImageUrl } from "@/lib/storage/images";
@@ -22,8 +22,7 @@ const labels: Partial<Record<(typeof settingsTextFields)[number], string>> = {
 };
 
 export default async function AdminSettingsPage() {
-  await requireAdmin();
-  const settings = await getAdminSettings(await createClient());
+  const settings = await requireAdminWith(getAdminSettings(await createClient()));
 
   // Missing row: the form starts empty and the first save creates it.
   const values = Object.fromEntries(

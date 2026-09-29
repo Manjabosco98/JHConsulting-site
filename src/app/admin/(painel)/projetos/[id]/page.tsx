@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { z } from "zod";
-import { requireAdmin } from "@/lib/auth/admin";
+import { requireAdminWith } from "@/lib/auth/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getAdminProject, listProjectSuggestions, listTechnologyOptions } from "@/lib/repositories/projects";
 import { formatDateTime } from "@/lib/admin/labels";
@@ -19,13 +19,12 @@ export const metadata: Metadata = { title: "Editar projeto" };
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ criado?: string; erro?: string }> };
 
 export default async function EditProjectPage({ params, searchParams }: Props) {
-  await requireAdmin();
   const [{ id }, query] = await Promise.all([params, searchParams]);
   if (!z.string().uuid().safeParse(id).success) notFound();
 
   const supabase = await createClient();
   const [project, technologies, suggestions] = await Promise.all([
-    getAdminProject(supabase, id),
+    requireAdminWith(getAdminProject(supabase, id)),
     listTechnologyOptions(supabase),
     listProjectSuggestions(supabase)
   ]);

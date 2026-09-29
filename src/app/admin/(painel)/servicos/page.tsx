@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Plus } from "lucide-react";
-import { requireAdmin } from "@/lib/auth/admin";
+import { requireAdminWith } from "@/lib/auth/admin";
 import { createClient } from "@/lib/supabase/server";
 import { listAdminServices } from "@/lib/repositories/services";
 import { resolveServiceIcon } from "@/lib/services/icons";
@@ -11,8 +11,7 @@ import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 export const metadata: Metadata = { title: "Serviços" };
 
 export default async function AdminServicesPage({ searchParams }: { searchParams: Promise<{ excluido?: string }> }) {
-  await requireAdmin();
-  const [{ excluido }, services] = await Promise.all([searchParams, listAdminServices(await createClient())]);
+  const [{ excluido }, services] = await Promise.all([searchParams, requireAdminWith(listAdminServices(await createClient()))]);
   const active = services.filter((service) => service.active).length;
 
   return (

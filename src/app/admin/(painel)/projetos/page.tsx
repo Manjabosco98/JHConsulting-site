@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Plus, Search, Star } from "lucide-react";
-import { requireAdmin } from "@/lib/auth/admin";
+import { requireAdminWith } from "@/lib/auth/admin";
 import { createClient } from "@/lib/supabase/server";
 import { countProjectsByFilter, listAdminProjects, projectFilters, type ProjectFilter } from "@/lib/repositories/projects";
 import { formatDateTime } from "@/lib/admin/labels";
@@ -26,14 +26,13 @@ const visibilityBadge: Record<ProjectVisibility, { label: string; className: str
 type SearchParams = Promise<{ filtro?: string; q?: string; excluido?: string }>;
 
 export default async function AdminProjectsPage({ searchParams }: { searchParams: SearchParams }) {
-  await requireAdmin();
   const params = await searchParams;
   const filter = projectFilters.includes(params.filtro as ProjectFilter) ? (params.filtro as ProjectFilter) : "todos";
   const search = (params.q ?? "").trim().slice(0, 100);
 
   const supabase = await createClient();
   const [projects, counts] = await Promise.all([
-    listAdminProjects(supabase, { filter, search }),
+    requireAdminWith(listAdminProjects(supabase, { filter, search })),
     countProjectsByFilter(supabase)
   ]);
 

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { requireAdmin } from "@/lib/auth/admin";
+import { requireAdminWith } from "@/lib/auth/admin";
 import { createClient } from "@/lib/supabase/server";
 import { listTechnologyOptions } from "@/lib/repositories/projects";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
@@ -11,8 +11,7 @@ import { saveTechnologyGroupAction } from "../../actions";
 export const metadata: Metadata = { title: "Novo grupo" };
 
 export default async function NewTechnologyGroupPage() {
-  await requireAdmin();
-  const technologies = await listTechnologyOptions(await createClient());
+  const technologies = await requireAdminWith(listTechnologyOptions(await createClient()));
   return (
     <div className="grid gap-6">
       <Link href="/admin/tecnologias" className="focus-ring inline-flex w-fit items-center gap-2 rounded text-sm font-bold text-slate-400 hover:text-slate-200">

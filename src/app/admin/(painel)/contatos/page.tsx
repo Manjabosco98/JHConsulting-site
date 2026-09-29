@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { requireAdmin } from "@/lib/auth/admin";
+import { requireAdminWith } from "@/lib/auth/admin";
 import { createClient } from "@/lib/supabase/server";
 import { hasSupabaseSecretKey } from "@/lib/supabase/secret";
 import { hasEmailConfig } from "@/lib/contact/config";
@@ -13,13 +13,12 @@ export const metadata: Metadata = { title: "Contatos" };
 type SearchParams = Promise<{ status?: string }>;
 
 export default async function AdminContactsPage({ searchParams }: { searchParams: SearchParams }) {
-  await requireAdmin();
   const params = await searchParams;
   const status: ContactStatus | null = isContactStatus(params.status) ? params.status : null;
 
   const supabase = await createClient();
   const [contacts, counts] = await Promise.all([
-    listAdminContacts(supabase, status),
+    requireAdminWith(listAdminContacts(supabase, status)),
     countContactsByStatus(supabase)
   ]);
 

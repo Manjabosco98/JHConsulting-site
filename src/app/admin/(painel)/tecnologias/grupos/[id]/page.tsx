@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { z } from "zod";
-import { requireAdmin } from "@/lib/auth/admin";
+import { requireAdminWith } from "@/lib/auth/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getAdminTechnologyGroup } from "@/lib/repositories/technologies";
 import { listTechnologyOptions } from "@/lib/repositories/projects";
@@ -18,13 +18,12 @@ export const metadata: Metadata = { title: "Editar grupo" };
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ criado?: string; erro?: string }> };
 
 export default async function EditTechnologyGroupPage({ params, searchParams }: Props) {
-  await requireAdmin();
   const [{ id }, query] = await Promise.all([params, searchParams]);
   if (!z.string().uuid().safeParse(id).success) notFound();
 
   const supabase = await createClient();
   const [group, technologies] = await Promise.all([
-    getAdminTechnologyGroup(supabase, id),
+    requireAdminWith(getAdminTechnologyGroup(supabase, id)),
     listTechnologyOptions(supabase)
   ]);
   if (!group) notFound();

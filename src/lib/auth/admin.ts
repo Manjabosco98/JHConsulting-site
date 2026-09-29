@@ -36,3 +36,16 @@ export async function requireAdmin(): Promise<AdminSession> {
   if (state.status !== "admin") redirect(ADMIN_LOGIN_PATH);
   return state.session;
 }
+
+/**
+ * Runs `requireAdmin()` while `data` is already in flight, so the auth round
+ * trips are not serialized in front of the page query. Fails closed: the guard
+ * settles first, so a non-admin is redirected and never receives `data`.
+ */
+export async function requireAdminWith<T>(data: Promise<T>): Promise<T> {
+  // If the guard redirects, `data` is never awaited: mark it handled so a late
+  // rejection cannot surface as an unhandled rejection.
+  data.catch(() => {});
+  await requireAdmin();
+  return data;
+}
