@@ -1,0 +1,4 @@
+#!/bin/sh
+# Barreira contra credencial versionada. Ativado com:
+#   git config core.hooksPath .githooks
+exec node scripts/check-staged-secrets.mjs

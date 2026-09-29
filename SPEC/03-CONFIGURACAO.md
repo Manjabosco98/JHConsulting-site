@@ -48,6 +48,20 @@ As duas coisas são independentes: com a chave e sem Resend, o lead é gravado e
 
 `NEXT_PUBLIC_WHATSAPP_NUMBER`, `NEXT_PUBLIC_CONTACT_EMAIL`, `NEXT_PUBLIC_LINKEDIN_URL`, `NEXT_PUBLIC_GITHUB_URL` e `NEXT_PUBLIC_INSTAGRAM_URL` **não são mais lidas**. A fonte de verdade desses dados é `/admin/configuracoes` (tabela `site_settings`). Se ainda existirem no seu `.env.local`, são inofensivas, mas podem sair.
 
+## Barreira contra credencial versionada
+
+Um hook de pre-commit recusa o commit se algum arquivo preparado contiver chave do Resend, chave secreta do Supabase ou JWT. Ele olha o conteúdo **staged**, que é o que entraria no histórico, e roda com Node puro — sem depender de `npm install`.
+
+Num clone novo, ative com:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+O script é `scripts/check-staged-secrets.mjs`. Valores obviamente fictícios (`do_not_leak`, `example`, `seudominio`…) são ignorados, para não travar teste nem documentação.
+
+**Lembrete de onde vai o quê:** valor real sempre no `.env.local` (ignorado pelo Git); o `.env.example` é modelo versionado, só com nomes de variável.
+
 ## Comandos
 
 ```bash

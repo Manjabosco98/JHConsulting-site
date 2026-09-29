@@ -13,7 +13,15 @@ npm install
 npm run dev
 ```
 
-Acesse `http://localhost:3000`. Configure `.env.local` com os campos de `.env.example`. Não substitua um arquivo de ambiente já configurado nem versionar credenciais. O Next carrega esse arquivo automaticamente.
+Acesse `http://localhost:3000`. Configure o **`.env.local`** com os campos de `.env.example`; o Next o carrega automaticamente. O `.env.example` é modelo versionado: só nomes de variável, nunca valores.
+
+Ative a barreira contra credencial versionada (uma vez por clone):
+
+```bash
+git config core.hooksPath .githooks
+```
+
+O hook recusa qualquer commit que traga chave do Resend, chave secreta do Supabase ou JWT num arquivo preparado. Detalhes em [SPEC/03-CONFIGURACAO.md](SPEC/03-CONFIGURACAO.md).
 
 A única infraestrutura de dados autorizada é **Supabase Cloud**, tanto no desenvolvimento quanto na produção. Não usar Docker, Supabase local ou banco local. Os scripts npm de start/stop/status/reset do Supabase já haviam sido removidos; na Fase 19 saíram também o `supabase/config.toml` e o `supabase/seed.sql`, que descreviam um ambiente local inexistente — o `project_id` daquele arquivo sequer era o ref do projeto Cloud. Em `supabase/` restam apenas as migrations (espelho do Cloud) e a matriz de RLS.
 
