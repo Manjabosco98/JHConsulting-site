@@ -1,5 +1,22 @@
 @import "tailwindcss";
 
+/*
+ * Tipografia: Geist, carregada por next/font em layout.tsx, que baixa o arquivo
+ * no build e o serve do nosso próprio domínio (nenhuma requisição ao Google em
+ * runtime) com métrica ajustada, então o swap não desloca o layout.
+ *
+ * Isto entra por `@theme`, e não por `:root`, porque `--font-sans` é um token do
+ * próprio Tailwind v4: declarar em `:root` cria duas definições concorrentes e a
+ * vencedora passa a depender da ordem dos arquivos. Por `@theme` existe uma só,
+ * e os utilitários `font-sans` resolvem para Geist junto com o `body`.
+ *
+ * `inline` é necessário porque o valor referencia `var(--font-geist)`, que só
+ * existe em runtime (é a classe que o next/font injeta no <html>).
+ */
+@theme inline {
+  --font-sans: var(--font-geist), "Segoe UI", Roboto, Arial, Helvetica, sans-serif;
+}
+
 :root {
   --bg: #080d18;
   --bg-soft: #0d1424;
@@ -12,6 +29,20 @@
 }
 
 /*
+ * ESCALA DE RAIOS — uma regra, quatro valores. Antes havia seis (`lg`, `xl`,
+ * `2xl`, `3xl`, `[2rem]`, `full`) sem critério, e `2xl`/`3xl`/`[2rem]` faziam
+ * o mesmo trabalho em três tamanhos quase iguais.
+ *
+ *   rounded-full  pílulas, badges, chips de tecnologia, botões de ícone
+ *   rounded-xl    botões, campos de formulário, tiles pequenos
+ *   rounded-2xl   cards
+ *   rounded-3xl   painéis grandes e imagens
+ *
+ * `rounded-lg` e `rounded-[2rem]` não são usados. Ao criar componente novo,
+ * escolha um dos quatro acima em vez de inventar um quinto.
+ */
+
+/*
  * Element defaults go in @layer base so Tailwind utilities can override them.
  * Unlayered CSS wins over every layer, so while these rules sat outside a layer
  * `a { color: inherit }` silently beat `text-blue-300` (links rendered white)
@@ -19,7 +50,12 @@
  */
 @layer base {
   * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
+  html {
+    scroll-behavior: smooth;
+    /* Altura da navbar fixa (h-20). Sem isto o título da seção ancorada para
+     * debaixo do cabeçalho ao clicar em qualquer item do menu. */
+    scroll-padding-top: 5rem;
+  }
   body {
     margin: 0;
     background:
@@ -27,8 +63,9 @@
       radial-gradient(circle at 88% 18%, rgba(34,211,238,.08), transparent 24%),
       var(--bg);
     color: var(--text);
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-sans);
     text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
   }
 
   a { color: inherit; text-decoration: none; }
@@ -38,19 +75,28 @@
 
 .container-shell { width: min(1180px, calc(100% - 2rem)); margin-inline: auto; }
 .section-space { padding-block: 6rem; }
-.section-kicker { color: #60a5fa; text-transform: uppercase; letter-spacing: .18em; font-size: .74rem; font-weight: 800; }
-.section-title { margin-top: .75rem; font-size: clamp(2rem, 4vw, 3.5rem); line-height: 1.04; letter-spacing: -.04em; font-weight: 800; }
-.section-copy { margin-top: 1rem; max-width: 760px; color: var(--muted); font-size: 1.02rem; line-height: 1.8; }
+
+/*
+ * O kicker é o rótulo pequeno em caixa alta acima do título. Ele fica caro
+ * quando repete: com um por seção, treze seções produzem treze rótulos e a
+ * página passa a ter um único ritmo. A regra aqui é no máximo um a cada três
+ * seções, e na home sobraram quatro (pílula do Hero, Serviços, Soluções e
+ * Contato) — as seções cujo título não nomeia o assunto e que o menu aponta.
+ */
+.section-kicker { color: #60a5fa; text-transform: uppercase; letter-spacing: .18em; font-size: .74rem; font-weight: 700; }
+
+/* Com Geist no lugar de Arial a hierarquia vem da forma da letra, não do peso
+ * bruto: 700 em vez de 800, e o topo da escala desce de 3.5rem para 2.875rem. */
+.section-title { margin-top: .75rem; font-size: clamp(1.875rem, 3.2vw, 2.875rem); line-height: 1.08; letter-spacing: -.03em; font-weight: 700; text-wrap: balance; }
+.section-copy { margin-top: 1rem; max-width: 62ch; color: var(--muted); font-size: 1.02rem; line-height: 1.75; }
 .card {
   border: 1px solid var(--line);
   background: linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.018));
   box-shadow: 0 22px 80px rgba(0,0,0,.18);
 }
-.grid-lines {
-  background-image: linear-gradient(rgba(148,163,184,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,.05) 1px, transparent 1px);
-  background-size: 32px 32px;
-}
-.text-gradient { background: linear-gradient(90deg,#fff,#93c5fd 45%,#67e8f9); -webkit-background-clip: text; color: transparent; }
+/* Gradiente no destaque do H1: faz parte da identidade registrada na SPEC. Os
+ * stops perderam o ciano final, que puxava o texto para arco-íris. */
+.text-gradient { background: linear-gradient(92deg,#fff,#bfdbfe 58%,#93c5fd); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .focus-ring:focus-visible { outline: 2px solid #60a5fa; outline-offset: 3px; }
 
 /* Placeholder blocks for route loading states (loading.tsx). */

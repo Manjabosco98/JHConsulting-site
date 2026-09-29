@@ -27,13 +27,38 @@ export const solutions = [
   ["Sistemas Internos", "Ferramentas específicas para processos da empresa."]
 ] as const;
 
-export const workflow = [
-  ["01", "Entendimento", "Análise do problema e do processo atual."],
-  ["02", "Planejamento", "Definição da solução, arquitetura e tecnologias."],
-  ["03", "Desenvolvimento", "Construção da automação, sistema ou integração."],
-  ["04", "Testes", "Validação técnica, funcional e de cenários críticos."],
-  ["05", "Implantação", "Deploy, configuração e entrada em produção."],
-  ["06", "Evolução", "Monitoramento, manutenção e melhorias contínuas."]
+/**
+ * As seis etapas do projeto, agrupadas em três fases.
+ *
+ * Antes eram seis itens com o número escrito à mão (`"01"`… `"06"`) renderizados
+ * como seis cards iguais. Duas coisas estavam erradas ali: o rótulo numérico não
+ * acrescenta nada que a ordem de leitura já não diga, e seis cards idênticos
+ * eram a quinta ocorrência do mesmo grid de colunas iguais na home. Agrupar em
+ * três fases dá ao visitante uma estrutura para lembrar, em vez de uma lista
+ * para percorrer, e reduz os seis fios de divisão para dois.
+ */
+export const workflowPhases = [
+  {
+    phase: "Descoberta",
+    steps: [
+      ["Entendimento", "Análise do problema e do processo atual."],
+      ["Planejamento", "Definição da solução, arquitetura e tecnologias."]
+    ]
+  },
+  {
+    phase: "Construção",
+    steps: [
+      ["Desenvolvimento", "Construção da automação, sistema ou integração."],
+      ["Testes", "Validação técnica, funcional e de cenários críticos."]
+    ]
+  },
+  {
+    phase: "Operação",
+    steps: [
+      ["Implantação", "Deploy, configuração e entrada em produção."],
+      ["Evolução", "Monitoramento, manutenção e melhorias contínuas."]
+    ]
+  }
 ] as const;
 
 export const differentiators = [

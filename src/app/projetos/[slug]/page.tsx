@@ -91,7 +91,9 @@ export default async function ProjetoDetailPage({ params }: Props) {
           <header className="mt-6">
             <p className="section-kicker">{project.category}</p>
             <h1 className="section-title">{project.title}</h1>
-            {project.status ? <p className="mt-4 text-sm font-bold text-emerald-300">{project.status}</p> : null}
+            {/* Era `text-emerald-300`: acento fora do sistema azul/ciano, usado
+              * como se o status fosse alerta. */}
+            {project.status ? <p className="mt-4 text-sm font-bold text-blue-200/80">{project.status}</p> : null}
           </header>
 
           {project.coverUrl ? (
@@ -150,9 +152,12 @@ export default async function ProjetoDetailPage({ params }: Props) {
           <div className="card mt-14 rounded-3xl p-6 sm:p-8">
             <h2 className="text-xl font-black">Tem um desafio parecido?</h2>
             <p className="mt-2 text-slate-400">Conte o processo que você quer melhorar e receba um diagnóstico inicial.</p>
+            {/* Um rótulo por destino, igual ao resto do site: formulário é
+              * sempre "Quero analisar meu processo", WhatsApp é sempre
+              * "Solicitar orçamento". */}
             <div className="mt-5 flex flex-wrap gap-3">
-              <Link href="/#contato" className="focus-ring inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold hover:bg-blue-500">Falar sobre um projeto</Link>
-              <a href={whatsappLink(settings.whatsapp, message)} target="_blank" rel="noreferrer" className="focus-ring inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-bold text-slate-200 hover:bg-white/5">WhatsApp</a>
+              <Link href="/#contato" className="focus-ring inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold transition hover:bg-blue-500 active:translate-y-px">Quero analisar meu processo</Link>
+              <a href={whatsappLink(settings.whatsapp, message)} target="_blank" rel="noreferrer" className="focus-ring inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-bold text-slate-200 transition hover:bg-white/5 active:translate-y-px">Solicitar orçamento</a>
             </div>
           </div>
         </article>

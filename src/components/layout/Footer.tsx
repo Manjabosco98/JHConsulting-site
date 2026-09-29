@@ -2,7 +2,8 @@ import { Github, Instagram, Linkedin, Mail } from "lucide-react";
 import { siteConfig } from "@/constants/site";
 import { getSiteSettings } from "@/lib/repositories/public-settings";
 
-const socialClass = "focus-ring rounded-lg border border-white/10 p-2 hover:bg-white/5";
+// `rounded-full`: botão de ícone, conforme a escala de raios em globals.css.
+const socialClass = "focus-ring rounded-full border border-white/10 p-2.5 transition hover:bg-white/5";
 
 export async function Footer() {
   const settings = await getSiteSettings();
@@ -31,7 +32,7 @@ export async function Footer() {
         </div>
       </div>
       <div className="container-shell mt-8 border-t border-white/5 pt-6 text-xs text-slate-500">
-        © {new Date().getFullYear()} {settings.companyName} — Todos os direitos reservados.
+        © {new Date().getFullYear()} {settings.companyName}. Todos os direitos reservados.
       </div>
     </footer>
   );

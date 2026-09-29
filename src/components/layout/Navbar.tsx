@@ -18,12 +18,12 @@ export function Navbar({ whatsappUrl, internal = false }: { whatsappUrl: string;
           {siteConfig.nav.map(([label, href]) => <a key={href} href={to(href)} className="focus-ring text-sm text-slate-300 transition hover:text-white">{label}</a>)}
         </nav>
         <a href={whatsappUrl} target="_blank" rel="noreferrer" className="focus-ring hidden rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold transition hover:bg-blue-500 md:inline-flex">Solicitar orçamento</a>
-        <button aria-label="Abrir menu" aria-expanded={open} onClick={() => setOpen(v => !v)} className="focus-ring rounded-lg p-2 lg:hidden">{open ? <X /> : <Menu />}</button>
+        <button aria-label={open ? "Fechar menu" : "Abrir menu"} aria-expanded={open} onClick={() => setOpen(v => !v)} className="focus-ring rounded-full p-2 lg:hidden">{open ? <X /> : <Menu />}</button>
       </div>
       {open ? (
         <div className="container-shell border-t border-white/5 py-4 lg:hidden">
           <nav className="grid gap-2" aria-label="Navegação mobile">
-            {siteConfig.nav.map(([label, href]) => <a key={href} href={to(href)} onClick={() => setOpen(false)} className="rounded-lg px-3 py-3 text-slate-200 hover:bg-white/5">{label}</a>)}
+            {siteConfig.nav.map(([label, href]) => <a key={href} href={to(href)} onClick={() => setOpen(false)} className="rounded-xl px-3 py-3 text-slate-200 hover:bg-white/5">{label}</a>)}
           </nav>
         </div>
       ) : null}

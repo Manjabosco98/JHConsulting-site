@@ -223,7 +223,9 @@ test("constants no longer carry content that lives in the database", () => {
   for (const gone of ["services", "projects", "technologies", "techVisual"]) {
     assert.equal(gone in content, false, `${gone} deveria ter saído das constants`);
   }
-  assert.ok(content.problems.length && content.workflow.length, "o texto editorial continua no código");
+  // `workflow` virou `workflowPhases` quando as seis etapas passaram a ser
+  // agrupadas em três fases; o que o teste garante continua o mesmo.
+  assert.ok(content.problems.length && content.workflowPhases.length, "o texto editorial continua no código");
 
   const { siteConfig } = loadTs("src/constants/site.ts", { env: { NEXT_PUBLIC_SITE_URL: "https://exemplo.com.br" } });
   assert.deepEqual(Object.keys(plain(siteConfig)).sort(), ["name", "nav", "url"]);
