@@ -10,7 +10,7 @@ import { getSiteSettings } from "@/lib/repositories/public-settings";
  */
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-export const alt = "JHConsulting — tecnologia aplicada a problemas reais";
+export const alt = "JHConsulting: tecnologia aplicada a problemas reais";
 export const revalidate = 3600;
 
 export default async function OpenGraphImage() {
@@ -48,7 +48,9 @@ export default async function OpenGraphImage() {
         </div>
 
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", fontSize: 25, color: "#7f90b0" }}>
-          <div style={{ display: "flex" }}>Automação · Sistemas · APIs · Dados</div>
+          {/* Três pontos médios numa linha só viravam ruído; vírgula separa
+            * igual e lê melhor em miniatura de rede social. */}
+          <div style={{ display: "flex" }}>Automação, sistemas, APIs e dados</div>
           {settings.location ? <div style={{ display: "flex" }}>{settings.location}</div> : null}
         </div>
       </div>

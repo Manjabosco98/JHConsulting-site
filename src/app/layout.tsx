@@ -1,8 +1,26 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { Geist } from "next/font/google";
 import "./globals.css";
 import { siteConfig } from "@/constants/site";
 import { getSiteSettings } from "@/lib/repositories/public-settings";
+
+/**
+ * Geist, eixo de peso variável (100-900), em lugar do stack Arial/Helvetica:
+ * stack de sistema não é escolha tipográfica, e o site inteiro herdava a fonte
+ * padrão do navegador.
+ *
+ * `next/font` baixa o arquivo no build e o serve do nosso próprio domínio, com
+ * `size-adjust` calculado: nenhuma requisição ao Google em runtime e nenhum
+ * salto de layout no swap. Nenhuma dependência nova no package.json — o módulo
+ * vem no próprio Next. Uma única família: não há necessidade de monoespaçada
+ * nesta página.
+ */
+const geist = Geist({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-geist"
+});
 
 // Institutional metadata follows the settings saved in the admin; the site URL
 // stays deployment configuration (NEXT_PUBLIC_SITE_URL).
@@ -33,5 +51,5 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
-  return <html lang="pt-BR"><body><noscript><style>{"[data-reveal]{opacity:1!important;transform:none!important}"}</style></noscript>{children}{gaId ? <><Script src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} strategy="afterInteractive"/><Script id="ga" strategy="afterInteractive">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${gaId}');`}</Script></> : null}</body></html>;
+  return <html lang="pt-BR" className={geist.variable}><body><noscript><style>{"[data-reveal]{opacity:1!important;transform:none!important}"}</style></noscript>{children}{gaId ? <><Script src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} strategy="afterInteractive"/><Script id="ga" strategy="afterInteractive">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${gaId}');`}</Script></> : null}</body></html>;
 }

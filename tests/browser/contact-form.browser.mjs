@@ -44,7 +44,11 @@ const submit = (answer) => `(() => {
   return true;
 })()`;
 
-const texts = `Array.from(document.querySelectorAll("#contato form p")).map((p) => p.textContent).join(" | ")`;
+// Seleciona a região de status pelo `aria-live`, e não por "qualquer <p> do
+// formulário": desde que os campos ganharam rótulo visível e texto de apoio, há
+// parágrafos permanentes dentro do form, e o seletor antigo devolvia texto já na
+// primeira leitura — o `waitFor` terminava antes da resposta do envio chegar.
+const texts = `Array.from(document.querySelectorAll("#contato form [aria-live]")).map((el) => el.textContent).join(" | ")`;
 const messageValue = `document.querySelector("#contato form [name=message]").value`;
 const buttonLabel = `document.querySelector("#contato form button").textContent`;
 
