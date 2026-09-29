@@ -62,9 +62,22 @@ O contato público (e-mail, WhatsApp, redes) **não fica em variável de ambient
 
 ## Produção futura
 
-Destino: **Render, serviço Node.js, sem Docker**. `npm ci` → `npm run build` → `npm start`, com Node 24 fixado em `.nvmrc` e `engines`. O fluxo foi validado a partir de um clone limpo, sem `.env.local`, com as variáveis vindas só do ambiente; `render.yaml` na raiz descreve o serviço com `autoDeploy: false`.
+Destino: **Render, Web Service Node.js, sem Docker**, configurado pelo painel (sem Blueprint). `npm ci` → `npm run build` → `npm start`, com Node 24 fixado em `.nvmrc` e `engines`. O fluxo foi validado a partir de um clone limpo, sem `.env.local`, com as variáveis vindas só do ambiente. Health check em `/robots.txt` (estático e barato); `next start` lê a `PORT` injetada pelo Render.
 
-**Nenhum deploy foi feito e nenhum está autorizado.** O passo a passo, as variáveis, a configuração de Auth no domínio e a nota de latência entre Render e Supabase estão em [docs/DEPLOY-RENDER.md](docs/DEPLOY-RENDER.md).
+Variáveis necessárias **no build** (páginas públicas leem do banco e o `next/image` monta a allowlist a partir da URL):
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `NEXT_PUBLIC_SITE_URL` → `https://jhconsulting.com.br`
+
+Variáveis necessárias **em execução**:
+
+- `SUPABASE_SECRET_KEY` — sem ela o formulário funciona, mas o lead não é gravado
+- `RESEND_API_KEY`, `CONTACT_FROM_EMAIL`, `CONTACT_TO_EMAIL` — aviso por e-mail
+
+Opcional: `NEXT_PUBLIC_GA_ID`. Nenhum valor real entra no repositório: tudo é preenchido no painel do Render.
+
+**Nenhum deploy foi feito e nenhum está autorizado.** Nota de latência: o Render não tem região no Brasil; a mais próxima do Supabase (`sa-east-1`) é Virginia. O site público quase não sente (ISR com 1h de cache); quem sente é o painel, que consulta o banco a cada requisição por depender da sessão.
 
 ## Documentação e fases
 

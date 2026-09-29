@@ -42,7 +42,7 @@ Estas restrições valem para qualquer pessoa ou agente que continuar o trabalho
 | `docs/ADMIN-ARCHITECTURE.md` | Auth, autorização e cada CRUD do painel |
 | `docs/PUBLIC-PROJECTS.md` | Rotas públicas, cache e revalidação |
 | `docs/SITE-SETTINGS.md` | Configurações do site e seus consumidores |
-| `docs/DEPLOY-RENDER.md` | Como publicar no Render, o que foi validado e o que falta |
+| `README.md` ("Produção futura") | Como publicar no Render, variáveis e o que falta |
 | `docs/HANDOFF-CODEX-CLOUD.md` | **Histórico.** Auditoria inicial e diário das fases até a 12 |
 | `docs/ADMIN-MIGRATION-DISCOVERY.md` | **Histórico.** Discovery do código original (Fase 0) |
 | `docs/SUPABASE-FOUNDATION.md` | **Histórico.** Relatório da criação do projeto Cloud (Fase 1) |

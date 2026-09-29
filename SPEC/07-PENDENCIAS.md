@@ -20,7 +20,7 @@ Nenhuma delas pode ser feita pelo agente, porque exigem suas credenciais, seus d
 
 **Nenhuma.** As 21 fases foram concluídas (H0 e 1 a 21) — o detalhe de cada uma está em [06-FEITO.md](06-FEITO.md).
 
-O que resta é **o deploy em si**, que depende da sua autorização e das ações da tabela acima. O passo a passo está em [`docs/DEPLOY-RENDER.md`](../docs/DEPLOY-RENDER.md).
+O que resta é **o deploy em si**, que depende da sua autorização e das ações da tabela acima. O essencial de configuração vive no `README.md`, seção "Produção futura".
 
 ## Dívida técnica conhecida
 

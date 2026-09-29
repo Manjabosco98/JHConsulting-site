@@ -188,7 +188,7 @@ A validação não foi feita na cópia de trabalho, e sim num **clone limpo do r
 
 Com `NEXT_PUBLIC_SITE_URL=https://jhconsulting.com.br`, canonical, `og:image`, `robots.txt` e `sitemap.xml` saíram no domínio real, e **o HSTS passou a ser emitido** — confirmando na prática a condicional escrita na Fase 18, que o mantém ausente em `localhost`.
 
-`render.yaml` na raiz descreve o serviço com `autoDeploy: false`: publicar é uma decisão, não efeito colateral de um push. Nenhum valor real entra nele. O passo a passo está em [`docs/DEPLOY-RENDER.md`](../docs/DEPLOY-RENDER.md).
+Na época, `render.yaml` na raiz descrevia o serviço com `autoDeploy: false` e o passo a passo estava em `docs/DEPLOY-RENDER.md`. Ambos foram removidos depois (deploy passou a ser via painel do Render); o essencial vive no `README.md`.
 
 **Ponto honesto sobre latência:** o Render não tem região no Brasil. A mais próxima do Supabase (`sa-east-1`) é Virginia, e ainda assim cada consulta atravessa o continente. O site público quase não sente, porque é servido por ISR; quem sente é o painel, que consulta o banco a cada requisição por depender da sessão.
 

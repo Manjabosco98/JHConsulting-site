@@ -171,7 +171,7 @@ Nunca reaplicar uma migration às cegas; nunca apagar migration existente sem an
 
 ## Deploy no Render (preparado, **não executado**)
 
-Serviço **Node.js**, sem Docker. O detalhe completo — variáveis, health check, o que fazer depois de publicar e a nota de latência — está em [`docs/DEPLOY-RENDER.md`](../docs/DEPLOY-RENDER.md), e o serviço está descrito em `render.yaml` na raiz (com `autoDeploy: false`).
+Serviço **Node.js** configurado pelo painel, sem Docker e sem Blueprint (`render.yaml` e `docs/DEPLOY-RENDER.md` foram removidos do repositório; o essencial vive no `README.md`, seção "Produção futura").
 
 - Build: `npm ci && npm run build` · Start: `npm start` (lê a variável `PORT`)
 - Node **24**, fixado em `.nvmrc`, em `engines` e em `NODE_VERSION`
