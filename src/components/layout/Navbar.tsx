@@ -53,11 +53,12 @@ export function Navbar({ whatsappUrl, internal = false }: { whatsappUrl: string;
         <button aria-label={open ? "Fechar menu" : "Abrir menu"} aria-expanded={open} onClick={() => setOpen(v => !v)} className="focus-ring rounded-full p-2.5 lg:hidden">{open ? <X /> : <Menu />}</button>
       </div>
       {open ? (
-        /* A altura máxima é o que sobra da viewport abaixo do cabeçalho (h-20 =
-         * 5rem), com rolagem própria: em tela baixa — telefone na horizontal —
-         * sete itens passavam da altura disponível e os últimos ficavam fora de
-         * alcance. `dvh` acompanha a barra do navegador móvel ao aparecer. */
-        <div className="container-shell max-h-[calc(100dvh-5rem)] overflow-y-auto border-t border-white/5 py-4 lg:hidden">
+        /* A altura máxima é o que sobra da viewport abaixo do cabeçalho, com
+         * rolagem própria: em tela baixa (telefone na horizontal) sete itens
+         * passavam da altura disponível e os últimos ficavam fora de alcance.
+         * `dvh` acompanha a barra do navegador móvel ao aparecer, e `--nav-h`
+         * vem de globals.css, que é onde a altura do cabeçalho é definida. */
+        <div className="container-shell max-h-[calc(100dvh-var(--nav-h))] overflow-y-auto border-t border-white/5 py-4 lg:hidden">
           <nav className="grid gap-2" aria-label="Navegação mobile">
             {siteConfig.nav.map(([label, href]) => <a key={href} href={to(href)} onClick={() => setOpen(false)} className="rounded-xl px-3 py-3 text-slate-200 hover:bg-white/5">{label}</a>)}
           </nav>
