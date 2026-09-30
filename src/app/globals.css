@@ -18,6 +18,22 @@
 }
 
 :root {
+  /*
+   * `color-scheme: dark` não é cosmético: é o que informa ao navegador que a
+   * página é escura, e com isso ele passa a desenhar em escuro tudo que é
+   * pintado por ele e não por nós — a lista aberta do <select>, as barras de
+   * rolagem, o seletor de data, o preenchimento automático do Chrome.
+   *
+   * Era a causa do dropdown cinza-claro em Contato: `bg-[#0a101d]` no <select>
+   * veste só o controle fechado; o popup é UI nativa e ignora o CSS do elemento.
+   * Sem esta linha o Chrome também pintava os campos de fundo claro ao aplicar
+   * autofill, no meio de um formulário escuro.
+   *
+   * Uma declaração resolve os quatro casos, no site e no painel, e mantém o
+   * <select> nativo — com teclado, ARIA e leitor de tela de graça.
+   */
+  color-scheme: dark;
+
   --bg: #080d18;
   --bg-soft: #0d1424;
   --text: #f8fafc;
@@ -26,6 +42,17 @@
   --primary-strong: #2563eb;
   --cyan: #22d3ee;
   --line: rgba(148, 163, 184, 0.14);
+
+  /*
+   * Respiro lateral do container, em uma conta só para todas as seções. Antes
+   * eram dois valores fixos e na ordem errada: 1rem no desktop e 0,625rem
+   * abaixo de 768px, ou seja, a tela *menor* recebia a margem *menor* e o texto
+   * quase encostava na borda em 320-430px.
+   *
+   * Agora cresce com a viewport: 20px até ~666px, 3vw no meio, 32px a partir de
+   * ~1067px. Nenhum media query, nenhum degrau.
+   */
+  --gutter: clamp(1.25rem, 3vw, 2rem);
 }
 
 /*
@@ -73,8 +100,24 @@
   ::selection { background: rgba(59,130,246,.35); }
 }
 
-.container-shell { width: min(1180px, calc(100% - 2rem)); margin-inline: auto; }
-.section-space { padding-block: 6rem; }
+.container-shell { width: min(1180px, calc(100% - (2 * var(--gutter)))); margin-inline: auto; }
+
+/*
+ * Ritmo vertical, também fluido. Eram 6rem com um salto para 4.5rem em 768px;
+ * agora a interpolação é contínua entre os mesmos dois extremos (72px nas telas
+ * pequenas, 96px a partir de ~1200px), o que evita o degrau visível ao
+ * atravessar o breakpoint redimensionando a janela.
+ */
+.section-space { padding-block: clamp(4.5rem, 8vw, 6rem); }
+
+/*
+ * Metade exata do `.section-space`, para as faixas que não são seção de conteúdo
+ * e sim um painel fechado em si (a chamada principal) ou o rodapé. Existe como
+ * utilitário porque os dois lugares usavam números soltos — `py-12` e `py-10` —
+ * que pareciam arbitrários e não acompanhavam a escala ao redimensionar. Meia
+ * medida é uma decisão; 48px cravado no meio de um ritmo fluido é um esquecimento.
+ */
+.section-space-tight { padding-block: clamp(2.25rem, 4vw, 3rem); }
 
 /*
  * O kicker é o rótulo pequeno em caixa alta acima do título. Ele fica caro
@@ -88,6 +131,27 @@
 /* Com Geist no lugar de Arial a hierarquia vem da forma da letra, não do peso
  * bruto: 700 em vez de 800, e o topo da escala desce de 3.5rem para 2.875rem. */
 .section-title { margin-top: .75rem; font-size: clamp(1.875rem, 3.2vw, 2.875rem); line-height: 1.08; letter-spacing: -.03em; font-weight: 700; text-wrap: balance; }
+
+/*
+ * Título do Hero — um degrau acima do `.section-title`, e o único lugar da
+ * página que passa de 2.875rem.
+ *
+ * Existe como utilitário, e não como classes `text-4xl sm:text-5xl` no
+ * componente, porque o par de degraus era o problema: 36px valiam igual em
+ * 320px e em 639px, e em 320px a medida de ~300px comporta 16 caracteres por
+ * linha, o que partia o título em quatro linhas.
+ *
+ * O teto de 3rem não é estético, é medido: na coluna de 1.25fr do split (~708px
+ * em 1440) 48px é o maior tamanho que ainda fecha o título em duas linhas. O
+ * piso de 1.75rem é o que mantém três linhas em 320px.
+ */
+.hero-title {
+  font-size: clamp(1.75rem, 6.2vw, 3rem);
+  line-height: 1.06;
+  letter-spacing: -.04em;
+  font-weight: 700;
+  text-wrap: balance;
+}
 .section-copy { margin-top: 1rem; max-width: 62ch; color: var(--muted); font-size: 1.02rem; line-height: 1.75; }
 .card {
   border: 1px solid var(--line);
@@ -138,9 +202,22 @@
   to { opacity: 1; transform: none; }
 }
 
-@media (max-width: 768px) {
-  .section-space { padding-block: 4.5rem; }
-  .container-shell { width: min(100% - 1.25rem, 1180px); }
+/*
+ * O `@media (max-width: 768px)` que existia aqui saiu inteiro: as duas regras
+ * que ele ajustava (`.section-space` e `.container-shell`) hoje interpolam com
+ * `clamp()` e cobrem a mesma faixa sem degrau. A do container, além disso,
+ * estava invertida — dava menos margem lateral à tela menor.
+ */
+
+/*
+ * Lista aberta do <select>. `color-scheme: dark` no `:root` já faz o Chrome e o
+ * Safari desenharem o popup em escuro; o Firefox no Windows, em algumas
+ * versões, ainda usa o fundo do sistema para as <option>. Estas duas linhas
+ * cobrem esse caso sem afetar quem já estava correto.
+ */
+option {
+  background-color: var(--bg-soft);
+  color: var(--text);
 }
 
 @media (prefers-reduced-motion: reduce) {

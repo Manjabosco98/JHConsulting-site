@@ -11,11 +11,19 @@ export function Automation() {
           title="Automação não é apenas fazer tarefas mais rápido."
           copy="Automação significa criar processos mais confiáveis, padronizados, rastreáveis e escaláveis."
         />
+        {/*
+          * A seta fica antes do passo, não depois, e some no primeiro.
+          *
+          * Enquanto cada item carregava a seta do próprio lado direito, uma quebra
+          * de linha podia terminar a linha com a seta pendurada, apontando para o
+          * nada. Colocada à frente do passo seguinte, ela sempre acompanha o item
+          * para onde aponta, em qualquer ponto de quebra e em qualquer largura.
+          */}
         <ol className="mt-10 flex flex-wrap items-center gap-2">
           {automationFlow.map((step, index) => (
             <li key={step} className="flex items-center gap-2">
+              {index > 0 ? <ChevronRight className="shrink-0 text-slate-600" size={18} aria-hidden="true" /> : null}
               <span className="rounded-xl border border-blue-400/18 bg-blue-500/7 px-4 py-3 text-sm font-bold">{step}</span>
-              {index < automationFlow.length - 1 ? <ChevronRight className="text-slate-600" size={18} aria-hidden="true" /> : null}
             </li>
           ))}
         </ol>

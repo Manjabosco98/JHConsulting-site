@@ -48,7 +48,11 @@ export async function Services() {
                     <Icon className="text-blue-400 transition group-hover:scale-110" size={24} />
                     <h3 className="mt-6 text-lg font-bold">{service.title}</h3>
                     <p className="mt-3 text-sm leading-6 text-slate-400">{service.description}</p>
-                    {service.tech ? <p className="mt-5 border-t border-white/6 pt-4 text-xs font-semibold text-slate-500">{service.tech}</p> : null}
+                    {/* `slate-400` no lugar de `slate-500` (4,08:1, abaixo do
+                      * mínimo AA de 4,5:1) e `white/8` no lugar de `white/6`,
+                      * que era um sexto valor de opacidade de borda fazendo o
+                      * mesmo trabalho visual de um que já existia. */}
+                    {service.tech ? <p className="mt-5 border-t border-white/8 pt-4 text-xs font-semibold text-slate-400">{service.tech}</p> : null}
                   </article>
                 </Reveal>
               );

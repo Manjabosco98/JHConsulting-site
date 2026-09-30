@@ -53,27 +53,38 @@ export async function Hero() {
           <p className="inline-flex items-center gap-2 rounded-full border border-blue-400/20 bg-blue-400/7 px-3 py-1.5 text-xs font-bold text-blue-200">
             <CheckCircle2 size={14} aria-hidden="true" /> Tecnologia aplicada a problemas reais de negócios
           </p>
-          {/* Escala medida, não estimada: com esta coluna (~708px em 1440), 60px
-            * e 52px quebram o título em três linhas, e o limite são duas. Em
-            * 48px cabe em duas, que é o maior tamanho que respeita a regra. */}
-          <h1 className="mt-7 text-4xl font-bold leading-[1.05] tracking-[-.04em] text-balance sm:text-5xl">
+          {/* A escala vive em `.hero-title` (globals.css), com `clamp()`: o par
+            * `text-4xl sm:text-5xl` dava 36px tanto em 320px quanto em 639px, e
+            * em 320px a medida de ~280px partia o título em quatro linhas. O
+            * teto de 48px é o mesmo de antes, e é medido: nesta coluna (~708px
+            * em 1440) é o maior tamanho que ainda fecha o título em duas linhas. */}
+          <h1 className="hero-title mt-7">
             Transformo processos manuais em <span className="text-gradient">soluções inteligentes.</span>
           </h1>
           <p className="mt-6 max-w-[46ch] text-base leading-8 text-slate-300 sm:text-lg">
             Sistemas, automações, integrações e dados para empresas que querem operar com menos trabalho manual.
           </p>
-          <div className="mt-9 flex flex-wrap gap-3">
+          {/*
+            * `grid` no mobile, `flex` a partir de `sm`.
+            *
+            * Com `flex flex-wrap` os dois botões quebravam para linhas separadas
+            * mantendo cada um a sua largura natural — 200px e 170px — e o
+            * resultado lia como um botão grande e um pequeno por acidente, não
+            * por intenção. Em uma coluna de grade os dois ficam com a mesma
+            * largura, que é a da coluna, e a área de toque cresce junto.
+            */}
+          <div className="mt-9 grid gap-3 sm:flex sm:flex-wrap">
             <a
               href={whatsappLink(settings.whatsapp)}
               target="_blank"
               rel="noreferrer"
-              className="focus-ring inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3.5 font-bold transition hover:bg-blue-500 active:translate-y-px"
+              className="focus-ring inline-flex items-center justify-center gap-2 rounded-xl border border-transparent bg-blue-600 px-5 py-3.5 font-bold transition hover:bg-blue-500 active:translate-y-px"
             >
               Solicitar orçamento <ArrowRight size={18} aria-hidden="true" />
             </a>
             <a
               href="#solucoes"
-              className="focus-ring rounded-xl border border-white/12 px-5 py-3.5 font-bold text-slate-200 transition hover:bg-white/5 active:translate-y-px"
+              className="focus-ring inline-flex items-center justify-center rounded-xl border border-white/12 px-5 py-3.5 font-bold text-slate-200 transition hover:bg-white/5 active:translate-y-px"
             >
               Conhecer soluções
             </a>
@@ -81,10 +92,26 @@ export async function Hero() {
         </div>
 
         {settings.profileImageUrl ? (
-          <div className="relative mx-auto w-full max-w-md lg:max-w-none">
+          /*
+           * A largura da foto é limitada no mobile, e este é o ajuste que mais
+           * muda a composição da página no telefone.
+           *
+           * Com `w-full max-w-md`, em 375px a foto ficava com 355px de largura e,
+           * pela proporção 9/10, 394px de altura: mais alta que o bloco de texto
+           * que ela acompanha, e a leitura virava "uma foto com uma legenda em
+           * cima". Em 17rem a altura cai para ~302px e o retrato volta a ser
+           * retrato, com o texto mantendo o peso principal.
+           *
+           * O recorte não muda: o que muda é a escala. `sm` volta aos 24rem e,
+           * no split de `lg`, a coluna define a largura.
+           */
+          <div className="relative mx-auto w-full max-w-[17rem] sm:max-w-sm lg:max-w-none">
             {/* Brilho atrás da imagem: o gradiente azul faz parte da identidade
-              * registrada na SPEC. Fica no fundo, não substitui o ativo visual. */}
-            <div className="absolute -inset-8 -z-10 rounded-full bg-blue-500/10 blur-3xl" aria-hidden="true" />
+              * registrada na SPEC. Fica no fundo, não substitui o ativo visual.
+              * Ele estoura a foto de propósito (é um brilho), e é a única coisa
+              * que o `overflow-hidden` da seção recorta — daí `-inset-6` em vez
+              * de `-inset-8`, para o recorte cair fora da área visível dele. */}
+            <div className="absolute -inset-6 -z-10 rounded-full bg-blue-500/10 blur-3xl" aria-hidden="true" />
             {/* A foto enviada no painel tem 604x662 (proporção 0,91). Um quadro
               * 4/5 cortaria as bordas dela; 9/10 acompanha o original e preserva
               * o enquadramento que você escolheu ao subir a imagem. */}
@@ -97,7 +124,9 @@ export async function Hero() {
                 alt={`Foto de ${settings.professionalName}`}
                 fill
                 priority
-                sizes="(min-width: 1024px) 42vw, (min-width: 640px) 28rem, 100vw"
+                // Acompanha os limites acima, para o navegador não baixar uma
+                // imagem de 100vw e exibi-la em 272px.
+                sizes="(min-width: 1024px) 42vw, (min-width: 640px) 24rem, 17rem"
                 className="object-cover"
               />
             </div>
