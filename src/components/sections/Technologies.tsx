@@ -27,20 +27,27 @@ export async function Technologies() {
         />
         {groups.length ? (
           /*
-           * Fluxo em múltiplas colunas (`columns-*`), não grade.
+           * Grade com alinhamento ao topo, não fluxo em colunas.
            *
-           * São sete grupos, cada um com uma quantidade diferente de chips. Numa
-           * grade de três colunas sobram duas células vazias na última linha, e a
-           * altura igual das linhas obriga o grupo de duas tecnologias a ocupar o
-           * mesmo espaço do de dez. O fluxo em colunas resolve os dois: encaixa
-           * qualquer quantidade sem lacuna e cada grupo ocupa só a altura que tem.
+           * Aqui havia `columns-3`, escolhido para que cada grupo ocupasse só a
+           * altura que tem, sem a altura igual que uma grade impõe à linha. O
+           * efeito medido no navegador foi outro: com sete grupos, o balanceador
+           * do Chrome distribui 3/3/1, e a terceira coluna fica com um grupo e
+           * uns 250px de vazio embaixo — exatamente a área morta que o fluxo em
+           * colunas deveria evitar.
            *
-           * Sem card também: o que agrupa é o título mais o espaço. Caixa aqui
-           * seria moldura em volta de uma lista de palavras.
+           * `items-start` resolve o problema original sem o efeito colateral: os
+           * grupos mantêm a altura natural (a linha não estica ninguém) e a
+           * distribuição passa a ser previsível, três por linha da esquerda para
+           * a direita. Sobra no máximo o fim da última linha, que lê como linha
+           * incompleta e não como coluna abandonada.
+           *
+           * Sem card: o que agrupa é o título mais o espaço. Caixa aqui seria
+           * moldura em volta de uma lista de palavras.
            */
-          <div className="mt-12 columns-1 gap-10 sm:columns-2 lg:columns-3">
+          <div className="mt-12 grid items-start gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
             {groups.map((group) => (
-              <div key={group.key} className="mb-10 break-inside-avoid">
+              <div key={group.key}>
                 <h3 className="font-bold">{group.name}</h3>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {group.technologies.map((technology) => (

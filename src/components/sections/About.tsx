@@ -38,13 +38,13 @@ export async function About() {
 
         <dl className="mt-12 grid max-w-3xl gap-6 border-t border-white/8 pt-8 sm:grid-cols-2">
           <div>
-            <dt className="text-xs font-bold uppercase tracking-[.14em] text-slate-500">Base</dt>
+            <dt className="text-xs font-bold uppercase tracking-[.14em] text-slate-400">Base</dt>
             <dd className="mt-2 flex items-center gap-2 text-sm text-slate-300">
               <MapPin size={15} aria-hidden="true" />{settings.location}
             </dd>
           </div>
           <div>
-            <dt className="text-xs font-bold uppercase tracking-[.14em] text-slate-500">Atendimento</dt>
+            <dt className="text-xs font-bold uppercase tracking-[.14em] text-slate-400">Atendimento</dt>
             <dd className="mt-2 text-sm text-slate-300">{settings.serviceArea}</dd>
           </div>
         </dl>

@@ -45,7 +45,7 @@ export default async function ProjetosPage() {
           )}
         </div>
       </main>
-      <Footer />
+      <Footer internal />
       <WhatsAppButton />
     </>
   );
