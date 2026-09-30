@@ -20,7 +20,7 @@ export function Problems() {
           {problems.map((problem) => (
             <div key={problem} className="card flex gap-3 rounded-2xl p-4">
               <Check className="mt-1 shrink-0 text-cyan-300" size={18} aria-hidden="true" />
-              <p className="text-sm leading-6 text-slate-300">{problem}</p>
+              <p className="min-w-0 text-sm leading-6 text-slate-300">{problem}</p>
             </div>
           ))}
         </div>

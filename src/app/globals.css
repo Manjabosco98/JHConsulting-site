@@ -44,6 +44,14 @@
   --line: rgba(148, 163, 184, 0.14);
 
   /*
+   * Altura da navbar fixa (`h-20`), em um lugar só. Ela é usada por duas contas
+   * que precisam concordar: o recuo de rolagem das âncoras, aqui embaixo, e a
+   * altura máxima do menu mobile, em Navbar.tsx. Enquanto o valor estava escrito
+   * à mão nos dois, mudar a altura do cabeçalho exigia lembrar do segundo.
+   */
+  --nav-h: 5rem;
+
+  /*
    * Respiro lateral do container, em uma conta só para todas as seções. Antes
    * eram dois valores fixos e na ordem errada: 1rem no desktop e 0,625rem
    * abaixo de 768px, ou seja, a tela *menor* recebia a margem *menor* e o texto
@@ -79,9 +87,16 @@
   * { box-sizing: border-box; }
   html {
     scroll-behavior: smooth;
-    /* Altura da navbar fixa (h-20). Sem isto o título da seção ancorada para
-     * debaixo do cabeçalho ao clicar em qualquer item do menu. */
-    scroll-padding-top: 5rem;
+    /*
+     * Recuo de rolagem das âncoras. Sem ele o título da seção ancorada para
+     * debaixo do cabeçalho fixo ao clicar em qualquer item do menu.
+     *
+     * Eram 5rem cravados, exatamente a altura da navbar, e faltava 1px: o
+     * cabeçalho mede 81px (`h-20` mais a borda inferior), então o topo da seção
+     * parava rente a ele, encostado. Agora são a altura mais um respiro, o que
+     * deixa o título visivelmente abaixo do cabeçalho em vez de rente a ele.
+     */
+    scroll-padding-top: calc(var(--nav-h) + 1.5rem);
   }
   body {
     margin: 0;
@@ -128,9 +143,31 @@
  */
 .section-kicker { color: #60a5fa; text-transform: uppercase; letter-spacing: .18em; font-size: .74rem; font-weight: 700; }
 
-/* Com Geist no lugar de Arial a hierarquia vem da forma da letra, não do peso
- * bruto: 700 em vez de 800, e o topo da escala desce de 3.5rem para 2.875rem. */
-.section-title { margin-top: .75rem; font-size: clamp(1.875rem, 3.2vw, 2.875rem); line-height: 1.08; letter-spacing: -.03em; font-weight: 700; text-wrap: balance; }
+/*
+ * Com Geist no lugar de Arial a hierarquia vem da forma da letra, não do peso
+ * bruto: 700 em vez de 800, e o topo da escala desce de 3.5rem para 2.875rem.
+ *
+ * A conta tem intercepto (`1.05rem + 2.3vw`) e não é só `vw` porque um `clamp`
+ * de slope única não conseguia atender os dois extremos. Com `3.2vw`, o piso de
+ * 1.875rem valia até 938px, ou seja, o título media 30px em *toda* a faixa
+ * mobile: em 320px, com 280px de medida, "Sua empresa ainda perde tempo com
+ * processos que poderiam ser automatizados?" (75 caracteres) ocupava seis
+ * linhas. Baixar só o piso resolveria o telefone e encolheria o tablet.
+ *
+ * A reta passa por dois pontos escolhidos: 24px em 320px e o teto em ~1010px.
+ *
+ * O teto desceu de 2.875rem (46px) para 2.5rem (40px), e o motivo é medido: não
+ * é a viewport que limita a quebra destes títulos, é a coluna. Quatro deles ficam
+ * em coluna de meia largura (Problemas, Contato, a chamada principal), e o mais
+ * longo da página, com 75 caracteres, vive na mais estreita — 509px em 1280px.
+ * Em 46px ele quebrava em cinco linhas ali, enquanto os títulos de largura
+ * inteira ficavam em uma ou duas com folga de sobra. Em 40px o longo cai para
+ * três linhas e os de largura inteira continuam em duas, então os 6px pagam a
+ * pior quebra da página e não custam nada na melhor.
+ *
+ * A hierarquia contra o Hero continua explícita: 48px contra 40px.
+ */
+.section-title { margin-top: .75rem; font-size: clamp(1.5rem, calc(1.05rem + 2.3vw), 2.5rem); line-height: 1.1; letter-spacing: -.03em; font-weight: 700; text-wrap: balance; }
 
 /*
  * Título do Hero — um degrau acima do `.section-title`, e o único lugar da
@@ -145,9 +182,17 @@
  * em 1440) 48px é o maior tamanho que ainda fecha o título em duas linhas. O
  * piso de 1.75rem é o que mantém três linhas em 320px.
  */
+/*
+ * Mesma forma de conta do `.section-title`, com inclinação mais forte: aqui o
+ * teto precisa ser alcançado cedo, porque de `lg` para cima o título divide a
+ * linha com a foto e a coluna estreita é que passa a limitar a quebra.
+ *
+ * A reta passa por 26px em 320px e chega aos 48px em 823px. O piso desceu de
+ * 1.75rem para 1.625rem: em 320px, 28px punham o título em quatro linhas.
+ */
 .hero-title {
-  font-size: clamp(1.75rem, 6.2vw, 3rem);
-  line-height: 1.06;
+  font-size: clamp(1.625rem, calc(.75rem + 4.375vw), 3rem);
+  line-height: 1.08;
   letter-spacing: -.04em;
   font-weight: 700;
   text-wrap: balance;

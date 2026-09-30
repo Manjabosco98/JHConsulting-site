@@ -210,20 +210,22 @@ tocou.
 
 ## Problemas ainda existentes
 
-1. **Título do Hero com 4 linhas em 320px.** De 360px para cima são 3. Reduzir
-   mais o piso do `clamp()` deixaria o título pequeno demais para o papel que ele
-   tem. 320px é o extremo da faixa e o texto continua legível.
+> Os itens 1 e 3 foram resolvidos na segunda rodada; ver SECOND RESPONSIVE PASS,
+> no fim deste documento. O item 3 estava, além disso, incompleto: a verificação
+> de que o botão não cobria os botões do Hero foi feita em 390px e 1440px, e a
+> colisão existia em 320x568.
+
+1. ~~**Título do Hero com 4 linhas em 320px.**~~ Resolvido: o piso do `clamp()`
+   desceu para 1.625rem e são 3 linhas em 320px.
 
 2. **Título do Hero com 3 linhas entre 1024px e 1279px.** O `clamp()` responde à
    viewport, e o que decide a quebra é a largura da coluna do split. Em 1280px e
    acima são 2 linhas, como planejado.
 
-3. **O botão do WhatsApp passa por cima do card de projeto ao rolar** no
-   telefone. É próprio de um botão flutuante: em qualquer rolagem ele está sobre
-   alguma coisa. Foi verificado que ele **não** cobre o conteúdo do Hero, os
-   botões do Hero nem o formulário de contato, que eram os casos de risco. Se
-   incomodar, a saída é escondê-lo enquanto o Hero está visível — muda o
-   comportamento, então ficou de fora desta revisão.
+3. ~~**O botão do WhatsApp passa por cima do card de projeto ao rolar.**~~
+   Resolvido na parte que importava: ele agora só aparece depois que o Hero sai da
+   tela, então não há mais colisão com as ações principais. Passar sobre texto no
+   meio da rolagem continua acontecendo, e continua sendo próprio de um botão fixo.
 
 4. **Travessão no título de um projeto** ("TAG VIEW — Pipeline de Dados..."). É
    conteúdo cadastrado no painel, não código; a troca por hífen é uma edição em
@@ -234,3 +236,180 @@ tocou.
    unificadas. Uniformizar o resto exigiria passar por todos os componentes para
    ganhar pouco, e `white/40` nos campos de formulário é proposital — borda de
    controle precisa de 3:1, borda decorativa não.
+
+---
+
+# SECOND RESPONSIVE PASS
+
+Segunda rodada, só de correção: nenhuma mudança de identidade, de texto ou de
+backend. O foco foi o que a primeira passagem deixou para trás, mais o que ela
+mediu errado.
+
+A rodada anterior fechou com "nenhum estouro horizontal em 45 combinações", e
+isso continuava verdadeiro. O que não estava verdadeiro era uma suposição escrita
+em comentário, e ela custava um terço de uma imagem.
+
+## Problemas encontrados
+
+### P0
+
+| # | Problema | Onde |
+|---|---|---|
+| 1 | Capa do projeto perdendo 33,7% da largura no desktop | `ProjectCard.tsx` |
+| 2 | Capa do projeto perdendo 4,8% da largura nos demais formatos | `ProjectCard.tsx`, `projetos/[slug]` |
+| 3 | Botão flutuante cobrindo os dois botões do Hero em 320x568 | `WhatsAppButton.tsx` |
+
+### P1
+
+| # | Problema | Onde |
+|---|---|---|
+| 4 | Fluxo de automação quebrando em linhas arbitrárias no telefone | `Automation.tsx` |
+| 5 | Título de seção em 30px fixos em toda a faixa mobile (6 linhas em 320px) | `globals.css` |
+| 6 | Título mais longo da página em 5 linhas no desktop | `globals.css` |
+| 7 | Âncora parando 1px atrás do cabeçalho, sem respiro | `globals.css` |
+| 8 | Pré-visualização de capa no painel com enquadramento diferente do site | `CoverImageForm.tsx` |
+
+### P2
+
+| # | Problema | Onde |
+|---|---|---|
+| 9 | Ausência de `min-w-0` em itens de flex com texto | `ProjectCard.tsx`, `Problems.tsx` |
+| 10 | Altura da navbar escrita à mão em dois lugares que precisam concordar | `globals.css`, `Navbar.tsx` |
+
+Auditorias que passaram sem achado: `white-space: nowrap` (nenhuma ocorrência no
+site público), `w-screen` (nenhuma), `100vw` (só dentro de `sizes`, que é dica de
+mídia e não largura) e larguras fixas em pixel (nenhuma).
+
+## Causas
+
+**A capa recortada (1 e 2)** vinha de uma afirmação errada no código. O comentário
+dizia que as capas são enviadas em 1200x630, e a moldura foi construída sobre
+isso. Nada valida dimensão no upload: `src/lib/storage/images.ts` não checa
+proporção, e a capa publicada mede 2:1 exatos. Medido no navegador, a moldura de
+1200/630 com `object-cover` já cortava 4,8% da largura de toda capa. No card
+largo era pior: a célula da imagem herdava a altura da coluna de texto ao lado,
+o que punha uma imagem 2:1 numa caixa de 1,327 e comia 33,7% da largura.
+
+Vale registrar a conta, porque ela fecha a discussão sobre manter a capa ao lado
+do texto: testando colunas de imagem de 620px a 850px, o resultado é sempre
+recorte de 25% a 34% (preenchendo) ou vão de 70px a 130px (contendo), porque o
+bloco de texto não desce de ~400px de altura. Não existe divisão que feche.
+
+**O botão sobre os botões do Hero (3)** só aparece em tela baixa. Em 320x568 os
+dois botões do Hero caem na faixa inferior da viewport, exatamente onde fica o
+botão flutuante. A primeira rodada verificou 390px e 1440px, onde não há colisão,
+e concluiu que estava resolvido. Estava, menos na tela mais estreita e mais baixa.
+
+**Os títulos (5 e 6)** tinham um `clamp` de inclinação única. Com piso de
+1.875rem e `3.2vw`, o piso valia até 938px: o título media 30px em toda a faixa
+mobile, e o mais longo (75 caracteres) ocupava seis linhas em 320px. Trocar só o
+piso consertaria o telefone e encolheria o tablet, daí a reta com intercepto.
+
+## Correções
+
+- **Capa**: moldura única `aspect-[2/1]` com `object-contain` e fundo do card, no
+  card, na página do case e na pré-visualização do painel. Como a proporção da
+  capa não é garantida, preencher significa cortar uma quantidade desconhecida de
+  cada imagem nova; contendo, o desvio vira faixa da própria superfície em vez de
+  conteúdo perdido. A capa do card largo saiu de ao lado do texto e foi para cima,
+  na largura inteira.
+- **Botão flutuante**: passou a aparecer só depois que o Hero sai da tela, via
+  `IntersectionObserver` num componente de cliente novo (`FloatingWhatsApp`).
+  Enquanto oculto é `opacity: 0`, `pointer-events: none`, `aria-hidden` e
+  `tabIndex -1`, então não bloqueia mouse, teclado nem leitor de tela. O estado
+  inicial é visível, que é o que o servidor entrega, então sem JavaScript o botão
+  continua lá. Nas páginas internas não existe `#inicio` e ele aparece desde o
+  início.
+- **Fluxo de automação**: coluna no telefone e linha a partir de `sm`, com a mesma
+  seta girada 90 graus. Nenhuma marcação duplicada para o mobile.
+- **Escala dos títulos**: `clamp` com intercepto (`1.05rem + 2.3vw`) e teto em
+  2.5rem. O teto desceu de 46px para 40px porque quem limita a quebra é a coluna,
+  não a viewport: quatro títulos ficam em coluna de meia largura. Medido, 40px não
+  custa linha nenhuma nos títulos de largura inteira e tira uma do mais longo.
+- **Âncora**: `scroll-padding-top` virou `calc(var(--nav-h) + 1.5rem)`, e
+  `--nav-h` passou a ser a fonte única da altura do cabeçalho, usada também pela
+  altura máxima do menu mobile.
+- **`min-w-0`** nos blocos de texto dentro de itens de flex.
+
+## Imagens
+
+| viewport | natural | caixa | ajuste | perda | faixa |
+|---|---|---|---|---|---|
+| 320x568 | 320x160 | 278x139 | contain | 0,0% | 0x0 |
+| 390x844 | 390x195 | 348x174 | contain | 0,0% | 0x0 |
+| 768x1024 | 768x384 | 705x352 | contain | 0,0% | 0x0 |
+| 1024x768 | 1024x512 | 946x473 | contain | 0,0% | 0x0 |
+| 1280x720 | 1180x590 | 1178x589 | contain | 0,0% | 0x0 |
+| 1920x1080 | 1180x590 | 1178x589 | contain | 0,0% | 0x0 |
+
+Zero recorte e zero faixa em todas as faixas: a capa mede 2:1 e a moldura é 2/1,
+então o encaixe é exato. A faixa só apareceria se alguém publicasse uma capa de
+proporção diferente, e aí ela é o comportamento correto.
+
+## Breakpoints validados
+
+Os 13 da rodada anterior mais os três de paisagem que faltavam:
+
+```
+320x568  360x640  375x667  390x844  412x915  430x932
+768x1024 820x1180 1024x768
+1280x720 1366x768 1440x900 1920x1080
+667x375  844x390  932x430          <- paisagem
+```
+
+16 viewports x 3 páginas = **48 combinações, nenhum estouro horizontal**.
+
+Títulos por faixa (o mais longo da página, 75 caracteres):
+
+| viewport | tamanho | linhas |
+|---|---|---|
+| 320px | 24,2px | 4 (eram 6) |
+| 390px | 25,8px | 4 |
+| 768px | 34,5px | 3 |
+| 1280px | 40px | 4 (eram 5) |
+
+Fluxo de automação: eixo `column` até 767px e `row` a partir de 768px; seta em
+`rotate: 90deg` no telefone e `none` no desktop.
+
+## Componentes alterados
+
+`globals.css`, `ProjectCard`, `Automation`, `Navbar`, `WhatsAppButton`,
+`FloatingWhatsApp` (novo), `Problems`, `projetos/[slug]`, `CoverImageForm`.
+
+## Verificação
+
+| Item | Resultado |
+|---|---|
+| `tsc --noEmit` | limpo |
+| `eslint .` | limpo |
+| `node --test tests/*.test.mjs` | 141/141 |
+| `next build` | sucesso |
+| `contact-form.browser.mjs` | 12/12 |
+| Menu mobile (abrir, ESC, trava, links) | ok |
+| Envio real para `/api/contact` | HTTP 200 |
+| Âncora sob a navbar | seção em 104px, cabeçalho 81px |
+| Botão flutuante sobre o Hero | `opacity 0`, `pointer-events none`, `aria-hidden` |
+| Botão flutuante em /projetos | visível desde o início |
+
+## Problemas ainda existentes
+
+1. **O título mais longo fica em 4 linhas** em 320px e em 1280px. São 75
+   caracteres numa coluna de meia largura; chegar a três linhas exigiria cerca de
+   31px no desktop, menor que o tamanho do tablet, o que inverteria a hierarquia.
+   `text-wrap: balance` mantém as quatro linhas equilibradas.
+
+2. **O card de destaque fica alto**: 965px em 1280px, dos quais 589px são a capa.
+   É o custo de mostrar uma imagem 2:1 inteira na largura do card. Reduzir a
+   altura só seria possível recortando a imagem, que é o problema que esta rodada
+   existiu para resolver.
+
+3. **O botão flutuante ainda passa sobre texto ao rolar**, depois do Hero. É
+   próprio de um botão fixo: em alguma posição de rolagem ele está sobre alguma
+   coisa. O que foi eliminado é o caso que importa, a colisão com as ações
+   principais na posição inicial da página.
+
+4. **Travessão no título de um projeto** ("TAG VIEW ... Pipeline de Dados"),
+   ainda conteúdo do painel e não código.
+
+5. **Opacidades de borda variadas** fora dos arquivos tocados, como na rodada
+   anterior.

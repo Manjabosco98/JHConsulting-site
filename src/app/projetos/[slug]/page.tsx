@@ -96,9 +96,13 @@ export default async function ProjetoDetailPage({ params }: Props) {
             {project.status ? <p className="mt-4 text-sm font-bold text-blue-200/80">{project.status}</p> : null}
           </header>
 
+          {/* Mesma regra do card: moldura 2/1 e `object-contain`. Nada valida a
+            * proporção da capa no upload, então preencher corta uma quantidade
+            * desconhecida de cada imagem nova; aqui, que é a página do case, a
+            * capa é o conteúdo e não pode perder borda. */}
           {project.coverUrl ? (
-            <div className="relative mt-8 aspect-[1200/630] overflow-hidden rounded-3xl border border-white/10">
-              <Image src={project.coverUrl} alt={`Capa do projeto ${project.title}`} fill priority sizes="(min-width: 896px) 896px, 100vw" className="object-cover" />
+            <div className="relative mt-8 aspect-[2/1] overflow-hidden rounded-3xl border border-white/10 bg-black/20">
+              <Image src={project.coverUrl} alt={`Capa do projeto ${project.title}`} fill priority sizes="(min-width: 896px) 896px, 100vw" className="object-contain" />
             </div>
           ) : null}
 

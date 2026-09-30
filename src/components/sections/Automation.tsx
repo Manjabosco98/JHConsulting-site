@@ -12,18 +12,29 @@ export function Automation() {
           copy="Automação significa criar processos mais confiáveis, padronizados, rastreáveis e escaláveis."
         />
         {/*
-          * A seta fica antes do passo, não depois, e some no primeiro.
+          * Coluna no telefone, linha a partir de `sm`.
           *
-          * Enquanto cada item carregava a seta do próprio lado direito, uma quebra
-          * de linha podia terminar a linha com a seta pendurada, apontando para o
-          * nada. Colocada à frente do passo seguinte, ela sempre acompanha o item
-          * para onde aponta, em qualquer ponto de quebra e em qualquer largura.
+          * Cinco etapas não cabem numa linha de 320px, e `flex-wrap` resolvia isso
+          * quebrando onde sobrasse espaço: duas etapas numa linha, uma na outra,
+          * com as setas apontando para os lados em pontos arbitrários. A sequência,
+          * que é a única informação da lista, deixava de ser legível.
+          *
+          * Empilhada, cada etapa fica embaixo da anterior e a seta gira 90 graus
+          * para apontar para ela. É o mesmo componente e o mesmo ícone; só a
+          * direção do eixo muda, então não há regra por aparelho nem segunda
+          * marcação para o mobile.
+          *
+          * A seta continua vindo antes da etapa, e não depois: assim ela sempre
+          * acompanha o item para onde aponta, em qualquer largura e em qualquer
+          * ponto de quebra, e nunca sobra uma seta no fim apontando para o nada.
           */}
-        <ol className="mt-10 flex flex-wrap items-center gap-2">
+        <ol className="mt-10 flex flex-col items-center gap-2 sm:flex-row sm:flex-wrap">
           {automationFlow.map((step, index) => (
-            <li key={step} className="flex items-center gap-2">
-              {index > 0 ? <ChevronRight className="shrink-0 text-slate-600" size={18} aria-hidden="true" /> : null}
-              <span className="rounded-xl border border-blue-400/18 bg-blue-500/7 px-4 py-3 text-sm font-bold">{step}</span>
+            <li key={step} className="flex flex-col items-center gap-2 sm:flex-row">
+              {index > 0 ? (
+                <ChevronRight className="shrink-0 rotate-90 text-slate-600 sm:rotate-0" size={18} aria-hidden="true" />
+              ) : null}
+              <span className="rounded-xl border border-blue-400/18 bg-blue-500/7 px-4 py-3 text-center text-sm font-bold">{step}</span>
             </li>
           ))}
         </ol>

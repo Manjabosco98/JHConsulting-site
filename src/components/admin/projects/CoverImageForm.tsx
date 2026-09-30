@@ -25,10 +25,14 @@ export function CoverImageForm({ action, currentUrl, title }: Props) {
 
   return (
     <form action={formAction} data-form="cover" className="card grid gap-5 rounded-2xl p-5 sm:p-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
-      <div className="relative aspect-[1200/630] overflow-hidden rounded-xl border border-white/10 bg-black/20">
+      {/* Moldura e ajuste iguais aos do site público (2/1 com `object-contain`),
+        * para a pré-visualização mostrar o mesmo recorte que o visitante verá.
+        * Em `object-cover` ela exibia a capa preenchida enquanto o card do site
+        * a continha, e a decisão de enquadramento era tomada sobre a imagem errada. */}
+      <div className="relative aspect-[2/1] overflow-hidden rounded-xl border border-white/10 bg-black/20">
         {shownUrl ? (
           <Image src={shownUrl} alt={`Capa de ${title}`} fill sizes="(min-width: 768px) 40vw, 100vw"
-            className="object-cover" unoptimized={Boolean(preview)} />
+            className="object-contain" unoptimized={Boolean(preview)} />
         ) : (
           <div className="grid h-full place-items-center text-sm text-slate-500">
             <span className="flex items-center gap-2"><ImagePlus size={18} aria-hidden="true" /> Sem capa</span>
