@@ -17,7 +17,7 @@ async function loadProjects(): Promise<PublicProjectSummary[]> {
 export async function Projects() {
   const projects = await loadProjects();
   return (
-    <section id="projetos" className="section-space">
+    <section id="projetos" className="section-space border-t border-white/5">
       <div className="container-shell">
         {/* Sem kicker: o título já diz "Projetos", e a página inteira tinha um
           * rótulo em caixa alta por seção. */}
@@ -30,7 +30,7 @@ export async function Projects() {
             <div className="mt-12">
               <ProjectGrid projects={projects} />
             </div>
-            <Link href="/projetos" className="focus-ring mt-10 inline-flex items-center gap-2 font-bold text-blue-300 transition hover:text-blue-200">
+            <Link href="/projetos#lista-projetos" className="focus-ring mt-10 inline-flex items-center gap-2 font-bold text-blue-300 transition hover:text-blue-200">
               Ver todos os projetos <ArrowRight size={18} aria-hidden="true" />
             </Link>
           </>

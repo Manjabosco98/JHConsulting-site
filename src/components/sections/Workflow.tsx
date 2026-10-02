@@ -21,7 +21,7 @@ export function Workflow() {
         <ol className="mt-12 border-t border-white/8">
           {workflowPhases.map(({ phase, steps }) => (
             <li key={phase} className="grid gap-5 border-b border-white/8 py-8 md:grid-cols-[10rem_1fr] md:gap-10">
-              <p className="text-lg font-bold text-blue-200/90">{phase}</p>
+              <p className="workflow-phase relative pl-5 text-lg font-bold text-blue-200/90">{phase}</p>
               <div className="grid gap-6 sm:grid-cols-2 sm:gap-8">
                 {steps.map(([title, description]) => (
                   <div key={title}>

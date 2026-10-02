@@ -1,108 +1,98 @@
 @import "tailwindcss";
 
-/*
- * Tipografia: Geist, carregada por next/font em layout.tsx, que baixa o arquivo
- * no build e o serve do nosso próprio domínio (nenhuma requisição ao Google em
- * runtime) com métrica ajustada, então o swap não desloca o layout.
- *
- * Isto entra por `@theme`, e não por `:root`, porque `--font-sans` é um token do
- * próprio Tailwind v4: declarar em `:root` cria duas definições concorrentes e a
- * vencedora passa a depender da ordem dos arquivos. Por `@theme` existe uma só,
- * e os utilitários `font-sans` resolvem para Geist junto com o `body`.
- *
- * `inline` é necessário porque o valor referencia `var(--font-geist)`, que só
- * existe em runtime (é a classe que o next/font injeta no <html>).
- */
 @theme inline {
-  --font-sans: var(--font-geist), "Segoe UI", Roboto, Arial, Helvetica, sans-serif;
+  --font-sans: var(--font-inter), "Segoe UI", Arial, sans-serif;
+  --font-display: var(--font-manrope), "Segoe UI", Arial, sans-serif;
+  --font-mono: var(--font-ibm-plex-mono), monospace;
+  --color-midnight: var(--jh-midnight);
+  --color-navy: var(--jh-navy);
+  --color-blue-50: #F0F7FD;
+  --color-blue-100: #DCECF9;
+  --color-blue-200: #B9D9F2;
+  --color-blue-300: #8CC0E9;
+  --color-blue-400: #6AA7DB;
+  --color-blue-500: var(--jh-primary);
+  --color-blue-600: #326FAE;
+  --color-blue-700: #285A90;
+  --color-blue-800: var(--jh-deep-blue);
+  --color-blue-900: #102B4B;
+  --color-blue-950: #081A30;
+  --color-cyan-200: #B7E8FC;
+  --color-cyan-300: #8EDBF9;
+  --color-cyan-400: var(--jh-accent);
+  --color-cyan-500: #3DB6ED;
+  --color-slate-50: var(--jh-off-white);
+  --color-slate-100: var(--jh-platinum);
+  --color-slate-200: #DDE2E7;
+  --color-slate-300: var(--jh-silver);
+  --color-slate-400: var(--jh-steel);
+  --color-slate-500: #697683;
+  --color-slate-600: #4C5965;
+  --color-slate-700: #34404B;
+  --color-slate-800: #202B35;
+  --color-slate-900: #111A23;
+  --color-slate-950: var(--jh-midnight);
+  --radius-xl: .5rem;
+  --radius-2xl: .75rem;
+  --radius-3xl: 1rem;
 }
 
 :root {
-  /*
-   * `color-scheme: dark` não é cosmético: é o que informa ao navegador que a
-   * página é escura, e com isso ele passa a desenhar em escuro tudo que é
-   * pintado por ele e não por nós — a lista aberta do <select>, as barras de
-   * rolagem, o seletor de data, o preenchimento automático do Chrome.
-   *
-   * Era a causa do dropdown cinza-claro em Contato: `bg-[#0a101d]` no <select>
-   * veste só o controle fechado; o popup é UI nativa e ignora o CSS do elemento.
-   * Sem esta linha o Chrome também pintava os campos de fundo claro ao aplicar
-   * autofill, no meio de um formulário escuro.
-   *
-   * Uma declaração resolve os quatro casos, no site e no painel, e mantém o
-   * <select> nativo — com teclado, ARIA e leitor de tela de graça.
-   */
   color-scheme: dark;
 
-  --bg: #080d18;
-  --bg-soft: #0d1424;
-  --text: #f8fafc;
-  --muted: #94a3b8;
-  --primary: #3b82f6;
-  --primary-strong: #2563eb;
-  --cyan: #22d3ee;
-  --line: rgba(148, 163, 184, 0.14);
+  /* Official primitives; existing semantic aliases and Tailwind share these. */
+  --jh-midnight: #04090F;
+  --jh-navy: #09111A;
+  --jh-deep-blue: #1B406A;
+  --jh-primary: #4488CA;
+  --jh-accent: #6ACAF6;
+  --jh-steel: #95A2AF;
+  --jh-silver: #C3C8CD;
+  --jh-platinum: #E7EAEB;
+  --jh-off-white: #F5F7F9;
+  --jh-white: #FFFFFF;
+  --bg: var(--jh-midnight);
+  --bg-soft: var(--jh-navy);
+  --text: var(--jh-off-white);
+  --muted: var(--jh-steel);
+  --primary: var(--jh-primary);
+  --primary-strong: var(--color-blue-600);
+  --cyan: var(--jh-accent);
+  --line: color-mix(in srgb, var(--jh-steel) 14%, transparent);
 
-  /*
-   * Altura da navbar fixa (`h-20`), em um lugar só. Ela é usada por duas contas
-   * que precisam concordar: o recuo de rolagem das âncoras, aqui embaixo, e a
-   * altura máxima do menu mobile, em Navbar.tsx. Enquanto o valor estava escrito
-   * à mão nos dois, mudar a altura do cabeçalho exigia lembrar do segundo.
-   */
-  --nav-h: 5rem;
+  --nav-h: 4rem;
 
-  /*
-   * Respiro lateral do container, em uma conta só para todas as seções. Antes
-   * eram dois valores fixos e na ordem errada: 1rem no desktop e 0,625rem
-   * abaixo de 768px, ou seja, a tela *menor* recebia a margem *menor* e o texto
-   * quase encostava na borda em 320-430px.
-   *
-   * Agora cresce com a viewport: 20px até ~666px, 3vw no meio, 32px a partir de
-   * ~1067px. Nenhum media query, nenhum degrau.
-   */
   --gutter: clamp(1.25rem, 3vw, 2rem);
+
+  /*
+   * Escala de sombras. Cada nível tem deslocamento *e* desfoque: um halo sem
+   * deslocamento é decoração colorida, não profundidade, e era o que faltava
+   * para a página parecer construída em camadas em vez de pintada num plano.
+   * O primeiro valor de cada par é o contacto (curto, escuro), o segundo é a
+   * queda (longa, difusa) — é a combinação que o olho lê como objeto pousado.
+   */
+  --shadow-soft: 0 1px 2px rgb(2 6 14 / .4), 0 10px 26px -10px rgb(2 6 14 / .55);
+  --shadow-lift: 0 2px 4px rgb(2 6 14 / .45), 0 20px 44px -16px rgb(2 6 14 / .7);
+  --shadow-portrait: 0 2px 6px rgb(2 6 14 / .45), 0 40px 76px -30px rgb(3 12 26 / .95);
+
+  /* Deslocamento da moldura do retrato, consumido como padding da figura para
+     que a placa nunca ultrapasse a largura da coluna. */
+  --plate: clamp(.75rem, 2vw, 1.25rem);
+
+  --ease-out-expo: cubic-bezier(.16, 1, .3, 1);
 }
 
-/*
- * ESCALA DE RAIOS — uma regra, quatro valores. Antes havia seis (`lg`, `xl`,
- * `2xl`, `3xl`, `[2rem]`, `full`) sem critério, e `2xl`/`3xl`/`[2rem]` faziam
- * o mesmo trabalho em três tamanhos quase iguais.
- *
- *   rounded-full  pílulas, badges, chips de tecnologia, botões de ícone
- *   rounded-xl    botões, campos de formulário, tiles pequenos
- *   rounded-2xl   cards
- *   rounded-3xl   painéis grandes e imagens
- *
- * `rounded-lg` e `rounded-[2rem]` não são usados. Ao criar componente novo,
- * escolha um dos quatro acima em vez de inventar um quinto.
- */
-
-/*
- * Element defaults go in @layer base so Tailwind utilities can override them.
- * Unlayered CSS wins over every layer, so while these rules sat outside a layer
- * `a { color: inherit }` silently beat `text-blue-300` (links rendered white)
- * and `font: inherit` beat `font-bold` on buttons.
- */
 @layer base {
   * { box-sizing: border-box; }
   html {
     scroll-behavior: smooth;
-    /*
-     * Recuo de rolagem das âncoras. Sem ele o título da seção ancorada para
-     * debaixo do cabeçalho fixo ao clicar em qualquer item do menu.
-     *
-     * Eram 5rem cravados, exatamente a altura da navbar, e faltava 1px: o
-     * cabeçalho mede 81px (`h-20` mais a borda inferior), então o topo da seção
-     * parava rente a ele, encostado. Agora são a altura mais um respiro, o que
-     * deixa o título visivelmente abaixo do cabeçalho em vez de rente a ele.
-     */
     scroll-padding-top: calc(var(--nav-h) + 1.5rem);
   }
   body {
     margin: 0;
     background:
-      radial-gradient(circle at 12% 8%, rgba(37,99,235,.16), transparent 30%),
-      radial-gradient(circle at 88% 18%, rgba(34,211,238,.08), transparent 24%),
+      radial-gradient(circle at 12% 8%, color-mix(in srgb, var(--jh-deep-blue) 16%, transparent), transparent 30%),
+      radial-gradient(circle at 88% 18%, color-mix(in srgb, var(--jh-accent) 3%, transparent), transparent 24%),
       var(--bg);
     color: var(--text);
     font-family: var(--font-sans);
@@ -110,105 +100,463 @@
     -webkit-font-smoothing: antialiased;
   }
 
+  h1, h2, h3, h4 { font-family: var(--font-display); }
+  .lucide { stroke-width: 1.5; }
+  input, textarea { caret-color: var(--jh-accent); }
   a { color: inherit; text-decoration: none; }
   button, input, textarea, select { font: inherit; }
-  ::selection { background: rgba(59,130,246,.35); }
+  ::selection { background: color-mix(in srgb, var(--jh-primary) 35%, transparent); }
+
+  /*
+   * A barra de rolagem é a última superfície do navegador que ainda vinha com o
+   * cinzento de fábrica. Numa página escura inteira ela é a faixa que denuncia
+   * que o tema acaba na borda do conteúdo. Firefox usa as duas propriedades
+   * padrão; Chromium e WebKit usam os pseudo-elementos.
+   */
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--jh-primary) 42%, transparent) var(--jh-navy);
+  }
+  ::-webkit-scrollbar { width: 11px; height: 11px; }
+  ::-webkit-scrollbar-track { background: var(--jh-navy); }
+  ::-webkit-scrollbar-thumb {
+    border: 3px solid var(--jh-navy);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--jh-primary) 42%, transparent);
+  }
+  ::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--jh-primary) 68%, transparent); }
+  ::-webkit-scrollbar-corner { background: var(--jh-navy); }
 }
 
 .container-shell { width: min(1180px, calc(100% - (2 * var(--gutter)))); margin-inline: auto; }
 
-/*
- * Ritmo vertical, também fluido. Eram 6rem com um salto para 4.5rem em 768px;
- * agora a interpolação é contínua entre os mesmos dois extremos (72px nas telas
- * pequenas, 96px a partir de ~1200px), o que evita o degrau visível ao
- * atravessar o breakpoint redimensionando a janela.
- */
 .section-space { padding-block: clamp(4.5rem, 8vw, 6rem); }
 
-/*
- * Metade exata do `.section-space`, para as faixas que não são seção de conteúdo
- * e sim um painel fechado em si (a chamada principal) ou o rodapé. Existe como
- * utilitário porque os dois lugares usavam números soltos — `py-12` e `py-10` —
- * que pareciam arbitrários e não acompanhavam a escala ao redimensionar. Meia
- * medida é uma decisão; 48px cravado no meio de um ritmo fluido é um esquecimento.
- */
 .section-space-tight { padding-block: clamp(2.25rem, 4vw, 3rem); }
 
 /*
- * O kicker é o rótulo pequeno em caixa alta acima do título. Ele fica caro
- * quando repete: com um por seção, treze seções produzem treze rótulos e a
- * página passa a ter um único ritmo. A regra aqui é no máximo um a cada três
- * seções, e na home sobraram quatro (pílula do Hero, Serviços, Soluções e
- * Contato) — as seções cujo título não nomeia o assunto e que o menu aponta.
+ * Escala única de micro-rótulo. O kicker de secção e os rótulos de dados em
+ * "Sobre" são o mesmo elemento tipográfico com papéis diferentes, e estavam a
+ * .74rem/.18em e .75rem/.16em — perto demais para ler como variação
+ * intencional e longe demais para ler como a mesma coisa. Partilham agora a
+ * métrica; só a cor distingue o papel. .75rem mantém os 12px do piso de
+ * legibilidade, que .74rem perdia por pouco.
  */
-.section-kicker { color: #60a5fa; text-transform: uppercase; letter-spacing: .18em; font-size: .74rem; font-weight: 700; }
+.section-kicker,
+.meta-label {
+  font-size: .75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .16em;
+}
+.section-kicker { color: var(--jh-primary); }
+
+.section-title { margin-top: .75rem; font-size: clamp(1.5rem, calc(1.05rem + 2.3vw), 2.5rem); line-height: 1.2; letter-spacing: -.025em; font-weight: 700; text-wrap: balance; }
 
 /*
- * Com Geist no lugar de Arial a hierarquia vem da forma da letra, não do peso
- * bruto: 700 em vez de 800, e o topo da escala desce de 3.5rem para 2.875rem.
- *
- * A conta tem intercepto (`1.05rem + 2.3vw`) e não é só `vw` porque um `clamp`
- * de slope única não conseguia atender os dois extremos. Com `3.2vw`, o piso de
- * 1.875rem valia até 938px, ou seja, o título media 30px em *toda* a faixa
- * mobile: em 320px, com 280px de medida, "Sua empresa ainda perde tempo com
- * processos que poderiam ser automatizados?" (75 caracteres) ocupava seis
- * linhas. Baixar só o piso resolveria o telefone e encolheria o tablet.
- *
- * A reta passa por dois pontos escolhidos: 24px em 320px e o teto em ~1010px.
- *
- * O teto desceu de 2.875rem (46px) para 2.5rem (40px), e o motivo é medido: não
- * é a viewport que limita a quebra destes títulos, é a coluna. Quatro deles ficam
- * em coluna de meia largura (Problemas, Contato, a chamada principal), e o mais
- * longo da página, com 75 caracteres, vive na mais estreita — 509px em 1280px.
- * Em 46px ele quebrava em cinco linhas ali, enquanto os títulos de largura
- * inteira ficavam em uma ou duas com folga de sobra. Em 40px o longo cai para
- * três linhas e os de largura inteira continuam em duas, então os 6px pagam a
- * pior quebra da página e não custam nada na melhor.
- *
- * A hierarquia contra o Hero continua explícita: 48px contra 40px.
- */
-.section-title { margin-top: .75rem; font-size: clamp(1.5rem, calc(1.05rem + 2.3vw), 2.5rem); line-height: 1.1; letter-spacing: -.03em; font-weight: 700; text-wrap: balance; }
-
-/*
- * Título do Hero — um degrau acima do `.section-title`, e o único lugar da
- * página que passa de 2.875rem.
- *
- * Existe como utilitário, e não como classes `text-4xl sm:text-5xl` no
- * componente, porque o par de degraus era o problema: 36px valiam igual em
- * 320px e em 639px, e em 320px a medida de ~300px comporta 16 caracteres por
- * linha, o que partia o título em quatro linhas.
- *
- * O teto de 3rem não é estético, é medido: na coluna de 1.25fr do split (~708px
- * em 1440) 48px é o maior tamanho que ainda fecha o título em duas linhas. O
- * piso de 1.75rem é o que mantém três linhas em 320px.
- */
-/*
- * Mesma forma de conta do `.section-title`, com inclinação mais forte: aqui o
- * teto precisa ser alcançado cedo, porque de `lg` para cima o título divide a
- * linha com a foto e a coluna estreita é que passa a limitar a quebra.
- *
- * A reta passa por 26px em 320px e chega aos 48px em 823px. O piso desceu de
- * 1.75rem para 1.625rem: em 320px, 28px punham o título em quatro linhas.
+ * Teto de 3,25rem no lugar de 3rem: a 1440px a manchete ocupava 48px numa
+ * coluna de ~590px e sobrava ar à volta — grande para um parágrafo, pequena
+ * para a primeira coisa que a página diz. A rampa (mínimo e inclinação) não
+ * mudou, então nada abaixo de ~1000px se altera; só o topo ganhou presença.
+ * Entrelinha mais curta e `tracking` mais fechado porque é o que uma display
+ * pede nesta escala — a 48px as mesmas medidas já pareciam soltas.
  */
 .hero-title {
-  font-size: clamp(1.625rem, calc(.75rem + 4.375vw), 3rem);
-  line-height: 1.08;
-  letter-spacing: -.04em;
+  font-size: clamp(1.625rem, calc(.75rem + 4.375vw), 3.25rem);
+  line-height: 1.12;
+  letter-spacing: -.032em;
   font-weight: 700;
-  text-wrap: balance;
+  text-wrap: pretty;
 }
 .section-copy { margin-top: 1rem; max-width: 62ch; color: var(--muted); font-size: 1.02rem; line-height: 1.75; }
 .card {
   border: 1px solid var(--line);
   background: linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.018));
-  box-shadow: 0 22px 80px rgba(0,0,0,.18);
-}
-/* Gradiente no destaque do H1: faz parte da identidade registrada na SPEC. Os
- * stops perderam o ciano final, que puxava o texto para arco-íris. */
-.text-gradient { background: linear-gradient(92deg,#fff,#bfdbfe 58%,#93c5fd); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.focus-ring:focus-visible { outline: 2px solid #60a5fa; outline-offset: 3px; }
 
-/* Placeholder blocks for route loading states (loading.tsx). */
+}
+.text-gradient { background: linear-gradient(90deg,var(--jh-primary),var(--jh-accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.focus-ring:focus-visible { outline: 2px solid var(--jh-accent); outline-offset: 3px; }
+
+/* Filled primary controls need a darker hover than the institutional blue-500. */
+@media (hover: hover) {
+  .bg-blue-600.hover\:bg-blue-500:hover { background-color: var(--color-blue-700); }
+}
+
+/*
+ * O fundo do Hero em três camadas: o volume de luz atrás da arte, uma
+ * iluminação rasante vinda do topo, e uma queda para o navio no rodapé da
+ * secção. A terceira é a que faz o Hero *afundar* na faixa dos pilares em vez
+ * de terminar num corte — antes havia uma só elipse e a secção acabava a seco.
+ */
+.hero-surface {
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(ellipse 52% 86% at 78% 44%, color-mix(in srgb, var(--jh-deep-blue) 32%, transparent), transparent 72%),
+    radial-gradient(ellipse 92% 56% at 50% 0%, color-mix(in srgb, var(--jh-primary) 7%, transparent), transparent 70%),
+    linear-gradient(180deg, transparent 74%, color-mix(in srgb, var(--jh-navy) 72%, transparent));
+}
+@media (width >= 1024px) {
+  .hero-layout { min-height: 36rem; padding-block: 3.5rem; }
+}
+.hero-curves {
+  z-index: 0;
+  stroke: var(--jh-primary);
+  stroke-opacity: .1;
+  stroke-width: 1.5;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  border: 1px solid color-mix(in srgb, var(--jh-primary) 30%, transparent);
+  border-radius: 999px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--jh-primary) 15%, transparent), color-mix(in srgb, var(--jh-primary) 5%, transparent));
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--jh-accent) 20%, transparent);
+  padding: .45rem .9rem;
+  font-size: .75rem;
+  font-weight: 700;
+  color: var(--color-blue-200);
+}
+
+/* ---- Hero: a peça visual ---- */
+
+.hero-figure {
+  position: relative;
+  margin-inline: auto;
+  width: 100%;
+  max-width: 34rem;
+}
+/* O volume de luz por trás da escultura. Desfocado e não apenas um gradiente:
+   o desfoque é o que tira a borda do próprio gradiente e o faz ler como ar. */
+.hero-figure-bloom {
+  position: absolute;
+  inset: 5% 2% 9%;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--jh-primary) 26%, transparent),
+    color-mix(in srgb, var(--jh-deep-blue) 15%, transparent) 56%,
+    transparent 78%
+  );
+  filter: blur(20px);
+  pointer-events: none;
+}
+.hero-figure-svg { position: relative; display: block; width: 100%; aspect-ratio: 1; }
+
+/*
+ * No telefone a arte ganha os 16px de cada goteira: o cubo ocupa 24% do
+ * `viewBox`, então numa coluna de 340px ele cai para 82px e a composição fica
+ * rarefeita. A goteira tem 20px, logo a margem negativa não chega à borda do
+ * ecrã e não há como criar rolagem horizontal.
+ *
+ * A caixa também achata para 1.35:1. A composição ocupa a faixa central do
+ * `viewBox` (y 165–435 de 600) e o resto é ar: numa coluna estreita esse ar
+ * valia ~150px de vazio entre as chamadas e a peça. Com `slice`, 1.35:1 mostra
+ * de y=78 a y=522 — sobra margem dos dois lados e nada da peça é cortado.
+ */
+/* O quadrado só se justifica em `lg`, onde a arte fica ao lado de uma coluna de
+   texto alta. Empilhada, passa a faixa. */
+@media (width < 1024px) {
+  .hero-figure-svg { aspect-ratio: 1.35; }
+}
+@media (width < 640px) {
+  .hero-figure {
+    width: calc(100% + 2rem);
+    max-width: none;
+    margin-inline: -1rem;
+  }
+}
+
+.hero-core { filter: drop-shadow(0 12px 30px color-mix(in srgb, var(--jh-accent) 24%, transparent)); }
+.hero-nodes { filter: drop-shadow(0 0 5px color-mix(in srgb, var(--jh-accent) 45%, transparent)); }
+
+/* `view-box` e não `fill-box`: a origem é o centro do viewBox (300 300), não o
+   centro da caixa do próprio elemento. */
+.hero-halo {
+  transform-box: view-box;
+  transform-origin: 300px 300px;
+  animation: hero-breathe 7s ease-in-out infinite;
+}
+@keyframes hero-breathe {
+  0%, 100% { opacity: .78; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.045); }
+}
+
+/* 107 = traço (7) + intervalo (100), em unidades de `pathLength`. Partir desse
+   valor põe o pulso imediatamente antes do início da curva. */
+.hero-pulses path {
+  stroke-dashoffset: 107;
+  animation: hero-pulse 7s linear infinite;
+}
+@keyframes hero-pulse {
+  from { stroke-dashoffset: 107; }
+  to { stroke-dashoffset: 0; }
+}
+
+/*
+ * Entrada: um gesto só, na primeira dobra — e sem `opacity`.
+ *
+ * A primeira versão abria de `opacity: 0`. O LCP ignora elementos totalmente
+ * transparentes, por isso só era registado quando a animação terminava: a
+ * métrica saltou de 88ms para 940ms, sem que nada no servidor ou na rede
+ * tivesse piorado. Era a animação a mentir sobre o tempo de carregamento.
+ *
+ * Só com `transform`, nada está invisível em momento nenhum: o LCP volta ao
+ * primeiro desenho, o movimento continua a existir, e fica a cumprir a regra de
+ * animar a partir de um estado já visível.
+ */
+@keyframes hero-rise {
+  from { transform: translateY(14px); }
+  to { transform: none; }
+}
+@keyframes hero-figure-in {
+  from { transform: scale(.965); }
+  to { transform: none; }
+}
+.hero-copy > * { animation: hero-rise .7s var(--ease-out-expo) backwards; }
+.hero-copy > *:nth-child(1) { animation-delay: .04s; }
+.hero-copy > *:nth-child(2) { animation-delay: .12s; }
+.hero-copy > *:nth-child(3) { animation-delay: .2s; }
+.hero-copy > *:nth-child(4) { animation-delay: .28s; }
+.hero-figure { animation: hero-figure-in 1.1s var(--ease-out-expo) .1s backwards; }
+
+/* ---- Faixa dos quatro pilares ---- */
+
+.hero-pillars {
+  padding-block: clamp(2rem, 3.5vw, 3rem) clamp(2.5rem, 4.5vw, 3.5rem);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--jh-deep-blue) 12%, transparent), transparent 70%);
+}
+.pillar {
+  position: relative;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+}
+/* O segmento aceso no início da regra: é o detalhe que torna o fio uma decisão
+   e não uma borda por omissão. Estende-se no hover — a microinteração mais
+   discreta que ainda responde ao ponteiro. */
+.pillar::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 2.5rem;
+  height: 1px;
+  background: linear-gradient(90deg, var(--jh-accent), color-mix(in srgb, var(--jh-primary) 35%, transparent));
+  transition: width .5s var(--ease-out-expo);
+}
+@media (hover: hover) {
+  .pillar:hover::before { width: 100%; }
+}
+
+/* ---- Recipiente de ícone, partilhado pela página ---- */
+
+.icon-tile {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  border: 1px solid color-mix(in srgb, var(--jh-primary) 28%, transparent);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(
+    158deg,
+    color-mix(in srgb, var(--jh-primary) 24%, transparent),
+    color-mix(in srgb, var(--jh-primary) 7%, transparent)
+  );
+  /* O fio de luz no topo interno: a diferença entre um quadrado pintado e uma
+     peça com face. Custa uma linha e aparece em todos os ícones da página. */
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--jh-accent) 24%, transparent);
+  color: var(--color-blue-300);
+}
+.icon-tile-sm { width: 2.25rem; height: 2.25rem; }
+
+/* ---- Botões do site público ---- */
+
+/*
+ * O gradiente fica entre blue-600 e blue-700 e não sobe até blue-500: branco
+ * sobre blue-500 dá 3,7:1 e o rótulo tem 16px em negrito, que não é "texto
+ * grande" para a WCAG. Nestes dois tons o contraste é 5,2:1 no topo e 7,1:1 na
+ * base. O hover acende pelo brilho e pela face interna, não pelo fundo, para
+ * não cair abaixo de 4,5:1 justamente no estado em que o utilizador está a ler.
+ */
+.btn-primary {
+  border: 1px solid color-mix(in srgb, var(--jh-accent) 28%, transparent);
+  background: linear-gradient(180deg, var(--color-blue-600), var(--color-blue-700));
+  color: var(--jh-white);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 22%, transparent), var(--shadow-lift);
+  transition: box-shadow .3s ease, border-color .2s ease, transform .12s ease;
+}
+@media (hover: hover) {
+  .btn-primary:hover {
+    border-color: color-mix(in srgb, var(--jh-accent) 48%, transparent);
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, #fff 32%, transparent),
+      0 2px 4px rgb(2 6 14 / .45),
+      0 22px 48px -16px color-mix(in srgb, var(--jh-primary) 60%, transparent);
+  }
+}
+.btn-primary:active { transform: translateY(1px); }
+
+.btn-ghost {
+  border: 1px solid color-mix(in srgb, var(--jh-steel) 24%, transparent);
+  background: color-mix(in srgb, var(--jh-white) 3%, transparent);
+  transition: background .2s ease, border-color .2s ease, transform .12s ease;
+}
+@media (hover: hover) {
+  .btn-ghost:hover {
+    border-color: color-mix(in srgb, var(--jh-primary) 45%, transparent);
+    background: color-mix(in srgb, var(--jh-white) 7%, transparent);
+  }
+}
+.btn-ghost:active { transform: translateY(1px); }
+
+/* Botão claro sobre painel escuro (chamada final). O `inset` inferior é a
+   sombra de contacto da própria pastilha; sem ele o branco fica chapado. */
+.btn-invert {
+  border: 1px solid transparent;
+  background: var(--jh-white);
+  color: var(--jh-midnight);
+  box-shadow: inset 0 -1px 0 rgb(2 6 14 / .14), var(--shadow-lift);
+  transition: background .2s ease, box-shadow .3s ease, transform .12s ease;
+}
+@media (hover: hover) {
+  .btn-invert:hover {
+    background: var(--jh-off-white);
+    box-shadow:
+      inset 0 -1px 0 rgb(2 6 14 / .14),
+      0 2px 4px rgb(2 6 14 / .45),
+      0 22px 48px -16px rgb(2 6 14 / .85);
+  }
+}
+.btn-invert:active { transform: translateY(1px); }
+
+/* ---- Secção Sobre: retrato institucional ---- */
+
+/*
+ * O deslocamento da placa vive no `padding` da figura, não num `inset`
+ * negativo: assim a moldura inteira cabe na largura da coluna e não há como
+ * criar rolagem horizontal em ecrã estreito.
+ */
+.about-figure {
+  position: relative;
+  margin: 0;
+  width: 100%;
+  max-width: calc(30rem + var(--plate));
+  padding: 0 var(--plate) var(--plate) 0;
+}
+.about-figure-plate {
+  position: absolute;
+  inset: var(--plate) 0 0 var(--plate);
+  border: 1px solid color-mix(in srgb, var(--jh-primary) 30%, transparent);
+  border-radius: 1.25rem;
+  pointer-events: none;
+}
+.about-portrait {
+  position: relative;
+  z-index: 1;
+  border-radius: 1.25rem;
+  background: var(--jh-navy);
+  box-shadow: var(--shadow-portrait);
+}
+/* Aro em gradiente de 1px. A máscara `exclude` recorta o interior e deixa só a
+   moldura, que é a forma de ter uma borda com gradiente sem uma segunda caixa. */
+.about-portrait::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    150deg,
+    color-mix(in srgb, var(--jh-accent) 62%, transparent),
+    color-mix(in srgb, var(--jh-primary) 26%, transparent) 38%,
+    transparent 66%,
+    color-mix(in srgb, var(--jh-primary) 24%, transparent)
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.about-role {
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, .95rem + .4vw, 1.3rem);
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: -.012em;
+  /* Sem isto a linha parte depois de "Especialista em" e deixa "Automação"
+     sozinha na segunda linha — a última das três funções, que é a que o título
+     da secção menos quer ver órfã. */
+  text-wrap: balance;
+  color: var(--color-blue-200);
+}
+
+.meta-label { color: var(--jh-steel); }
+
+/* ---- Ligação com seta ---- */
+
+.link-arrow { transition: color .2s ease; }
+.link-arrow-icon { transition: transform .35s var(--ease-out-expo); }
+@media (hover: hover) {
+  .link-arrow:hover { color: var(--color-blue-200); }
+  .link-arrow:hover .link-arrow-icon { transform: translateX(4px); }
+}
+
+/* ---- Superfícies e separadores de secção ---- */
+
+/* Substitui `bg-white/[.018]`: a mesma quantidade de luz, mas com queda de cima
+   para baixo, que é o que distingue um painel iluminado de um retângulo cinza. */
+.surface-raised {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--jh-white) 2.8%, transparent),
+    color-mix(in srgb, var(--jh-white) 1%, transparent)
+  );
+}
+
+/* Regra de topo que desvanece nas pontas, em vez de uma linha que bate nas duas
+   bordas do ecrã. */
+.rule-top { position: relative; }
+.rule-top::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--jh-primary) 24%, transparent) 18%,
+    color-mix(in srgb, var(--jh-primary) 24%, transparent) 82%,
+    transparent
+  );
+}
+.workflow-phase::before {
+  content: "";
+  position: absolute;
+  top: .65em;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--jh-accent);
+}
+.brand-cta {
+  background:
+    radial-gradient(ellipse 70% 120% at 88% -10%, color-mix(in srgb, var(--jh-primary) 20%, transparent), transparent 62%),
+    linear-gradient(180deg, color-mix(in srgb, var(--jh-deep-blue) 22%, transparent), transparent 55%),
+    var(--jh-navy);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--jh-accent) 16%, transparent), var(--shadow-lift);
+}
+@media (max-width: 639px) {
+  .hero-curves { opacity: .55; }
+}
+
 .skeleton {
   background: linear-gradient(90deg, rgba(255,255,255,.04), rgba(255,255,255,.1), rgba(255,255,255,.04));
   background-size: 200% 100%;
@@ -223,11 +571,6 @@
   .skeleton { animation: none; }
 }
 
-/*
- * Confirmation dialog of the admin panel (replaces window.confirm).
- * The font reset is here because the <dialog> sits inside the <form>, which
- * already passes text-sm/font-bold down for its trigger button.
- */
 .confirm-dialog {
   padding: 0;
   border: 1px solid var(--line);
@@ -247,24 +590,23 @@
   to { opacity: 1; transform: none; }
 }
 
-/*
- * O `@media (max-width: 768px)` que existia aqui saiu inteiro: as duas regras
- * que ele ajustava (`.section-space` e `.container-shell`) hoje interpolam com
- * `clamp()` e cobrem a mesma faixa sem degrau. A do container, além disso,
- * estava invertida — dava menos margem lateral à tela menor.
- */
-
-/*
- * Lista aberta do <select>. `color-scheme: dark` no `:root` já faz o Chrome e o
- * Safari desenharem o popup em escuro; o Firefox no Windows, em algumas
- * versões, ainda usa o fundo do sistema para as <option>. Estas duas linhas
- * cobrem esse caso sem afetar quem já estava correto.
- */
 option {
   background-color: var(--bg-soft);
   color: var(--text);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  /* `animation-delay` entra na lista: sem ele, um gesto de entrada com atraso e
+     `animation-fill-mode: backwards` mantém o elemento invisível durante o
+     atraso mesmo com a duração zerada. */
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+  /* Os pulsos do Hero são o movimento em si: zerar a duração deixaria o traço
+     parado a meio de cada curva, que não é o estado final de nada. */
+  .hero-pulses { display: none; }
 }

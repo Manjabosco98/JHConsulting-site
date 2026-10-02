@@ -81,10 +81,10 @@ export default async function ProjetoDetailPage({ params }: Props) {
 
   return (
     <>
-      <Navbar internal whatsappUrl={whatsappLink(settings.whatsapp)} />
-      <main className="section-space">
+      <Navbar internal />
+      <main id="inicio-projeto" className="section-space">
         <article className="container-shell max-w-4xl">
-          <Link href="/projetos" className="focus-ring inline-flex items-center gap-2 text-sm font-bold text-slate-400 transition hover:text-slate-200">
+          <Link href="/projetos#lista-projetos" className="focus-ring inline-flex items-center gap-2 text-sm font-bold text-slate-400 transition hover:text-slate-200">
             <ArrowLeft size={15} aria-hidden="true" /> Todos os projetos
           </Link>
 
