@@ -31,8 +31,10 @@ export async function PrimaryCTA() {
   return (
     <section className="section-space-tight">
       <div className="container-shell">
-        <div className="overflow-hidden rounded-3xl border border-blue-400/20 bg-gradient-to-br from-blue-700/30 to-cyan-500/5 p-6 sm:p-10 lg:p-12">
-          <div className="grid gap-8 lg:grid-cols-[1.5fr_auto] lg:items-center lg:gap-14">
+        <div className="brand-cta relative isolate overflow-hidden rounded-3xl border border-blue-400/25 p-6 sm:p-10 lg:p-12">
+          <div aria-hidden="true" className="pointer-events-none absolute -right-24 -top-36 size-80 rounded-full border border-blue-200/10 sm:size-[28rem]" />
+          <div aria-hidden="true" className="pointer-events-none absolute -right-10 -top-24 size-56 rounded-full border border-blue-200/10 sm:size-80" />
+          <div className="relative z-10 grid gap-8 lg:grid-cols-[1.5fr_auto] lg:items-center lg:gap-14">
             <div>
               <h2 className="section-title mt-0">
                 Existe algum processo na sua empresa que toma tempo demais?
@@ -52,7 +54,7 @@ export async function PrimaryCTA() {
             <div className="grid gap-3 sm:flex sm:flex-wrap lg:grid">
               <a
                 href="#contato"
-                className="focus-ring inline-flex items-center justify-center gap-2 rounded-xl border border-transparent bg-white px-5 py-3.5 text-center font-bold text-slate-950 transition hover:bg-slate-100 active:translate-y-px"
+                className="btn-invert focus-ring inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-center font-bold"
               >
                 Quero analisar meu processo <ArrowRight size={18} aria-hidden="true" className="shrink-0" />
               </a>
@@ -60,7 +62,7 @@ export async function PrimaryCTA() {
                 href={whatsappLink(settings.whatsapp)}
                 target="_blank"
                 rel="noreferrer"
-                className="focus-ring inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 px-5 py-3.5 text-center font-bold transition hover:bg-white/5 active:translate-y-px"
+                className="btn-ghost focus-ring inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-center font-bold"
               >
                 <MessageCircle size={18} aria-hidden="true" className="shrink-0" /> Solicitar orçamento
               </a>

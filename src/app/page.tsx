@@ -17,7 +17,6 @@ import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { siteConfig } from "@/constants/site";
 import { getSiteSettings } from "@/lib/repositories/public-settings";
-import { whatsappLink } from "@/lib/whatsapp";
 
 // ISR: home is regenerated hourly and on demand (admin edits call
 // revalidatePath("/")). Projects, services, technologies and the institutional
@@ -44,7 +43,7 @@ export default async function Home() {
 
   return (
     <>
-      <Navbar whatsappUrl={whatsappLink(settings.whatsapp)} />
+      <Navbar />
       <main>
         <Hero />
         <Authority />

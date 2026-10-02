@@ -29,8 +29,9 @@ export type ProjectCardLayout = "stacked" | "wide";
  *    continuam na página do projeto, onde há espaço para os dois; no card eles
  *    empilhavam quatro parágrafos e faziam a grade parecer um formulário.
  */
-export function ProjectCard({ project, layout = "stacked" }: { project: ProjectCardData; layout?: ProjectCardLayout }) {
+export function ProjectCard({ project, layout = "stacked", imageSizes, headingLevel = "h3" }: { project: ProjectCardData; layout?: ProjectCardLayout; imageSizes: string; headingLevel?: "h2" | "h3" }) {
   const wide = layout === "wide";
+  const Heading = headingLevel;
 
   /*
    * A capa aparece inteira, e este bloco existe para garantir isso.
@@ -65,14 +66,14 @@ export function ProjectCard({ project, layout = "stacked" }: { project: ProjectC
    *    aparece completa e não sobra vão nenhum.
    */
   const cover = project.coverUrl ? (
-    <div className="relative aspect-[2/1] border-b border-white/8 bg-black/20">
+    <div className="relative aspect-[2/1] overflow-hidden border-b border-blue-400/10 bg-[#080f1d]">
       <Image
         src={project.coverUrl}
         alt={`Capa do projeto ${project.title}`}
         fill
-        // O card largo ocupa a linha inteira; os estreitos, um terço em `lg` e
-        // metade em `md`.
-        sizes={wide ? "(min-width: 1280px) 1180px, 100vw" : "(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"}
+        // A grade conhece o span real em cada breakpoint e informa o tamanho
+        // correspondente, inclusive quando dois projetos ocupam meia linha.
+        sizes={imageSizes}
         className="object-contain"
       />
     </div>
@@ -81,33 +82,37 @@ export function ProjectCard({ project, layout = "stacked" }: { project: ProjectC
   const body = (
     /* `p-5` no telefone: em 320px o card tem 280px e 24px de recuo de cada lado
      * deixavam 232px de medida para título, descrição e chips. */
-    <div className={wide ? "p-6 sm:p-8" : "p-5 sm:p-6"}>
+    <div className={`flex flex-1 flex-col ${wide ? "p-6 sm:p-8" : "p-5 sm:p-6"}`}>
       {/* `min-w-0` no bloco de texto: num item de flex o tamanho mínimo é o
         * conteúdo mínimo, então uma categoria ou um título com palavra longa
         * empurraria a seta para fora do card em vez de quebrar a linha. */}
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-xs font-bold uppercase tracking-[.14em] text-blue-300">{project.category}</p>
-          <h3 className={`mt-3 font-bold tracking-[-.02em] ${wide ? "text-2xl sm:text-3xl" : "text-xl"}`}>{project.title}</h3>
+          {project.category ? (
+            <p className="inline-flex max-w-full rounded-full border border-blue-400/20 bg-blue-500/10 px-3 py-1 text-xs font-semibold leading-5 text-blue-200">
+              {project.category}
+            </p>
+          ) : null}
+          <Heading className={`mt-4 font-bold leading-snug tracking-[-.025em] ${wide ? "text-2xl sm:text-3xl" : "text-xl sm:text-2xl"}`}>{project.title}</Heading>
         </div>
         <ArrowUpRight className="shrink-0 text-slate-500 transition-colors group-hover:text-blue-300" aria-hidden="true" />
       </div>
 
       {project.shortDescription ? (
-        <p className={`mt-4 leading-7 text-slate-400 ${wide ? "max-w-[52ch] text-base" : "text-sm"}`}>{project.shortDescription}</p>
+        <p className={`mt-4 leading-7 text-slate-300 ${wide ? "max-w-[60ch] text-base" : "text-sm sm:text-base"}`}>{project.shortDescription}</p>
       ) : null}
 
       {project.technologies.length ? (
         <div className="mt-6 flex flex-wrap gap-2">
           {project.technologies.map((tech) => (
-            <span key={tech} className="rounded-full border border-white/8 px-2.5 py-1 text-xs text-slate-400">{tech}</span>
+            <span key={tech} className="rounded-full border border-blue-400/15 bg-blue-500/5 px-2.5 py-1 text-xs text-blue-200/85">{tech}</span>
           ))}
         </div>
       ) : null}
 
       {/* Antes em verde-esmeralda, que era um segundo acento fora do sistema
         * azul/ciano. O status é informação, não alerta. */}
-      {project.status ? <p className="mt-6 text-xs font-bold text-blue-200/80">{project.status}</p> : null}
+      {project.status ? <p className="mt-auto pt-6 text-xs font-semibold text-blue-200/80">{project.status}</p> : null}
     </div>
   );
 
@@ -125,11 +130,11 @@ export function ProjectCard({ project, layout = "stacked" }: { project: ProjectC
     </>
   );
 
-  const shell = `card group h-full overflow-hidden rounded-2xl transition-colors ${project.href ? "hover:border-blue-400/30" : ""}`;
+  const shell = `card group flex h-full flex-col overflow-hidden rounded-2xl border-blue-400/15! transition-[border-color,box-shadow,transform] duration-300 ${project.href ? "hover:-translate-y-1 hover:border-blue-400/35! hover:shadow-[0_18px_40px_-30px_rgba(37,99,235,0.45)]!" : ""}`;
 
   if (project.href) {
     return (
-      <Link href={project.href} className={`focus-ring block ${shell}`}>
+      <Link href={`${project.href}#inicio-projeto`} aria-label={`Ver projeto ${project.title}`} className={`focus-ring ${shell}`}>
         {inner}
       </Link>
     );

@@ -3,7 +3,7 @@ import { siteConfig } from "@/constants/site";
 import { getSiteSettings } from "@/lib/repositories/public-settings";
 
 // `rounded-full`: botão de ícone, conforme a escala de raios em globals.css.
-const socialClass = "focus-ring rounded-full border border-white/10 p-2.5 transition hover:bg-white/5";
+const socialClass = "focus-ring rounded-full border border-blue-400/15 bg-white/[.02] p-2.5 text-slate-300 transition hover:border-blue-300/40 hover:bg-white/5 hover:text-white";
 
 /**
  * `internal` existe pelo mesmo motivo que na Navbar, e a falta dele aqui era um
@@ -27,7 +27,7 @@ export async function Footer({ internal = false }: { internal?: boolean } = {}) 
      * Dimensionada pelo conteúdo, ela encosta na margem e a folga vai para a
      * coluna de navegação.
      */
-    <footer className="section-space-tight border-t border-white/8">
+    <footer className="section-space-tight border-t border-blue-400/10 bg-navy">
       <div className="container-shell grid gap-8 md:grid-cols-[1.5fr_1fr_auto] md:gap-12">
         <div>
           <p className="text-lg font-black">JH<span className="text-blue-400">Consulting</span></p>
@@ -35,17 +35,17 @@ export async function Footer({ internal = false }: { internal?: boolean } = {}) 
         </div>
         <div>
           <p className="text-sm font-bold">Navegação</p>
-          <div className="mt-3 grid gap-2 text-sm text-slate-400">
+          <div className="mt-3 grid grid-cols-2 gap-x-8 gap-y-2 text-sm text-slate-400 md:grid-cols-1 lg:grid-cols-2">
             {siteConfig.nav.slice(0, 5).map(([label, href]) => <a key={href} href={to(href)} className="focus-ring rounded transition hover:text-white">{label}</a>)}
           </div>
         </div>
         <div>
           <p className="text-sm font-bold">Conecte-se</p>
           <div className="mt-4 flex gap-3">
-            {settings.linkedinUrl ? <a aria-label="LinkedIn" href={settings.linkedinUrl} target="_blank" rel="noreferrer" className={socialClass}><Linkedin size={18} /></a> : null}
-            {settings.githubUrl ? <a aria-label="GitHub" href={settings.githubUrl} target="_blank" rel="noreferrer" className={socialClass}><Github size={18} /></a> : null}
-            {settings.instagramUrl ? <a aria-label="Instagram" href={settings.instagramUrl} target="_blank" rel="noreferrer" className={socialClass}><Instagram size={18} /></a> : null}
-            {settings.email ? <a aria-label="E-mail" href={`mailto:${settings.email}`} className={socialClass}><Mail size={18} /></a> : null}
+            {settings.linkedinUrl ? <a aria-label="LinkedIn" href={settings.linkedinUrl} target="_blank" rel="noreferrer" className={socialClass}><Linkedin size={18} aria-hidden="true" /></a> : null}
+            {settings.githubUrl ? <a aria-label="GitHub" href={settings.githubUrl} target="_blank" rel="noreferrer" className={socialClass}><Github size={18} aria-hidden="true" /></a> : null}
+            {settings.instagramUrl ? <a aria-label="Instagram" href={settings.instagramUrl} target="_blank" rel="noreferrer" className={socialClass}><Instagram size={18} aria-hidden="true" /></a> : null}
+            {settings.email ? <a aria-label="E-mail" href={`mailto:${settings.email}`} className={socialClass}><Mail size={18} aria-hidden="true" /></a> : null}
           </div>
         </div>
       </div>

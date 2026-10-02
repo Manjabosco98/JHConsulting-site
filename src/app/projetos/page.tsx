@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Navbar } from "@/components/layout/Navbar";
 import { DEFAULT_OG_IMAGE } from "@/lib/seo/og";
 import { getSiteSettings } from "@/lib/repositories/public-settings";
-import { whatsappLink } from "@/lib/whatsapp";
 import { Footer } from "@/components/layout/Footer";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -22,12 +21,16 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+// `getSiteSettings()` saiu do componente junto com o prop `whatsappUrl` da
+// Navbar: as configurações eram lidas aqui só para montar o link daquele botão.
+// O Footer e o botão flutuante fazem a própria leitura, e `cache()` deduplica por
+// requisição, então nada passou a consultar o banco duas vezes.
 export default async function ProjetosPage() {
-  const [projects, settings] = await Promise.all([listPublishedProjects(), getSiteSettings()]);
+  const projects = await listPublishedProjects();
   return (
     <>
-      <Navbar internal whatsappUrl={whatsappLink(settings.whatsapp)} />
-      <main className="section-space">
+      <Navbar internal />
+      <main id="lista-projetos" className="section-space">
         <div className="container-shell">
           {/* `as="h1"`: aqui o cabeçalho é o título da página. Enquanto o
             * SectionHeading só emitia `h2`, esta rota não tinha nenhum `h1`. */}
@@ -38,7 +41,7 @@ export default async function ProjetosPage() {
           />
           {projects.length ? (
             <div className="mt-12">
-              <ProjectGrid projects={projects} />
+              <ProjectGrid projects={projects} headingLevel="h2" />
             </div>
           ) : (
             <p className="mt-12 text-slate-400">Novos projetos serão publicados em breve.</p>

@@ -40,28 +40,30 @@ export function FloatingWhatsApp({ href }: { href: string }) {
   }, []);
 
   return (
-    <a
-      aria-label="Falar pelo WhatsApp"
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      // Escondido também para o leitor de tela e fora da ordem de tabulação
-      // enquanto está invisível: um alvo transparente que recebe foco é pior do
-      // que um alvo que não existe.
-      aria-hidden={oculto}
-      tabIndex={oculto ? -1 : undefined}
-      style={{
-        // Em `style` porque combina unidade fixa com `env()`, que não existe na
-        // escala do Tailwind. A faixa inferior da tela é área do navegador em
-        // iOS Safari e no Chrome Android.
-        bottom: "calc(1rem + env(safe-area-inset-bottom, 0px))",
-        right: "calc(1rem + env(safe-area-inset-right, 0px))"
-      }}
-      className={`focus-ring fixed z-40 grid h-13 w-13 place-items-center rounded-full bg-[#25d366] text-slate-950 shadow-[0_10px_32px_rgba(37,211,102,.28)] transition hover:scale-105 active:scale-100 sm:h-14 sm:w-14 ${
-        oculto ? "pointer-events-none opacity-0" : "opacity-100"
-      }`}
-    >
-      <MessageCircle size={23} aria-hidden="true" />
-    </a>
+    <aside aria-label="Contato rápido" aria-hidden={oculto}>
+      <a
+        aria-label="Falar pelo WhatsApp"
+        href={href}
+        target="_blank"
+        rel="noreferrer"
+        // Escondido também para o leitor de tela e fora da ordem de tabulação
+        // enquanto está invisível: um alvo transparente que recebe foco é pior do
+        // que um alvo que não existe.
+        aria-hidden={oculto}
+        tabIndex={oculto ? -1 : undefined}
+        style={{
+          // Em `style` porque combina unidade fixa com `env()`, que não existe na
+          // escala do Tailwind. A faixa inferior da tela é área do navegador em
+          // iOS Safari e no Chrome Android.
+          bottom: "calc(1rem + env(safe-area-inset-bottom, 0px))",
+          right: "calc(1rem + env(safe-area-inset-right, 0px))"
+        }}
+        className={`focus-ring fixed z-40 grid h-13 w-13 place-items-center rounded-full bg-[#25d366] text-slate-950 shadow-[0_10px_32px_rgba(37,211,102,.28)] transition hover:scale-105 active:scale-100 sm:h-14 sm:w-14 ${
+          oculto ? "pointer-events-none opacity-0" : "opacity-100"
+        }`}
+      >
+        <MessageCircle size={23} aria-hidden="true" />
+      </a>
+    </aside>
   );
 }

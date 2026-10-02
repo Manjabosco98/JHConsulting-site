@@ -56,6 +56,14 @@ const SPAN_CLASS = {
   "6-6": "md:col-span-6"
 } as const;
 
+/** Tamanho da capa para o span real, evitando ampliar uma imagem de 1/3 em cards de 1/2 linha. */
+const IMAGE_SIZES = {
+  "3-2": "(min-width: 1024px) min(33vw, 380px), (min-width: 768px) 50vw, 100vw",
+  "6-2": "(min-width: 1024px) min(33vw, 380px), (min-width: 768px) 100vw, 100vw",
+  "3-3": "(min-width: 768px) min(50vw, 580px), 100vw",
+  "6-6": "(min-width: 1280px) 1180px, 100vw"
+} satisfies Record<keyof typeof SPAN_CLASS, string>;
+
 /** `${spanMd}-${spanLg}`. O span de `lg` decide também o formato do card. */
 type PlanKey = keyof typeof SPAN_CLASS;
 
@@ -85,7 +93,7 @@ function featuredFirst(projects: PublicProjectSummary[]): PublicProjectSummary[]
   return [...projects.filter((project) => project.featured), ...projects.filter((project) => !project.featured)];
 }
 
-export function ProjectGrid({ projects }: { projects: PublicProjectSummary[] }) {
+export function ProjectGrid({ projects, headingLevel = "h3" }: { projects: PublicProjectSummary[]; headingLevel?: "h2" | "h3" }) {
   const ordered = featuredFirst(projects);
   const plan = spanPlan(ordered.length);
 
@@ -99,6 +107,8 @@ export function ProjectGrid({ projects }: { projects: PublicProjectSummary[] }) 
               // Só o card que ocupa a linha inteira no desktop ganha o formato
               // de duas colunas; `6-2` é largo apenas no tablet.
               layout={key === "6-6" ? "wide" : "stacked"}
+              imageSizes={IMAGE_SIZES[key]}
+              headingLevel={headingLevel}
               project={{
                 title: project.title,
                 category: project.category,

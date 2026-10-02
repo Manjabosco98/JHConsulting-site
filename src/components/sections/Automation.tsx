@@ -1,49 +1,47 @@
-import { CheckCircle2, ChevronRight } from "lucide-react";
+import { Activity, Bot, CheckCircle2, ChevronRight, ClipboardList, ScanSearch, TrendingUp, type LucideIcon } from "lucide-react";
 import { automationBenefits, automationFlow } from "@/constants/content";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
+const ICONS = { ClipboardList, ScanSearch, Bot, Activity, TrendingUp } satisfies Record<string, LucideIcon>;
+
 export function Automation() {
   return (
-    <section className="section-space">
+    <section className="section-space rule-top">
       <div className="container-shell">
-        {/* Kicker removido: o título já começa com a palavra "Automação". */}
         <SectionHeading
           title="Automação não é apenas fazer tarefas mais rápido."
           copy="Automação significa criar processos mais confiáveis, padronizados, rastreáveis e escaláveis."
         />
-        {/*
-          * Coluna no telefone, linha a partir de `sm`.
-          *
-          * Cinco etapas não cabem numa linha de 320px, e `flex-wrap` resolvia isso
-          * quebrando onde sobrasse espaço: duas etapas numa linha, uma na outra,
-          * com as setas apontando para os lados em pontos arbitrários. A sequência,
-          * que é a única informação da lista, deixava de ser legível.
-          *
-          * Empilhada, cada etapa fica embaixo da anterior e a seta gira 90 graus
-          * para apontar para ela. É o mesmo componente e o mesmo ícone; só a
-          * direção do eixo muda, então não há regra por aparelho nem segunda
-          * marcação para o mobile.
-          *
-          * A seta continua vindo antes da etapa, e não depois: assim ela sempre
-          * acompanha o item para onde aponta, em qualquer largura e em qualquer
-          * ponto de quebra, e nunca sobra uma seta no fim apontando para o nada.
-          */}
-        <ol className="mt-10 flex flex-col items-center gap-2 sm:flex-row sm:flex-wrap">
-          {automationFlow.map((step, index) => (
-            <li key={step} className="flex flex-col items-center gap-2 sm:flex-row">
-              {index > 0 ? (
-                <ChevronRight className="shrink-0 rotate-90 text-slate-600 sm:rotate-0" size={18} aria-hidden="true" />
-              ) : null}
-              <span className="rounded-xl border border-blue-400/18 bg-blue-500/7 px-4 py-3 text-center text-sm font-bold">{step}</span>
-            </li>
-          ))}
+        <ol className="mt-10 grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 lg:gap-5">
+          {automationFlow.map(([step, description, icon], index) => {
+            const Icon = ICONS[icon];
+            return (
+              <li key={step} className="card relative min-w-0 rounded-2xl p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="icon-tile">
+                    <Icon size={18} aria-hidden="true" />
+                  </span>
+                  <span className="font-mono text-xs font-medium tabular-nums text-blue-200/65" aria-hidden="true">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                </div>
+                <h3 className="mt-5 text-base font-bold leading-snug">{step}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-400">{description}</p>
+                {index < automationFlow.length - 1 ? (
+                  <ChevronRight
+                    className="absolute -right-[1.1rem] top-8 z-10 hidden text-blue-300/45 lg:block"
+                    size={16}
+                    aria-hidden="true"
+                  />
+                ) : null}
+              </li>
+            );
+          })}
         </ol>
-        <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-7 flex flex-wrap gap-2">
           {automationBenefits.map((benefit) => (
-            <li key={benefit} className="flex items-center gap-3 rounded-xl border border-white/8 p-4 text-sm text-slate-300">
-              {/* Antes `text-emerald-400`: um terceiro acento, fora do azul e do
-                * ciano da identidade, usado só como enfeite de marcador. */}
-              <CheckCircle2 className="shrink-0 text-cyan-300" size={18} aria-hidden="true" />
+            <li key={benefit} className="inline-flex items-center gap-2 rounded-full border border-blue-400/15 bg-blue-500/5 px-3 py-2 text-sm text-slate-300">
+              <CheckCircle2 className="shrink-0 text-cyan-300" size={15} aria-hidden="true" />
               {benefit}
             </li>
           ))}

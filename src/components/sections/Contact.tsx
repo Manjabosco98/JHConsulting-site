@@ -59,8 +59,8 @@ function Field({ label, htmlFor, hint, optional, children }: {
      * baixo. Com o alinhamento no topo, a sobra fica embaixo do bloco e os seis
      * controles medem igual.
      */
-    <div className="grid content-start gap-2">
-      <label htmlFor={htmlFor} className="text-sm font-bold text-slate-300">
+    <div className="group grid content-start gap-2">
+      <label htmlFor={htmlFor} className="text-sm font-bold text-slate-300 transition-colors group-focus-within:text-blue-200">
         {label}
         {/* `slate-400` e não `slate-500`: #64748b sobre o fundo desta seção mede
           * 4,08:1, abaixo do mínimo de 4,5:1 da WCAG AA para texto pequeno. */}
@@ -102,8 +102,8 @@ export function Contact() {
   }
 
   return (
-    <section id="contato" className="section-space bg-white/[.018]">
-      <div className="container-shell grid gap-10 lg:grid-cols-[.8fr_1.2fr]">
+    <section id="contato" className="section-space border-t border-blue-400/5 bg-white/[.018]">
+      <div className="container-shell grid gap-10 lg:grid-cols-[.9fr_1.1fr] lg:gap-14">
         <div>
           <SectionHeading
             kicker="Contato"
@@ -112,7 +112,7 @@ export function Contact() {
           />
         </div>
 
-        <form onSubmit={onSubmit} className="card grid gap-5 rounded-3xl p-5 sm:grid-cols-2 sm:p-7">
+        <form onSubmit={onSubmit} className="grid gap-5 border-t border-blue-400/20 pt-7 sm:grid-cols-2">
           <Field label="Nome" htmlFor="contato-nome">
             <input id="contato-nome" name="name" required autoComplete="name" className={fieldClass} />
           </Field>
@@ -178,7 +178,7 @@ export function Contact() {
 
           <button
             disabled={status === "loading"}
-            className="focus-ring inline-flex items-center justify-center gap-2 rounded-xl border border-transparent bg-blue-600 px-5 py-3.5 font-bold transition hover:bg-blue-500 active:translate-y-px disabled:opacity-60 sm:col-span-2"
+            className="btn-primary focus-ring inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3.5 font-bold disabled:cursor-wait disabled:opacity-60 sm:col-span-2"
           >
             {status === "loading" ? "Enviando..." : "Enviar solicitação"}
             <Send size={17} aria-hidden="true" />
