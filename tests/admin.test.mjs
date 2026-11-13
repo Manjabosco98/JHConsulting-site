@@ -63,9 +63,9 @@ test("dashboard aggregates counts with the right filters and lists recent items"
 
 test("dashboard lists empty public contact fields; null when settings row is missing", async () => {
   const withRow = plain(await loadDashboard().getDashboardData(fakeDb(respond())));
-  assert.deepEqual(withRow.missingSettings, ["WhatsApp", "LinkedIn", "Foto profissional"]);
+  assert.deepEqual(withRow.missingSettings, ["WhatsApp"]);
   const missing = plain(await loadDashboard().getDashboardData(fakeDb(respond({
-    "site_settings select(email, whatsapp, linkedin_url, github_url, profile_image) single": { data: null, error: null }
+    "site_settings select(email, whatsapp) single": { data: null, error: null }
   }))));
   assert.equal(missing.missingSettings, null);
 });

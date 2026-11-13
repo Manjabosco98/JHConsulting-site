@@ -1,5 +1,5 @@
 export const DEFAULT_WHATSAPP_MESSAGE =
-  "Olá João, encontrei seu site da JHConsulting e gostaria de conversar sobre um projeto.";
+  "Olá, JHConsulting! Gostaria de conhecer as soluções para melhorar os processos e a gestão da minha empresa.";
 
 /**
  * wa.me link from a stored number (any formatting). Without a number, points to

@@ -4,7 +4,7 @@ import { useState, type ReactNode } from "react";
 import { Send } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
-const projectTypes = ["Automação", "Sistema", "API", "Integração", "Dashboard", "Dados", "Inteligência Artificial", "Consultoria", "Outro"];
+const serviceTypes = ["Automação", "Sistema", "API", "Integração", "Dashboard", "Dados", "Inteligência Artificial", "Consultoria", "Outro"];
 
 /*
  * Os campos de entrada usam `border-white/40`, e não o `border-white/10` do
@@ -107,8 +107,8 @@ export function Contact() {
         <div>
           <SectionHeading
             kicker="Contato"
-            title="Conte um pouco sobre o processo que você quer melhorar."
-            copy="Quanto mais contexto você enviar, melhor será o diagnóstico inicial. Não precisa definir a tecnologia: descreva o problema, a rotina atual e o resultado esperado."
+            title="Vamos entender o que a sua empresa precisa."
+            copy="Descreva a rotina que deseja melhorar e o resultado que busca. A JHConsulting analisa a necessidade e conversa com você sobre o caminho mais adequado."
           />
         </div>
 
@@ -137,7 +137,7 @@ export function Contact() {
           </Field>
 
           <div className="sm:col-span-2">
-            <Field label="Tipo de projeto" htmlFor="contato-tipo">
+            <Field label="Serviço de interesse" htmlFor="contato-tipo">
               {/*
                 * O `bg-[#0a101d]` que existia aqui saiu: era uma tentativa de
                 * escurecer a lista aberta, e não escurecia — a lista do <select>
@@ -153,7 +153,7 @@ export function Contact() {
                 */}
               <select id="contato-tipo" name="projectType" required defaultValue="" className={fieldClass}>
                 <option value="" disabled>Selecione</option>
-                {projectTypes.map((type) => <option key={type}>{type}</option>)}
+                {serviceTypes.map((type) => <option key={type}>{type}</option>)}
               </select>
             </Field>
           </div>

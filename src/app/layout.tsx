@@ -17,7 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL(siteConfig.url),
     title: {
-      default: `${settings.companyName}`,
+      default: `${settings.companyName} | Automação, dados e sistemas para empresas`,
       template: `%s | ${settings.companyName}`
     },
     // The meta description follows the panel, so it is editable without a deploy.
@@ -29,7 +29,7 @@ export async function generateMetadata(): Promise<Metadata> {
       locale: "pt_BR",
       url: siteConfig.url,
       siteName: settings.companyName,
-      title: `${settings.companyName} | Tecnologia aplicada a problemas reais`,
+      title: `${settings.companyName} | Automação e dados para uma gestão mais eficiente`,
       description: settings.description
     },
     twitter: { card: "summary_large_image", title: settings.companyName, description: settings.description },

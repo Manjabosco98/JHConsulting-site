@@ -16,10 +16,10 @@
  * porque ali o valor vem do painel e aqui vem do código.
  */
 export const authority = [
-  ["Automação", "Reduza tarefas manuais e repetitivas.", "Bot"],
-  ["Sistemas", "Tenha ferramentas alinhadas ao seu processo.", "Layers3"],
-  ["Integrações", "Conecte sistemas, APIs e bancos de dados.", "Network"],
-  ["Dados", "Transforme dados em decisões mais rápidas.", "ChartNoAxesCombined"]
+  ["Menos retrabalho", "Automações para simplificar rotinas repetitivas.", "Bot"],
+  ["Mais clareza na gestão", "Dashboards e dados para acompanhar o negócio.", "ChartNoAxesCombined"],
+  ["Informações conectadas", "Integrações entre sistemas e fontes de dados.", "Network"],
+  ["Operação sob medida", "Sistemas alinhados aos processos da empresa.", "Layers3"]
 ] as const;
 
 /**
@@ -80,32 +80,69 @@ export const workflowPhases = [
   {
     phase: "Descoberta",
     steps: [
-      ["Entendimento", "Análise do problema e do processo atual."],
-      ["Planejamento", "Definição da solução, arquitetura e tecnologias."]
+      ["Entendimento", "Conversa sobre a necessidade, a rotina atual e o resultado esperado."],
+      ["Proposta", "Alinhamento de escopo, entregas, responsabilidades, prazos e investimento."]
     ]
   },
   {
     phase: "Construção",
     steps: [
-      ["Desenvolvimento", "Construção da automação, sistema ou integração."],
-      ["Testes", "Validação técnica, funcional e de cenários críticos."]
+      ["Desenvolvimento", "Construção da solução com acompanhamento das entregas combinadas."],
+      ["Validação", "Testes e conferência do funcionamento com os responsáveis pela operação."]
     ]
   },
   {
     phase: "Operação",
     steps: [
-      ["Implantação", "Deploy, configuração e entrada em produção."],
-      ["Evolução", "Monitoramento, manutenção e melhorias contínuas."]
+      ["Implantação", "Configuração, entrada em operação e orientação para uso da solução."],
+      ["Evolução", "Suporte, manutenção e melhorias conforme as condições contratadas."]
     ]
   }
 ] as const;
 
 export const differentiators = [
-  ["Soluções personalizadas", "Cada projeto é construído conforme a necessidade real da empresa."],
-  ["Visão de processo", "Antes de automatizar, o processo é entendido e estruturado."],
-  ["Tecnologia adequada", "A ferramenta é escolhida pela necessidade, não pelo modismo."],
-  ["Escalabilidade", "A solução é pensada para evoluir sem virar um gargalo."],
-  ["Manutenção", "Possibilidade de acompanhamento, suporte e evolução contínua."]
+  ["Soluções sob medida", "O escopo considera as necessidades, os sistemas e o contexto da empresa."],
+  ["Entendimento do negócio", "A análise da rotina ajuda a definir prioridades antes do desenvolvimento."],
+  ["Entregas claras", "Escopo, responsabilidades e critérios de validação alinhados desde o início."],
+  ["Documentação e continuidade", "Orientações e organização técnica para facilitar o uso e a manutenção."],
+  ["Acompanhamento", "Possibilidade de suporte e evolução contínua, conforme o serviço contratado."]
+] as const;
+
+/** Illustrative applications of the services, not claims about completed work. */
+export const businessApplications = [
+  {
+    area: "Rotinas administrativas e contábeis",
+    outcome: "Menos tempo em tarefas repetitivas",
+    need: "Coletar documentos, consultar portais e consolidar planilhas pode ocupar boa parte do dia.",
+    delivery: "automações de coleta, organização e processamento de informações para reduzir etapas manuais."
+  },
+  {
+    area: "Gestão financeira",
+    outcome: "Mais visibilidade sobre os números",
+    need: "Informações espalhadas dificultam a leitura de receitas, despesas e resultados.",
+    delivery: "consolidação de dados e dashboards para acompanhar indicadores financeiros em um só lugar."
+  },
+  {
+    area: "Comercial e operação",
+    outcome: "Informação disponível para agir",
+    need: "Controles separados tornam mais difícil acompanhar vendas, atividades e pendências.",
+    delivery: "integrações e ferramentas internas para organizar o fluxo de trabalho e apoiar o acompanhamento da operação."
+  },
+  {
+    area: "Dados e documentos",
+    outcome: "Bases organizadas para decisões melhores",
+    need: "Arquivos de diferentes fontes e formatos exigem preparação antes de se tornarem úteis.",
+    delivery: "tratamento de dados, atualização de bases e recursos de IA para apoiar a consulta e a análise de informações."
+  }
+] as const;
+
+export const frequentlyAskedQuestions = [
+  ["Como solicitar uma proposta?", "Envie sua necessidade pelo formulário ou pelo WhatsApp. A JHConsulting conversa com você para entender o processo atual e definir o escopo, as entregas e as condições da proposta."],
+  ["Preciso saber qual tecnologia usar?", "Você pode começar descrevendo o problema e o resultado que espera. A escolha das ferramentas acontece a partir da análise da rotina, dos sistemas existentes e das condições de implantação."],
+  ["É possível integrar os sistemas que a empresa já utiliza?", "A viabilidade é analisada conforme os recursos de cada sistema, como APIs, arquivos e permissões de acesso. A proposta considera essas possibilidades e as limitações encontradas."],
+  ["O atendimento pode ser remoto?", "Sim. A JHConsulting está em Goiânia e atende empresas de todo o Brasil de forma remota. As necessidades de acesso e implantação são alinhadas durante o diagnóstico."],
+  ["Como são definidos os prazos e o investimento?", "Eles dependem do escopo, da complexidade, das integrações e das informações disponíveis. A proposta apresenta as entregas e as condições antes do início do serviço."],
+  ["Há suporte após a entrega?", "Suporte, manutenção e evolução podem fazer parte da contratação. O período, os canais e a abrangência do atendimento são definidos na proposta."]
 ] as const;
 
 export const automationFlow = [

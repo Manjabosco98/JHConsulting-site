@@ -55,13 +55,13 @@ const saved = await postForm("/admin/configuracoes", pageHtml, "settings",
 check("salvar: 200 com confirmação", saved.status === 200 && text(await saved.text()).includes("Configurações salvas."), `${saved.status}`);
 
 const home = await body("/");
-check("home mostra o cargo salvo", home.includes(`Cargo E2E ${stamp}`));
-check("home mostra os parágrafos da bio", home.includes(`Primeiro parágrafo E2E ${stamp}.`) && home.includes("Segundo parágrafo E2E."));
-check("rodapé lista LinkedIn, GitHub, Instagram e e-mail", home.includes(linkedin) && home.includes(github) && home.includes(instagram) && home.includes(`mailto:${email}`));
+check("cargo do responsável permanece interno", !home.includes(`Cargo E2E ${stamp}`));
+check("biografia anterior permanece interna", !home.includes(`Primeiro parágrafo E2E ${stamp}.`) && !home.includes("Segundo parágrafo E2E."));
+check("rodapé prioriza contato comercial, sem perfis pessoais", !home.includes(linkedin) && !home.includes(github) && !home.includes(instagram) && home.includes(`mailto:${email}`));
 check("links de WhatsApp usam o número salvo", home.includes("https://wa.me/5562912345678"));
 check("Schema.org inclui e-mail e redes", home.includes(`\\"email\\":\\"${email}\\"`) || home.includes(`"email":"${email}"`));
 const projectsPage = await body("/projetos");
-check("páginas internas também refletem as configurações", projectsPage.includes(linkedin) && projectsPage.includes("https://wa.me/5562912345678"));
+check("rota legada não expõe dados pessoais", !projectsPage.includes(linkedin) && !projectsPage.includes(bio));
 
 // Foto profissional
 const photoPage = await (await get("/admin/configuracoes", jar)).text();
@@ -75,13 +75,13 @@ check("foto salva em settings/<uuid>", /^settings\/[0-9a-f-]{36}\.png$/.test(pho
 const served = await fetch(`${URL_}/storage/v1/object/public/portfolio/${photoPath}`);
 check("foto acessível pela URL pública", served.status === 200 && served.headers.get("content-type") === "image/png", `${served.status}`);
 const aboutHome = await body("/");
-check("seção Sobre passa a exibir a foto", aboutHome.includes(encodeURIComponent(`${URL_}/storage/v1/object/public/portfolio/${photoPath}`)) && !aboutHome.includes("Configurável no painel"));
+check("foto anterior permanece fora da página pública", !aboutHome.includes(photoPath) && !aboutHome.includes(encodeURIComponent(photoPath)));
 
 const removed = await postForm("/admin/configuracoes", await (await get("/admin/configuracoes", jar)).text(), "photo", { intent: "remove" }, jar);
 check("remover foto: confirmação, coluna nula e objeto apagado", text(await removed.text()).includes("Foto removida.")
   && (await admin.from("site_settings").select("profile_image").eq("id", 1).single()).data.profile_image === null
   && ((await admin.storage.from("portfolio").list("settings")).data ?? []).length === 0);
-check("placeholder volta na seção Sobre", (await body("/")).includes("Configurável no painel"));
+check("site empresarial não tem placeholder de retrato", !(await body("/")).includes("Configurável no painel"));
 
 // Não-admin e anônimo
 const outside = new Map();
@@ -102,7 +102,7 @@ check("restaurar: confirmação", text(await restore.text()).includes("Configura
 const finalRow = (await admin.from("site_settings").select(columns).eq("id", 1).single()).data;
 const changed = Object.keys(original).filter((key) => (original[key] ?? null) !== (finalRow[key] ?? null));
 check("banco restaurado ao estado original", changed.length === 0, JSON.stringify(changed));
-check("home volta ao conteúdo original", (await body("/")).includes(original.role) && !(await body("/")).includes(`Cargo E2E ${stamp}`));
+check("home continua institucional após restauração", (await body("/")).includes('id="empresa"') && !(await body("/")).includes(`Cargo E2E ${stamp}`));
 check("sem objetos no Storage", ((await admin.storage.from("portfolio").list("settings")).data ?? []).length === 0);
 check("contatos voltam a não aparecer", !(await body("/")).includes(`mailto:${email}`) && ((await pub.from("site_settings").select("email").eq("id", 1).single()).data.email ?? null) === (original.email ?? null));
 

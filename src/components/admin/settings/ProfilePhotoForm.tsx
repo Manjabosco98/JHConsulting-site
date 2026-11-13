@@ -37,8 +37,9 @@ export function ProfilePhotoForm({ action, currentUrl, professionalName }: Props
 
       <div className="grid content-start gap-4">
         <div>
-          <h2 className="font-black">Foto profissional</h2>
-          <p className="mt-1 text-sm text-slate-400">Aparece na seção Sobre. JPEG, PNG, WebP ou AVIF, até 5 MB. Proporção recomendada 3:4 (retrato).</p>
+          <h2 className="font-black">Foto do responsável (registro anterior)</h2>
+          <p className="text-sm leading-6 text-slate-400">A foto é mantida para consulta e não aparece no site empresarial.</p>
+          <p className="mt-1 text-sm text-slate-400">JPEG, PNG, WebP ou AVIF, até 5 MB. Proporção recomendada 3:4 (retrato).</p>
         </div>
         <label className="grid gap-2 text-sm font-bold text-slate-300">
           Arquivo
@@ -66,7 +67,7 @@ export function ProfilePhotoForm({ action, currentUrl, professionalName }: Props
               value="remove"
               disabled={pending}
               question="Remover a foto profissional?"
-              detail="A imagem é apagada do armazenamento e a seção Sobre fica sem foto até você enviar outra."
+              detail="A imagem é apagada do armazenamento. O site empresarial não exibe esta foto."
               confirmLabel="Remover foto"
               className="focus-ring inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-slate-200 hover:bg-white/5 disabled:opacity-50"
             >

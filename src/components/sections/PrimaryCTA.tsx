@@ -37,10 +37,10 @@ export async function PrimaryCTA() {
           <div className="relative z-10 grid gap-8 lg:grid-cols-[1.5fr_auto] lg:items-center lg:gap-14">
             <div>
               <h2 className="section-title mt-0">
-                Existe algum processo na sua empresa que toma tempo demais?
+                Mais clareza para gerir. Mais tempo para avançar.
               </h2>
               <p className="section-copy">
-                Talvez ele possa ser automatizado, integrado ou transformado em um sistema simples e confiável.
+                Converse com a JHConsulting sobre o que sua empresa precisa melhorar e conheça as possibilidades para sua operação.
               </p>
             </div>
             {/*
@@ -56,7 +56,7 @@ export async function PrimaryCTA() {
                 href="#contato"
                 className="btn-invert focus-ring inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-center font-bold"
               >
-                Quero analisar meu processo <ArrowRight size={18} aria-hidden="true" className="shrink-0" />
+                Enviar minha necessidade <ArrowRight size={18} aria-hidden="true" className="shrink-0" />
               </a>
               <a
                 href={whatsappLink(settings.whatsapp)}
@@ -64,7 +64,7 @@ export async function PrimaryCTA() {
                 rel="noreferrer"
                 className="btn-ghost focus-ring inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-center font-bold"
               >
-                <MessageCircle size={18} aria-hidden="true" className="shrink-0" /> Solicitar orçamento
+                <MessageCircle size={18} aria-hidden="true" className="shrink-0" /> Falar pelo WhatsApp
               </a>
             </div>
           </div>

@@ -54,17 +54,17 @@ export function SettingsForm({ action, initialValues }: Props) {
           <Row name="company_name" label="Nome da empresa" error={errors.company_name}>
             <input {...bind("company_name")} required maxLength={160} />
           </Row>
-          <Row name="professional_name" label="Nome do profissional" error={errors.professional_name}>
+          <Row name="professional_name" label="Nome do responsável" hint="Registro interno; não aparece no site empresarial." error={errors.professional_name}>
             <input {...bind("professional_name")} required maxLength={160} />
           </Row>
-          <Row name="role" label="Cargo" hint="Exibido abaixo do nome no topo do site." error={errors.role}>
+          <Row name="role" label="Cargo" hint="Registro interno; não aparece no site empresarial." error={errors.role}>
             <input {...bind("role")} required maxLength={250} />
           </Row>
           <Row name="description" label="Descrição curta" hint="Usada em metadados e compartilhamento." error={errors.description}>
             <textarea {...bind("description")} required rows={3} maxLength={4000} />
           </Row>
         </div>
-        <Row name="bio" label="Sobre (bio)" hint="Texto da seção Sobre. Separe parágrafos com uma linha em branco." error={errors.bio}>
+        <Row name="bio" label="Biografia anterior" hint="Preservada para consulta. A apresentação pública da empresa usa o texto institucional do site." error={errors.bio}>
           <textarea {...bind("bio")} rows={8} maxLength={20000} />
         </Row>
       </fieldset>
@@ -95,6 +95,7 @@ export function SettingsForm({ action, initialValues }: Props) {
       <fieldset className="card grid gap-5 rounded-2xl p-5 sm:p-6">
         <legend className="sr-only">Redes sociais</legend>
         <h2 aria-hidden="true" className="font-black">Redes sociais</h2>
+        <p className="text-sm text-slate-400">Links anteriores preservados para consulta. O site empresarial prioriza os canais de contato comercial e não exibe perfis pessoais.</p>
         <div className="grid gap-5 md:grid-cols-2">
           <Row name="linkedin_url" label="LinkedIn" error={errors.linkedin_url}>
             <input {...bind("linkedin_url")} type="url" inputMode="url" maxLength={2048} placeholder="https://www.linkedin.com/in/..." />

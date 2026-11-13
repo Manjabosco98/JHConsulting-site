@@ -9,14 +9,12 @@
  */
 export const siteConfig = {
   name: "JHConsulting",
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://seudominio.com.br",
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://jhconsulting.com.br",
   nav: [
     ["Início", "#inicio"],
-    ["Soluções", "#solucoes"],
+    ["Empresa", "#empresa"],
     ["Serviços", "#servicos"],
-    ["Projetos", "#projetos"],
-    ["Tecnologias", "#tecnologias"],
-    ["Sobre", "#sobre"],
+    ["Como trabalhamos", "#como-trabalhamos"],
     ["Contato", "#contato"]
   ] as const
 };

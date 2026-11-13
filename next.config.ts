@@ -39,6 +39,10 @@ if ((process.env.NEXT_PUBLIC_SITE_URL ?? "").startsWith("https://")) {
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  async redirects() {
+    // Redirect before rendering, so metadata streaming cannot turn the 308 into a 200.
+    return [{ source: "/projetos/:path*", destination: "/#servicos", permanent: true }];
+  },
   images: {
     remotePatterns: supabaseUrl
       ? [new URL(`${supabaseUrl.replace(/\/$/, "")}/storage/v1/object/public/portfolio/**`)]

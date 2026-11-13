@@ -1,62 +1,35 @@
-import { Github, Instagram, Linkedin, Mail } from "lucide-react";
+import { Mail, MessageCircle, MapPin } from "lucide-react";
 import { siteConfig } from "@/constants/site";
 import { getSiteSettings } from "@/lib/repositories/public-settings";
+import { whatsappLink } from "@/lib/whatsapp";
 
-// `rounded-full`: botão de ícone, conforme a escala de raios em globals.css.
-const socialClass = "focus-ring rounded-full border border-blue-400/15 bg-white/[.02] p-2.5 text-slate-300 transition hover:border-blue-300/40 hover:bg-white/5 hover:text-white";
-
-/**
- * `internal` existe pelo mesmo motivo que na Navbar, e a falta dele aqui era um
- * link quebrado: as âncoras do rodapé eram sempre relativas (`#servicos`), e o
- * rodapé aparece também em /projetos e /projetos/[slug], onde não existe nenhuma
- * dessas seções. Clicar em "Serviços" no rodapé de uma página de projeto não
- * fazia nada. Com `internal`, o alvo passa a ser `/#servicos`.
- */
 export async function Footer({ internal = false }: { internal?: boolean } = {}) {
   const settings = await getSiteSettings();
-  const to = (href: string) => (internal ? `/${href}` : href);
-  // The wordmark is the logo treatment, not data: it stays in markup.
+  const to = (href: string) => internal ? `/${href}` : href;
   return (
-    /*
-     * `section-space-tight` no lugar de `py-10`: meia medida do ritmo das seções,
-     * que acompanha a viewport como o resto da página em vez de ficar cravada em
-     * 40px.
-     *
-     * A última coluna é `auto` e não `1fr`: com três frações, a coluna dos ícones
-     * ficava com 295px para ocupar 200px, e sobrava um vão à direita do rodapé.
-     * Dimensionada pelo conteúdo, ela encosta na margem e a folga vai para a
-     * coluna de navegação.
-     */
     <footer className="section-space-tight border-t border-blue-400/10 bg-navy">
-      <div className="container-shell grid gap-8 md:grid-cols-[1.5fr_1fr_auto] md:gap-12">
+      <div className="container-shell grid gap-9 md:grid-cols-[1.3fr_1fr_1.2fr] md:gap-10">
         <div>
           <p className="text-lg font-black">JH<span className="text-blue-400">Consulting</span></p>
-          <p className="mt-3 max-w-md text-sm leading-7 text-slate-400">Tecnologia, automação e dados aplicados a negócios.</p>
+          <p className="mt-3 max-w-sm text-sm leading-7 text-slate-400">Automação, dados e sistemas para simplificar processos e apoiar a gestão da sua empresa.</p>
         </div>
         <div>
-          <p className="text-sm font-bold">Navegação</p>
-          <div className="mt-3 grid grid-cols-2 gap-x-8 gap-y-2 text-sm text-slate-400 md:grid-cols-1 lg:grid-cols-2">
-            {siteConfig.nav.slice(0, 5).map(([label, href]) => <a key={href} href={to(href)} className="focus-ring rounded transition hover:text-white">{label}</a>)}
-          </div>
+          <p className="text-sm font-bold">A empresa</p>
+          <nav aria-label="Navegação do rodapé" className="mt-4 grid gap-3 text-sm text-slate-300">
+            {siteConfig.nav.map(([label, href]) => <a key={href} href={to(href)} className="focus-ring w-fit rounded transition hover:text-white">{label}</a>)}
+          </nav>
         </div>
         <div>
-          <p className="text-sm font-bold">Conecte-se</p>
-          <div className="mt-4 flex gap-3">
-            {settings.linkedinUrl ? <a aria-label="LinkedIn" href={settings.linkedinUrl} target="_blank" rel="noreferrer" className={socialClass}><Linkedin size={18} aria-hidden="true" /></a> : null}
-            {settings.githubUrl ? <a aria-label="GitHub" href={settings.githubUrl} target="_blank" rel="noreferrer" className={socialClass}><Github size={18} aria-hidden="true" /></a> : null}
-            {settings.instagramUrl ? <a aria-label="Instagram" href={settings.instagramUrl} target="_blank" rel="noreferrer" className={socialClass}><Instagram size={18} aria-hidden="true" /></a> : null}
-            {settings.email ? <a aria-label="E-mail" href={`mailto:${settings.email}`} className={socialClass}><Mail size={18} aria-hidden="true" /></a> : null}
+          <p className="text-sm font-bold">Contato comercial</p>
+          <div className="mt-4 grid gap-4 text-sm leading-6 text-slate-300">
+            {settings.whatsapp ? <a href={whatsappLink(settings.whatsapp)} target="_blank" rel="noreferrer" className="focus-ring flex w-fit items-center gap-3"><MessageCircle className="shrink-0 text-blue-300" size={18} aria-hidden="true" />Falar pelo WhatsApp</a> : null}
+            {settings.email ? <a href={`mailto:${settings.email}`} className="focus-ring flex w-fit items-start gap-3 break-all"><Mail className="mt-1 shrink-0 text-blue-300" size={18} aria-hidden="true" />{settings.email}</a> : null}
+            {settings.location ? <p className="flex items-start gap-3"><MapPin className="mt-1 shrink-0 text-blue-300" size={18} aria-hidden="true" />{settings.location}</p> : null}
+            {settings.serviceArea ? <p className="text-slate-400">{settings.serviceArea}</p> : null}
           </div>
         </div>
       </div>
-      {/* `slate-400` e não `slate-500`: #64748b sobre o fundo da página mede
-        * 4,08:1, abaixo do mínimo de 4,5:1 da WCAG AA — e aqui o texto ainda é
-        * `text-xs`, o caso em que o mínimo mais importa. */}
-      {/* `pr-16` no telefone: o rodapé é o fim da página, e é ali que o botão
-        * flutuante do WhatsApp (52px no canto inferior direito) para de passar
-        * por cima de conteúdo que rola e fica parado sobre esta linha. O recuo
-        * reserva a faixa dele para que o texto nunca corra por baixo. */}
-      <div className="container-shell mt-8 border-t border-white/5 pr-16 pt-6 text-xs text-slate-400 sm:pr-0">
+      <div className="container-shell mt-8 border-t border-white/5 pr-16 pt-6 text-xs leading-6 text-slate-400 sm:pr-0">
         © {new Date().getFullYear()} {settings.companyName}. Todos os direitos reservados.
       </div>
     </footer>

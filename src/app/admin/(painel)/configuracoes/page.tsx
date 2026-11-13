@@ -29,7 +29,7 @@ export default async function AdminSettingsPage() {
     settingsTextFields.map((field) => [field, settings?.[field] ?? ""])
   ) as SettingsFormValues;
 
-  const pending = (["email", "whatsapp", "linkedin_url", "github_url"] as const)
+  const pending = (["email", "whatsapp"] as const)
     .filter((field) => !values[field])
     .map((field) => labels[field]);
 
