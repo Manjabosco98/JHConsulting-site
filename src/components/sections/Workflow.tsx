@@ -15,9 +15,10 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
  */
 export function Workflow() {
   return (
-    <section className="section-space bg-white/[.018]">
+    <section id="como-trabalhamos" className="section-space bg-white/[.018]">
       <div className="container-shell">
-        <SectionHeading title="Como funciona um projeto" />
+        <SectionHeading kicker="Como trabalhamos" title="Da necessidade à solução em operação."
+          copy="Um processo claro para alinhar expectativas, validar as entregas e colocar a tecnologia a serviço da empresa." />
         <ol className="mt-12 border-t border-white/8">
           {workflowPhases.map(({ phase, steps }) => (
             <li key={phase} className="grid gap-5 border-b border-white/8 py-8 md:grid-cols-[10rem_1fr] md:gap-10">

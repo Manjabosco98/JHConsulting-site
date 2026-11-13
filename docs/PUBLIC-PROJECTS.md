@@ -1,3 +1,7 @@
+# Projetos públicos (histórico)
+
+> Fluxo retirado do site empresarial. As rotas antigas retornam HTTP 308 para `/#servicos`. Os registros internos foram preservados. Consulte [SITE-INSTITUCIONAL.md](SITE-INSTITUCIONAL.md). A documentação abaixo descreve o comportamento anterior.
+
 # Projetos públicos (Fase 9)
 
 As páginas públicas que mostram projetos leem do Supabase Cloud pela conta anônima; o RLS já limita a projetos publicados e não arquivados e às tecnologias visíveis.

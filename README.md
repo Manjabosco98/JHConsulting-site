@@ -1,6 +1,11 @@
-# JHConsulting — Site institucional e portfólio
+# JHConsulting — Site empresarial
 
-Next.js existente, com evolução incremental para conteúdo administrável no Supabase Cloud. Projetos, serviços, tecnologias, informações institucionais e contatos vêm do Supabase (com ISR e revalidação on-demand). `src/constants/content.ts` guarda apenas o texto editorial da página, que não é conteúdo administrável. O formulário usa Zod, honeypot, rate limit, grava o lead no banco e avisa por Resend.
+A página pública apresenta a empresa, seus serviços, aplicações no negócio, forma de trabalho, perguntas frequentes e contato. Não exibe biografia pessoal, retrato, projetos, perfis pessoais ou vitrine de tecnologias. As URLs antigas `/projetos` e `/projetos/*` retornam HTTP 308 para `/#servicos`. O sitemap lista somente a página institucional. Os registros anteriores permanecem no painel, sem publicação.
+
+Detalhes e validação em [docs/SITE-INSTITUCIONAL.md](docs/SITE-INSTITUCIONAL.md). Regressão pública sem gravar dados ou enviar e-mail: com o servidor em execução, rode `E2E_BASE_URL=http://127.0.0.1:4173 node tests/e2e/public-projects.e2e.mjs`.
+
+
+Next.js com catálogo de serviços, contatos e informações institucionais administráveis no Supabase Cloud, com ISR e revalidação on-demand. `src/constants/content.ts` guarda apenas o texto editorial da página, que não é conteúdo administrável. O formulário usa Zod, honeypot, rate limit, grava o lead no banco e avisa por Resend.
 
 ## Stack
 

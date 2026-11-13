@@ -235,13 +235,13 @@ export async function Hero() {
       <div className={LAYOUT}>
         <div className="hero-copy">
           <p className="hero-badge">
-            <CheckCircle2 size={14} aria-hidden="true" /> Tecnologia aplicada a problemas reais de negócios
+            <CheckCircle2 size={14} aria-hidden="true" /> Tecnologia para a operação da sua empresa
           </p>
           <h1 className="hero-title mt-7">
-            Transformo processos manuais em soluções <span className="text-gradient">inteligentes.</span>
+            Automação e dados para uma gestão <span className="text-gradient">mais eficiente.</span>
           </h1>
           <p className="mt-6 max-w-[46ch] text-base leading-8 text-slate-300 sm:text-lg">
-            Sistemas, automações, integrações e dados para empresas que querem operar com menos trabalho manual.
+            A JHConsulting desenvolve automações, dashboards, integrações e sistemas sob medida para simplificar processos e apoiar decisões na sua empresa.
           </p>
           <div className="mt-9 grid gap-3 sm:flex sm:flex-wrap">
             <a
@@ -250,13 +250,13 @@ export async function Hero() {
               rel="noreferrer"
               className="btn-primary focus-ring inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3.5 font-bold"
             >
-              Solicitar orçamento <ArrowRight size={18} aria-hidden="true" />
+              Conversar sobre minha necessidade <ArrowRight className="shrink-0" size={18} aria-hidden="true" />
             </a>
             <a
-              href="#solucoes"
+              href="#servicos"
               className="btn-ghost focus-ring inline-flex items-center justify-center rounded-xl px-5 py-3.5 font-bold text-slate-200"
             >
-              Conhecer soluções
+              Conhecer os serviços
             </a>
           </div>
         </div>

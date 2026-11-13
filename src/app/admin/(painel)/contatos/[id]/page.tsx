@@ -86,7 +86,7 @@ export default async function AdminContactPage({ params, searchParams }: Props) 
           </Field>
           <Field label="WhatsApp">{contact.whatsapp || <span className="text-slate-500">Não informado</span>}</Field>
           <Field label="Empresa">{contact.company || <span className="text-slate-500">Não informada</span>}</Field>
-          <Field label="Tipo de projeto">{contact.project_type}</Field>
+          <Field label="Serviço de interesse">{contact.project_type}</Field>
           <Field label="Origem">{contact.source}</Field>
           <Field label="Última atualização">{formatDateTime(contact.updated_at)}</Field>
         </dl>

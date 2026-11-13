@@ -8,7 +8,8 @@ export function Differentials() {
   return (
     <section className="section-space">
       <div className="container-shell">
-        <SectionHeading title="A JHConsulting não vende apenas código. Analisa processos e desenvolve soluções." />
+        <SectionHeading title="Compromisso com a operação, do início à evolução."
+          copy="Uma atuação que conecta entendimento do negócio, qualidade técnica e clareza em cada entrega." />
 
         <div className="mt-12 grid gap-x-10 gap-y-8 md:grid-cols-2 lg:grid-cols-6">
           {differentiators.map(([title, description], index) => {

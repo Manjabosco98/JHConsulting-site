@@ -19,10 +19,7 @@ export type DashboardData = {
 
 const settingsFields = {
   email: "E-mail",
-  whatsapp: "WhatsApp",
-  linkedin_url: "LinkedIn",
-  github_url: "GitHub",
-  profile_image: "Foto profissional"
+  whatsapp: "WhatsApp"
 } as const;
 
 function fail(what: string, error: { message: string }): never {
@@ -56,7 +53,7 @@ export async function getDashboardData(supabase: Client): Promise<DashboardData>
         .order("created_at", { ascending: false }).limit(5),
       supabase.from("projects").select("id, title, published, archived_at, updated_at")
         .order("updated_at", { ascending: false }).limit(5),
-      supabase.from("site_settings").select("email, whatsapp, linkedin_url, github_url, profile_image").maybeSingle()
+      supabase.from("site_settings").select("email, whatsapp").maybeSingle()
     ]);
 
   if (recentContacts.error) fail("recent contacts", recentContacts.error);
