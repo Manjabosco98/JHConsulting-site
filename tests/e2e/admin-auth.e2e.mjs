@@ -25,7 +25,7 @@ check("robots.txt bloqueia /admin", /Disallow: \/admin/.test(robots), robots);
 const anon = await get("/admin");
 check("anon /admin -> 307 /admin/login", anon.status === 307 && anon.headers.get("location")?.endsWith("/admin/login"), `${anon.status} ${anon.headers.get("location")}`);
 check("anon /admin noindex (header)", anon.headers.get("x-robots-tag") === "noindex, nofollow");
-const deep = await get("/admin/projetos/qualquer");
+const deep = await get("/admin/servicos/qualquer");
 check("anon rota profunda -> 307 /admin/login", deep.status === 307 && deep.headers.get("location")?.endsWith("/admin/login"));
 const loginRes = await get("/admin/login");
 const loginHtml = await loginRes.text();
@@ -66,24 +66,22 @@ check("cookie com SameSite=Lax e Path=/", /samesite=lax/i.test(setCookie) && /pa
 check("resposta de login com Cache-Control no-store", /no-store/.test(ok.headers.get("cache-control") ?? ""), ok.headers.get("cache-control"));
 const panel = await get("/admin", jar);
 const panelHtml = await panel.text();
-check("admin /admin 200 com dashboard", panel.status === 200 && panelHtml.includes("<h1") && panelHtml.includes("Dashboard") && panelHtml.includes("e2e-admin@test.invalid"), `${panel.status}`);
+check("admin /admin 200 com dashboard", panel.status === 200 && panelHtml.includes("<h1") && panelHtml.includes("Visão geral") && panelHtml.includes("e2e-admin@test.invalid"), `${panel.status}`);
 check("painel noindex", /<meta name="robots" content="noindex, nofollow"/.test(panelHtml));
 
 // 6b. Admin base (Fase 6): navegação, números reais e seções protegidas
-const sections = ["/admin/projetos", "/admin/servicos", "/admin/tecnologias", "/admin/contatos", "/admin/configuracoes"];
-check("sidebar com as 6 entradas", ["/admin", ...sections].every((href) => panelHtml.includes(`href="${href}"`)));
+const sections = ["/admin/servicos", "/admin/tecnologias", "/admin/contatos", "/admin/configuracoes"];
+check("navegação empresarial sem projetos", ["/admin", ...sections].every((href) => panelHtml.includes(`href="${href}"`)));
 check("dashboard marcado como página atual", /aria-current="page"[^>]*href="\/admin"|href="\/admin"[^>]*aria-current="page"/.test(panelHtml));
 const { createClient } = await import("@supabase/supabase-js");
 const pub = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY);
 const publicCount = async (table, filter) => (await filter(pub.from(table).select("id", { count: "exact", head: true }))).count;
-const published = await publicCount("projects", (q) => q.eq("published", true));
 const activeServices = await publicCount("services", (q) => q.eq("active", true));
-const activeTechs = await publicCount("technologies", (q) => q.eq("active", true));
 const text = panelHtml.replace(/<!-- -->/g, "");
-check(`dashboard mostra ${published} projetos publicados`, text.includes(`${published} publicados`));
-check(`dashboard mostra ${activeServices} serviços ativos`, text.includes(`${activeServices} ativos`));
-check(`dashboard mostra ${activeTechs} tecnologias ativas`, text.includes(`${activeTechs} ativas`));
-check("dashboard aponta campos públicos pendentes", text.includes("Campos públicos sem preenchimento") || text.includes("Informações de contato completas"));
+check("visão geral sem projetos ou atualizações de portfólio", !text.includes('href="/admin/projetos') && !text.includes("Projetos atualizados"));
+check(`visão geral mostra ${activeServices} serviços ativos`, /Serviços no site/.test(text) && text.includes(String(activeServices)));
+check("cadastro técnico recolhido", text.includes("Configurações técnicas"));
+check("dashboard aponta campos públicos pendentes", text.includes("Complete os canais de contato") || text.includes("Os canais de contato estão preenchidos"));
 for (const path of sections) {
   const page = await get(path, jar);
   const html = page.status === 200 ? await page.text() : "";

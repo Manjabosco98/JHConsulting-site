@@ -43,7 +43,7 @@ export default async function AdminServicesPage({ searchParams }: { searchParams
                   <div className="min-w-0">
                     <p className="truncate font-bold">{service.title}</p>
                     <p className="mt-1 truncate text-sm text-slate-400">
-                      /{service.slug} · ordem {service.display_order}{service.tech ? ` · ${service.tech}` : ""}
+                      Ordem {service.display_order} · {service.active ? "Visível no site" : "Fora do site"}
                     </p>
                   </div>
                   <div className="flex items-center gap-3 text-xs sm:justify-end">

@@ -62,13 +62,15 @@ src/app/admin/
 | Rótulos de status e datas (pt-BR, America/Sao_Paulo) | `src/lib/admin/labels.ts` |
 | Dados do dashboard | `src/lib/repositories/dashboard.ts` |
 
-**Dashboard:** contagens de projetos (publicados, rascunhos e arquivados), serviços e tecnologias (ativos), contatos (novos), além dos 5 últimos contatos, dos 5 projetos atualizados mais recentemente e dos campos públicos vazios em `site_settings`. As consultas usam o cliente da sessão, então o RLS continua valendo. Erros vão para o log do servidor, e a página mostra só uma mensagem genérica.
+**Visão geral empresarial:** contagens exatas por status de contato, serviços ativos, cinco contatos recentes em aberto, catálogo resumido e pendências de e-mail/WhatsApp. Não consulta projetos ou tecnologias. As consultas usam o cliente da sessão, então o RLS continua valendo. Erros vão para o log do servidor, e a página mostra só uma mensagem genérica. Veja [PAINEL-EMPRESARIAL.md](PAINEL-EMPRESARIAL.md).
 
 **Repositórios:** ficam em `src/lib/repositories/`, são `server-only` e recebem o cliente Supabase da requisição. As fases de CRUD seguem esse padrão.
 
 **Tipografia de botões:** `globals.css` (preexistente) declara `button, input, textarea, select { font: inherit; }` fora de `@layer`. No Tailwind 4 isso vence utilitários como `text-sm`/`font-bold` nesses elementos. No admin, tamanho e peso vão no elemento pai. Correção global prevista para a Fase 16, porque afeta também o botão do formulário público.
 
-## CRUD de projetos (Fase 7)
+## CRUD de projetos (Fase 7 — registro histórico)
+
+**Estado atual:** módulo retirado da interface empresarial. As URLs abaixo redirecionam para `/admin` antes da renderização. Registros, schema e implementação legada foram preservados; a tabela descreve o comportamento anterior.
 
 | Rota | Função |
 |---|---|

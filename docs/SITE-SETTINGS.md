@@ -16,7 +16,7 @@ O wordmark JHConsulting continua em markup. Os textos da apresentação, método
 
 ## Painel
 
-`/admin/configuracoes` preserva os formulários e registros anteriores. As instruções deixam claro quais campos são internos. A ausência de redes pessoais ou de retrato não gera alerta de conteúdo público pendente; apenas e-mail e WhatsApp são sinalizados.
+`/admin/configuracoes` prioriza empresa, apresentação, canais comerciais e atendimento. Dados do responsável, redes pessoais e imagem anteriores ficam em seções recolhidas, com seus valores preservados. Campos recolhidos continuam no formulário e erros de validação abrem a seção correspondente. As instruções deixam claro quais campos são internos. A ausência de redes pessoais ou de retrato não gera alerta de conteúdo público pendente; apenas e-mail e WhatsApp são sinalizados.
 
 A gravação permanece um upsert da linha 1. Campos opcionais vazios são gravados como NULL. A lógica de autorização, upload, rollback e remoção de imagens foi preservada. Não houve alteração do schema ou das permissões.
 

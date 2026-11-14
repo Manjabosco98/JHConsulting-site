@@ -41,7 +41,10 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   async redirects() {
     // Redirect before rendering, so metadata streaming cannot turn the 308 into a 200.
-    return [{ source: "/projetos/:path*", destination: "/#servicos", permanent: true }];
+    return [
+      { source: "/projetos/:path*", destination: "/#servicos", permanent: true },
+      { source: "/admin/projetos/:path*", destination: "/admin", permanent: false }
+    ];
   },
   images: {
     remotePatterns: supabaseUrl
