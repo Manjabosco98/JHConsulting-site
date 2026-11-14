@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, ChevronDown } from "lucide-react";
 import { requireAdminWith } from "@/lib/auth/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getAdminSettings } from "@/lib/repositories/settings";
@@ -37,7 +37,7 @@ export default async function AdminSettingsPage() {
     <div className="grid gap-6">
       <AdminPageHeader
         title="Configurações"
-        description={settings?.updated_at ? `Informações institucionais, contato público e redes sociais. Atualizado em ${formatDateTime(settings.updated_at)}.` : "Informações institucionais, contato público e redes sociais."}
+        description={settings?.updated_at ? `Dados da empresa e canais de atendimento. Atualizado em ${formatDateTime(settings.updated_at)}.` : "Dados da empresa e canais de atendimento."}
       />
 
       {pending.length ? (
@@ -47,13 +47,14 @@ export default async function AdminSettingsPage() {
         </p>
       ) : null}
 
-      <ProfilePhotoForm
-        action={updateProfilePhotoAction}
-        currentUrl={publicImageUrl(settings?.profile_image)}
-        professionalName={values.professional_name || "profissional"}
-      />
-
       <SettingsForm action={saveSettingsAction} initialValues={values} />
+
+      <details className="card group rounded-2xl p-5 sm:p-6">
+        <summary className="focus-ring flex cursor-pointer list-none items-center justify-between gap-4 rounded text-sm font-semibold text-slate-300 [&::-webkit-details-marker]:hidden">
+          Imagem anterior do responsável <ChevronDown size={17} className="shrink-0 transition-transform group-open:rotate-180" aria-hidden="true" />
+        </summary>
+        <div className="mt-5"><ProfilePhotoForm action={updateProfilePhotoAction} currentUrl={publicImageUrl(settings?.profile_image)} professionalName={values.professional_name || "profissional"} /></div>
+      </details>
     </div>
   );
 }

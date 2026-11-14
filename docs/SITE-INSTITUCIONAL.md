@@ -24,7 +24,7 @@ Logo, ícones da marca, fontes, paleta escura e elemento visual da abertura fora
 
 `/projetos` e qualquer caminho abaixo dele retornam redirecionamento permanente para `/#servicos`. A regra em `next.config.ts` roda antes da renderização: evita que a geração assíncrona de metadados transforme a resposta em streaming com status 200.
 
-Os componentes das rotas também redirecionam como proteção adicional. Não há leitura de projetos nessas rotas. O sitemap lista somente a home. Os registros e ferramentas administrativas anteriores foram preservados; não há obrigação de cadastrar projetos para usar o site empresarial.
+Os componentes das rotas também redirecionam como proteção adicional. Não há leitura de projetos nessas rotas. O sitemap lista somente a home. Os registros anteriores foram preservados no banco. O módulo Projetos foi retirado da navegação e da visão geral do administrador; `/admin/projetos` e seus subcaminhos retornam HTTP 307 para `/admin`, que continua exigindo autenticação. Consulte [PAINEL-EMPRESARIAL.md](PAINEL-EMPRESARIAL.md) para a atualização do painel.
 
 ## Validação
 

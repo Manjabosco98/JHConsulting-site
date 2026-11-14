@@ -1,6 +1,6 @@
 # JHConsulting — Site empresarial
 
-A página pública apresenta a empresa, seus serviços, aplicações no negócio, forma de trabalho, perguntas frequentes e contato. Não exibe biografia pessoal, retrato, projetos, perfis pessoais ou vitrine de tecnologias. As URLs antigas `/projetos` e `/projetos/*` retornam HTTP 308 para `/#servicos`. O sitemap lista somente a página institucional. Os registros anteriores permanecem no painel, sem publicação.
+A página pública apresenta a empresa, seus serviços, aplicações no negócio, forma de trabalho, perguntas frequentes e contato. Não exibe biografia pessoal, retrato, projetos, perfis pessoais ou vitrine de tecnologias. As URLs antigas `/projetos` e `/projetos/*` retornam HTTP 308 para `/#servicos`. O sitemap lista somente a página institucional. Os registros anteriores permanecem no banco, sem publicação. O módulo Projetos saiu do painel; suas URLs administrativas redirecionam para a visão geral.
 
 Detalhes e validação em [docs/SITE-INSTITUCIONAL.md](docs/SITE-INSTITUCIONAL.md). Regressão pública sem gravar dados ou enviar e-mail: com o servidor em execução, rode `E2E_BASE_URL=http://127.0.0.1:4173 node tests/e2e/public-projects.e2e.mjs`.
 
@@ -94,6 +94,7 @@ Referência técnica, sempre atual:
 - [Painel administrativo: Auth, autorização e cada CRUD](docs/ADMIN-ARCHITECTURE.md).
 - [Projetos públicos: rotas, cache, revalidação e SEO](docs/PUBLIC-PROJECTS.md).
 - [Configurações do site: painel e consumidores](docs/SITE-SETTINGS.md).
+- [Painel empresarial: organização e validação](docs/PAINEL-EMPRESARIAL.md).
 
 Registro histórico, fotografias de um momento — úteis para entender *por que* as decisões foram tomadas, não para saber como o projeto está hoje:
 

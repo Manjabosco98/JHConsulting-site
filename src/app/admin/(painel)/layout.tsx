@@ -17,10 +17,12 @@ import { logout } from "../actions";
 export default function AdminLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[248px_1fr]">
-      <aside className="border-b border-white/10 bg-[#0a101d]/80 lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col lg:border-b-0 lg:border-r">
+      <a href="#conteudo-painel" className="skip-link focus-ring">Ir para o conteúdo do painel</a>
+      <aside className="border-b border-white/10 bg-navy/80 lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col lg:border-b-0 lg:border-r">
         <div className="flex items-center justify-between gap-4 px-4 py-4 lg:px-5 lg:py-6">
           <Link href="/admin" className="focus-ring rounded-lg font-black">
-            JHConsulting <span className="font-bold text-slate-500">· Painel</span>
+            <span>JH<span className="text-blue-400">Consulting</span></span>
+            <span className="mt-1 block text-xs font-medium tracking-wide text-slate-400">Administração do site</span>
           </Link>
         </div>
         <div className="px-3 pb-3 lg:flex-1 lg:px-3">
@@ -51,7 +53,7 @@ export default function AdminLayout({ children }: Readonly<{ children: React.Rea
             </form>
           </div>
         </header>
-        <main className="px-4 py-8 sm:px-8 lg:py-10">
+        <main id="conteudo-painel" className="px-4 py-8 sm:px-8 lg:py-10">
           <div className="mx-auto max-w-6xl">{children}</div>
         </main>
       </div>

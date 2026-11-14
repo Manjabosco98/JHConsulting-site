@@ -62,9 +62,11 @@ test("old listing and detail URLs permanently redirect without reading project d
 
 test("portfolio redirect runs before metadata or page streaming", async () => {
   const config = loadTs("next.config.ts", { env: {} }).default;
-  assert.deepEqual(plain(await config.redirects()), [
-    { source: "/projetos/:path*", destination: "/#servicos", permanent: true }
-  ]);
+  const redirects = plain(await config.redirects());
+  assert.deepEqual(redirects.find(item => item.source === "/projetos/:path*"),
+    { source: "/projetos/:path*", destination: "/#servicos", permanent: true });
+  assert.deepEqual(redirects.find(item => item.source === "/admin/projetos/:path*"),
+    { source: "/admin/projetos/:path*", destination: "/admin", permanent: false });
 });
 
 test("WhatsApp addresses the company and falls back to the contact section", () => {

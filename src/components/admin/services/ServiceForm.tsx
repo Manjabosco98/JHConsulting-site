@@ -34,7 +34,7 @@ function Field({ name, label, hint, error, children }: {
       <label htmlFor={name} className="text-sm font-bold text-slate-300">{label}</label>
       {children}
       {error ? <p id={`${name}-error`} className="text-sm text-red-300">{error}</p>
-        : hint ? <p id={`${name}-hint`} className="text-xs text-slate-500">{hint}</p> : null}
+        : hint ? <p id={`${name}-hint`} className="text-xs leading-6 text-slate-400">{hint}</p> : null}
     </div>
   );
 }
@@ -74,12 +74,15 @@ export function ServiceForm({ action, initialValues, isNew }: Props) {
               onChange={(event) => { setSlugTouched(true); set("slug", event.target.value); }} className={inputClass} />
           </Field>
         </div>
-        <Field name="description" label="Descrição" hint="Texto exibido no card do serviço." error={errors.description}>
+        <Field name="description" label="Descrição" hint="Explique a entrega e o benefício para a empresa. Este texto aparece no site." error={errors.description}>
           <textarea {...text("description")} required rows={3} maxLength={5000} className={inputClass} />
         </Field>
-        <Field name="tech" label="Linha de tecnologias" hint="Rodapé editorial do card, ex.: Python • Playwright • APIs." error={errors.tech}>
+        <details className="rounded-xl border border-white/10 p-4" open={Boolean(errors.tech) || undefined}>
+          <summary className="focus-ring cursor-pointer rounded text-sm font-semibold text-slate-300">Detalhes técnicos opcionais</summary>
+          <div className="mt-4"><Field name="tech" label="Linha de tecnologias" hint="Anotação interna preservada; não é exibida no cartão público." error={errors.tech}>
           <input {...text("tech")} maxLength={500} className={inputClass} />
-        </Field>
+          </Field></div>
+        </details>
       </fieldset>
 
       <fieldset className="card grid gap-4 rounded-2xl p-5 sm:p-6">
